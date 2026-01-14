@@ -21,8 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportDistBtn = document.getElementById('export-dist');
 
     // Spec Limits
+    const targetInput = document.getElementById('target-input');
     const uslInput = document.getElementById('usl-input');
     const lslInput = document.getElementById('lsl-input');
+    const targetColSelector = document.getElementById('target-col-selector');
     const uslColSelector = document.getElementById('usl-col-selector');
     const lslColSelector = document.getElementById('lsl-col-selector');
 
@@ -258,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupSelectors(columns) {
         xAxisSelector.innerHTML = '';
         yAxisSelector.innerHTML = '';
+        targetColSelector.innerHTML = '<option value="">選取欄位</option>';
         uslColSelector.innerHTML = '<option value="">選取欄位</option>';
         lslColSelector.innerHTML = '<option value="">選取欄位</option>';
 
@@ -272,7 +275,12 @@ document.addEventListener('DOMContentLoaded', () => {
             optY.textContent = col;
             yAxisSelector.appendChild(optY);
 
-            // For USL/LSL Column pickers
+            // For Target/USL/LSL Column pickers
+            const optT = document.createElement('option');
+            optT.value = col;
+            optT.textContent = col;
+            targetColSelector.appendChild(optT);
+
             const optU = document.createElement('option');
             optU.value = col;
             optU.textContent = col;
@@ -296,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        targetColSelector.addEventListener('change', () => updateInputFromCol(targetColSelector, targetInput));
         uslColSelector.addEventListener('change', () => updateInputFromCol(uslColSelector, uslInput));
         lslColSelector.addEventListener('change', () => updateInputFromCol(lslColSelector, lslInput));
 
@@ -528,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateStats() {
         const yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
         const specs = {
+            target: parseFloat(targetInput.value),
             usl: parseFloat(uslInput.value),
             lsl: parseFloat(lslInput.value)
         };
@@ -597,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const xCol = xAxisSelector.value;
         const yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
         const specs = {
+            target: parseFloat(targetInput.value),
             usl: parseFloat(uslInput.value),
             lsl: parseFloat(lslInput.value)
         };

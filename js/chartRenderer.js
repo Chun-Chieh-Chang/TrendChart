@@ -13,7 +13,7 @@ const ChartRenderer = (() => {
      * @param {Array} data - Filtered JSON data
      * @param {string} xColumn - X-axis column name
      * @param {Array} yColumns - Array of Y-axis column names
-     * @param {Object} specs - USL/LSL limits
+     * @param {Object} specs - Target/USL/LSL limits
      * @param {Object} stats - Computed statistical metrics (for UCL/LCL)
      * @param {string} targetId - Container ID to render in
      */
@@ -31,16 +31,19 @@ const ChartRenderer = (() => {
         const currentIsDark = isDark();
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
 
+        // Define OOS color based on dark mode (Yellow in dark mode, Red in light mode)
+        const oosColor = currentIsDark ? '#fbbf24' : '#ef4444';
+
         const traces = yColumns.map((yCol, idx) => {
             const rawValues = data.map(row => row[yCol]);
             const yValues = rawValues.map(v => ExcelParser.parseNumber(v));
             const baseColor = colorPalette[idx % colorPalette.length];
 
-            // Highlight OOS points in red
+            // Highlight OOS points
             const markerColors = yValues.map(val => {
                 const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
                     (!isNaN(specs.lsl) && val < specs.lsl);
-                return isOOS ? '#ef4444' : baseColor;
+                return isOOS ? oosColor : baseColor;
             });
 
             // Make OOS markers slightly larger
@@ -54,7 +57,7 @@ const ChartRenderer = (() => {
                 x: data.map(row => row[xColumn]),
                 y: yValues,
                 name: yCol,
-                mode: 'lines+markers',
+                mode: 'markers+lines',
                 type: 'scatter',
                 line: { width: 2, color: baseColor },
                 marker: {
@@ -62,13 +65,20 @@ const ChartRenderer = (() => {
                     color: markerColors,
                     line: {
                         color: currentIsDark ? '#1e293b' : '#ffffff',
-                        width: yValues.map((v, i) => markerColors[i] === '#ef4444' ? 1.5 : 0)
+                        width: yValues.map((v, i) => markerColors[i] === oosColor ? 1.5 : 0)
                     }
                 }
             };
         });
 
         const shapes = [];
+        // Green Center Line (Long-Short-Long pattern)
+        if (!isNaN(specs.target)) {
+            shapes.push({
+                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: specs.target, y1: specs.target,
+                line: { color: '#10b981', width: 2, dash: '40px 10px 10px 10px' }
+            });
+        }
         if (!isNaN(specs.usl)) {
             shapes.push({
                 type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: specs.usl, y1: specs.usl,
@@ -118,13 +128,48 @@ const ChartRenderer = (() => {
             legend: {
                 font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }
             },
-            margin: { t: 60, r: 40, l: 70, b: 80 },
+            margin: { t: 60, r: 80, l: 70, b: 80 },
             autosize: true,
             height: 400,
             hovermode: 'closest'
         };
 
+        // Add Secondary Axis for Percentage Deviation if Target exists
+        if (!isNaN(specs.target) && specs.target !== 0) {
+            layout.yaxis2 = {
+                title: '偏離目標 (%)',
+                overlaying: 'y',
+                side: 'right',
+                showgrid: false,
+                tickfont: { color: '#10b981', size: 10 },
+                titlefont: { color: '#10b981', size: 12 },
+                anchor: 'free',
+                position: 1
+            };
+
+            // To effectively create a secondary scale that is tied to the primary scale,
+            // we need to set the range of yaxis2 based on yaxis1.
+            // Since yaxis1 range might be auto, we can use a dummy trace or let Plotly handle it 
+            // but manual range sync is most robust.
+            // However, Plotly 'tickvals/ticktext' is easier for a "mirror" scale.
+        }
+
         Plotly.newPlot(targetId, traces, layout, { responsive: true, displaylogo: false });
+
+        // Sync Y-axis scaling for percentage if target exists
+        if (!isNaN(specs.target) && specs.target !== 0) {
+            const gd = document.getElementById(targetId);
+            const updateY2 = () => {
+                const y1Range = gd.layout.yaxis.range;
+                const y2Range = [
+                    ((y1Range[0] - specs.target) / specs.target) * 100,
+                    ((y1Range[1] - specs.target) / specs.target) * 100
+                ];
+                Plotly.relayout(targetId, { 'yaxis2.range': y2Range });
+            };
+            // Initial sync
+            setTimeout(updateY2, 100);
+        }
     };
 
     /**
@@ -202,7 +247,7 @@ const ChartRenderer = (() => {
         };
 
         const sigmaMarkersX = [], sigmaMarkersY = [];
-        const sigmaLabels = ['-3\u03c3', '-2\u03c3', '-1\u03c3', '\u5e73\u5747\u503c', '+1\u03c3', '+2\u03c3', '+3\u03c3'];
+        const sigmaLabels = ['-3\u03c3', '-2\u03c3', '-1\u03c3', '平均值', '+1\u03c3', '+2\u03c3', '+3\u03c3'];
         for (let i = -3; i <= 3; i++) {
             const x = mean + i * sigma;
             sigmaMarkersX.push(x);
@@ -216,6 +261,7 @@ const ChartRenderer = (() => {
         };
 
         const shapes = [];
+        if (!isNaN(specs.target)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.target, x1: specs.target, y0: 0, y1: 0.9, line: { color: '#10b981', width: 2, dash: '40px 10px 10px 10px' } });
         if (!isNaN(specs.usl)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.usl, x1: specs.usl, y0: 0, y1: 0.9, line: { color: '#ef4444', width: 2, dash: 'dash' } });
         if (!isNaN(specs.lsl)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.lsl, x1: specs.lsl, y0: 0, y1: 0.9, line: { color: '#ef4444', width: 2, dash: 'dash' } });
 
