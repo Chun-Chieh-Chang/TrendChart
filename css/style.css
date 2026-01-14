@@ -157,6 +157,7 @@ body {
     color: var(--text-primary);
     font-size: 0.875rem;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     cursor: pointer;
 }
 
@@ -627,6 +628,7 @@ tr:hover td {
 .modal-content {
     background: var(--card-bg);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     width: 600px;

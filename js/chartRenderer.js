@@ -28,8 +28,7 @@ const ChartRenderer = (() => {
             return {
                 x: data.map(row => row[xColumn]),
                 y: data.map(row => {
-                    const val = row[yCol];
-                    return (typeof val === 'string') ? parseFloat(val) : val;
+                    return ExcelParser.parseNumber(row[yCol]);
                 }),
                 name: yCol,
                 mode: 'lines+markers',
@@ -149,8 +148,7 @@ const ChartRenderer = (() => {
     const renderNormalDistChart = (data, column, specs = {}, targetId = 'plotly-dist') => {
         const container = document.getElementById(targetId);
         const values = data.map(row => {
-            const val = row[column];
-            return (typeof val === 'string') ? parseFloat(val) : val;
+            return ExcelParser.parseNumber(row[column]);
         }).filter(v => !isNaN(v));
 
         if (values.length === 0) {

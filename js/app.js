@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSheet = '';
     let allColumns = [];
 
+    // Pagination state for table
+    let tablePageSize = 50;
+    let tableCurrentIndex = 0;
+    let tableObserver = null;
+
     // --- Initialization ---
 
     // Help Modal
@@ -144,8 +149,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 sheetSection.classList.remove('hidden');
-                // Set first sheet as selected
-                if (sheetNames.length > 0) {
+
+                // Persistence Logic: Try to restore previous selections
+                const previousSelectedSheets = Array.from(sheetSelector.selectedOptions).map(opt => opt.value);
+                let restored = false;
+
+                if (previousSelectedSheets.length > 0) {
+                    let validSelections = 0;
+                    for (let i = 0; i < sheetSelector.options.length; i++) {
+                        if (previousSelectedSheets.includes(sheetSelector.options[i].value)) {
+                            sheetSelector.options[i].selected = true;
+                            validSelections++;
+                        }
+                    }
+                    if (validSelections > 0) {
+                        loadSheet(Array.from(sheetSelector.selectedOptions).map(opt => opt.value));
+                        restored = true;
+                    }
+                }
+
+                if (!restored && sheetNames.length > 0) {
                     sheetSelector.options[0].selected = true;
                     loadSheet([sheetNames[0]]);
                 }
@@ -202,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, []);
 
         filteredData = [...rawData];
-        activeFilters = {};
+        // activeFilters = {}; // Removed to persist filter states across sheet switches
 
         if (rawData.length === 0) {
             alert('所選工作表無數據');
@@ -227,6 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
         configSection.classList.remove('hidden');
         filterSection.classList.remove('hidden');
         layoutSection.classList.remove('hidden');
+
+        // Apply existing filters if any
+        applyFilters();
     }
 
     function setupSelectors(columns) {
@@ -273,22 +299,52 @@ document.addEventListener('DOMContentLoaded', () => {
         uslColSelector.addEventListener('change', () => updateInputFromCol(uslColSelector, uslInput));
         lslColSelector.addEventListener('change', () => updateInputFromCol(lslColSelector, lslInput));
 
-        // Smart default: Select columns like "日期" for X and "平均" or numeric for Y
-        const dateCol = columns.find(c => c.includes('日期') || c.includes('時間'));
-        if (dateCol) xAxisSelector.value = dateCol;
+        // --- Persistence Logic for Chart Config ---
 
-        const valCols = columns.filter(c => {
-            const val = rawData[0][c];
-            return typeof val === 'number' || (!isNaN(parseFloat(val)) && isFinite(val));
+        // Restore X-Axis
+        const prevX = xAxisSelector.dataset.prevValue;
+        if (prevX && columns.includes(prevX)) {
+            xAxisSelector.value = prevX;
+        } else {
+            const dateCol = columns.find(c => c.includes('日期') || c.includes('時間'));
+            if (dateCol) xAxisSelector.value = dateCol;
+        }
+
+        // Restore Y-Axis (Multiple)
+        const prevY = JSON.parse(yAxisSelector.dataset.prevValues || "[]");
+        if (prevY.length > 0) {
+            let matched = false;
+            for (let i = 0; i < yAxisSelector.options.length; i++) {
+                if (prevY.includes(yAxisSelector.options[i].value)) {
+                    yAxisSelector.options[i].selected = true;
+                    matched = true;
+                }
+            }
+            if (!matched) selectDefaultY(columns);
+        } else {
+            selectDefaultY(columns);
+        }
+
+        // Update tracking data attributes on change
+        // We use event listeners that update the "last known good" state
+        xAxisSelector.addEventListener('change', () => { xAxisSelector.dataset.prevValue = xAxisSelector.value; });
+        yAxisSelector.addEventListener('change', () => {
+            const selected = Array.from(yAxisSelector.selectedOptions).map(o => o.value);
+            yAxisSelector.dataset.prevValues = JSON.stringify(selected);
         });
 
-        if (valCols.length > 0) {
-            // Select first numeric column as default Y for multiple select
-            const defaultValue = valCols[0];
-            for (let i = 0; i < yAxisSelector.options.length; i++) {
-                if (yAxisSelector.options[i].value === defaultValue) {
-                    yAxisSelector.options[i].selected = true;
-                    break;
+        function selectDefaultY(cols) {
+            const valCols = cols.filter(c => {
+                const val = rawData[0][c];
+                return typeof val === 'number' || (!isNaN(parseFloat(val)) && isFinite(val));
+            });
+            if (valCols.length > 0) {
+                const defaultValue = valCols[0];
+                for (let i = 0; i < yAxisSelector.options.length; i++) {
+                    if (yAxisSelector.options[i].value === defaultValue) {
+                        yAxisSelector.options[i].selected = true;
+                        break;
+                    }
                 }
             }
         }
@@ -324,6 +380,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     opt.textContent = val;
                     select.appendChild(opt);
                 });
+
+                // Restore previous selection if applicable
+                if (activeFilters[col] !== undefined && uniqueValues.includes(String(activeFilters[col]))) {
+                    select.value = activeFilters[col];
+                } else if (activeFilters[col] !== undefined) {
+                    // If the old value is no longer valid for this column's unique values, remove it
+                    delete activeFilters[col];
+                }
 
                 select.addEventListener('change', (e) => {
                     if (e.target.value === "") {
@@ -377,17 +441,17 @@ document.addEventListener('DOMContentLoaded', () => {
             tableHead.appendChild(th);
         });
 
-        // Rows (Preview first 100 rows for performance)
+        // Initial render logic
         tableBody.innerHTML = '';
-        const previewData = filteredData.slice(0, 100);
+        tableCurrentIndex = 0;
 
         // Update table count indicator
         const countDisplay = document.getElementById('table-count');
         if (countDisplay) {
-            countDisplay.textContent = `(顯示前 ${previewData.length} 筆 / 共 ${filteredData.length} 筆篩選數據)`;
+            countDisplay.textContent = `(顯示前 0 筆 / 共 ${filteredData.length} 筆篩選數據)`;
         }
 
-        if (previewData.length === 0) {
+        if (filteredData.length === 0) {
             const tr = document.createElement('tr');
             const td = document.createElement('td');
             td.colSpan = columns.length || 1;
@@ -399,18 +463,66 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        previewData.forEach(row => {
+        // Add sentinel element for infinite scroll
+        const sentinelRow = document.createElement('tr');
+        sentinelRow.id = 'table-sentinel';
+        tableBody.appendChild(sentinelRow);
+
+        // Setup Intersection Observer for infinite scrolling
+        if (tableObserver) tableObserver.disconnect();
+
+        if (window.IntersectionObserver) {
+            tableObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    loadMoreData(columns);
+                }
+            }, { root: document.querySelector('.table-wrapper'), threshold: 0.1 });
+
+            tableObserver.observe(sentinelRow);
+        } else {
+            // Fallback for very old browsers: just load a larger initial chunk or show a button
+            console.warn('IntersectionObserver not supported, falling back to eager loading');
+            loadMoreData(columns); // Load second batch
+            sentinelRow.innerHTML = `<td colspan="${columns.length}" style="text-align:center; padding:1rem;"><button class="secondary-button" onclick="window.loadMoreData()">載入更多...</button></td>`;
+            // Make loadMoreData global for the fallback button
+            window.loadMoreData = () => loadMoreData(columns);
+        }
+
+        // Load first batch
+        loadMoreData(columns);
+
+        // Update stats
+        updateStats();
+    }
+
+    function loadMoreData(columns) {
+        if (tableCurrentIndex >= filteredData.length) return;
+
+        const nextBatch = filteredData.slice(tableCurrentIndex, tableCurrentIndex + tablePageSize);
+        const sentinel = document.getElementById('table-sentinel');
+
+        nextBatch.forEach(row => {
             const tr = document.createElement('tr');
             columns.forEach(col => {
                 const td = document.createElement('td');
                 td.textContent = ExcelParser.formatValue(row[col] ?? '');
                 tr.appendChild(td);
             });
-            tableBody.appendChild(tr);
+            tableBody.insertBefore(tr, sentinel);
         });
 
-        // Update stats
-        updateStats();
+        tableCurrentIndex += nextBatch.length;
+
+        // Update count display
+        const countDisplay = document.getElementById('table-count');
+        if (countDisplay) {
+            countDisplay.textContent = `(顯示前 ${tableCurrentIndex} 筆 / 共 ${filteredData.length} 筆篩選數據)`;
+        }
+
+        // Hide sentinel if all data loaded
+        if (tableCurrentIndex >= filteredData.length) {
+            sentinel.style.display = 'none';
+        }
     }
 
     function updateStats() {
@@ -422,10 +534,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (yCols.length > 0 && filteredData.length > 0) {
             const firstCol = yCols[0];
-            const values = filteredData.map(row => {
-                const val = row[firstCol];
-                return (typeof val === 'string') ? parseFloat(val) : val;
-            }).filter(v => !isNaN(v));
+            const values = filteredData.map(row => ExcelParser.parseNumber(row[firstCol]))
+                .filter(v => !isNaN(v));
 
             const stats = ExcelParser.getStats(values, specs);
             yMeanEl.textContent = stats.mean.toFixed(4);
@@ -496,10 +606,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const values = filteredData.map(row => {
-            const val = row[yCols[0]];
-            return (typeof val === 'string') ? parseFloat(val) : val;
-        }).filter(v => !isNaN(v));
+        const values = filteredData.map(row => ExcelParser.parseNumber(row[yCols[0]]))
+            .filter(v => !isNaN(v));
         const currentStats = ExcelParser.getStats(values, specs);
 
         if (toggleTrend.checked) {

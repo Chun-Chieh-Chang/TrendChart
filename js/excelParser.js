@@ -33,14 +33,32 @@ const ExcelParser = (() => {
     const getSheetData = (sheetName) => {
         if (!workbook) return null;
 
-        const worksheet = workbook.Sheets[sheetName];
-        // Convert to JSON, handling headers automatically
-        const data = XLSX.utils.sheet_to_json(worksheet, {
-            raw: false,
-            dateNF: 'yyyy-mm-dd hh:mm:ss'
-        });
+        try {
+            const worksheet = workbook.Sheets[sheetName];
+            // Convert to JSON, handling headers automatically
+            const data = XLSX.utils.sheet_to_json(worksheet, {
+                raw: false,
+                dateNF: 'yyyy-mm-dd hh:mm:ss'
+            });
 
-        return data;
+            return data;
+        } catch (error) {
+            console.error('Sheet data extraction error:', error);
+            return [];
+        }
+    };
+
+    /**
+     * Robust numeric conversion with fallback
+     */
+    const parseNumber = (val) => {
+        if (typeof val === 'number') return val;
+        if (!val || typeof val !== 'string') return NaN;
+
+        // Remove common currency symbols and commas
+        const cleaned = val.replace(/[$,]/g, '').trim();
+        const num = parseFloat(cleaned);
+        return isFinite(num) ? num : NaN;
     };
 
     /**
@@ -66,20 +84,28 @@ const ExcelParser = (() => {
      * Advanced Statistical Calculations including Within/Between StdDev and QC Metrics
      */
     const getStats = (values, specs = {}, subgroupSize = 1) => {
-        const n = values.length;
-        if (n === 0) return null;
+        const validValues = values
+            .map(v => typeof v === 'number' ? v : parseNumber(v))
+            .filter(v => !isNaN(v));
 
-        const mean = values.reduce((a, b) => a + b, 0) / n;
+        const n = validValues.length;
+        if (n === 0) return {
+            mean: 0, n: 0, ca: null, cp: null, cpk: null, ppk: null,
+            stdevOverall: 0, stdevWithin: 0, stdevBetween: 0,
+            ucl: 0, lcl: 0
+        };
 
-        // Total Standard Deviation (Sample/Overall - using n-1 for unbiased estimate)
-        const sumSqDiff = values.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0);
+        const mean = validValues.reduce((a, b) => a + b, 0) / n;
+
+        // Total Standard Deviation (Sample/Overall)
+        const sumSqDiff = validValues.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0);
         const stdevOverall = n > 1 ? Math.sqrt(sumSqDiff / (n - 1)) : 0;
 
         // Within-Subgroup Standard Deviation (approx using moving range)
         let stdevWithin = stdevOverall;
         if (n > 1) {
             let diffSum = 0;
-            for (let i = 1; i < n; i++) diffSum += Math.abs(values[i] - values[i - 1]);
+            for (let i = 1; i < n; i++) diffSum += Math.abs(validValues[i] - validValues[i - 1]);
             const d2 = 1.128; // for n=2 moving range
             stdevWithin = (diffSum / (n - 1)) / d2;
         }
@@ -138,6 +164,7 @@ const ExcelParser = (() => {
         getUniqueValues,
         formatValue,
         getStats,
-        normDist
+        normDist,
+        parseNumber
     };
 })();
