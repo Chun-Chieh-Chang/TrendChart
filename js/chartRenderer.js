@@ -165,36 +165,49 @@ const ChartRenderer = (() => {
             };
         }
 
-        Plotly.newPlot(targetId, traces, layout, { responsive: true, displaylogo: false });
+        Plotly.newPlot(container, traces, layout, { responsive: true, displaylogo: false });
 
         // Sync Y-axis scaling for percentage if target exists
         if (!isNaN(specs.target) && specs.target !== 0) {
-            const gd = document.getElementById(targetId);
+            const gd = container;
+
             const syncYAxes = () => {
+                // Safety check: is the plot still valid and in the DOM?
+                if (!gd || !gd.layout || !gd.layout.yaxis || !gd.layout.yaxis.range) return;
+
                 const y1Range = gd.layout.yaxis.range;
                 const y2Range = [
                     ((y1Range[0] - specs.target) / specs.target) * 100,
                     ((y1Range[1] - specs.target) / specs.target) * 100
                 ];
-                Plotly.relayout(targetId, {
-                    'yaxis2.range': y2Range,
-                    'yaxis2.autorange': false
-                });
+
+                try {
+                    Plotly.relayout(gd, {
+                        'yaxis2.range': y2Range,
+                        'yaxis2.autorange': false
+                    });
+                } catch (e) { }
             };
 
             // Listen for user zoom/pan to keep y2 synced
             gd.on('plotly_relayout', (event) => {
+                // Avoid recursive sync if y2 range was the trigger or if plot cleared
+                if (!gd.data || event['yaxis2.range[0]'] !== undefined) return;
+
                 if (event['yaxis.range[0]'] !== undefined) {
                     const r0 = event['yaxis.range[0]'];
                     const r1 = event['yaxis.range[1]'];
-                    Plotly.relayout(targetId, {
-                        'yaxis2.range': [((r0 - specs.target) / specs.target) * 100, ((r1 - specs.target) / specs.target) * 100]
-                    });
+                    try {
+                        Plotly.relayout(gd, {
+                            'yaxis2.range': [((r0 - specs.target) / specs.target) * 100, ((r1 - specs.target) / specs.target) * 100],
+                            'yaxis2.autorange': false
+                        });
+                    } catch (e) { }
                 }
             });
 
             // Initial sync after Plotly finishes auto-scaling y1
-            setTimeout(syncYAxes, 200);
+            setTimeout(syncYAxes, 300);
         }
     };
 
@@ -204,6 +217,8 @@ const ChartRenderer = (() => {
     const clearChart = (targetId = 'plotly-trend') => {
         const container = document.getElementById(targetId);
         if (!container) return;
+        // Purge plotly instance before clearing content to clean up event listeners
+        try { Plotly.purge(container); } catch (e) { }
         container.innerHTML = `
             <div class="empty-state">
                 <span class="material-icons-round">insights</span>
@@ -322,7 +337,7 @@ const ChartRenderer = (() => {
             bargap: 0.1
         };
 
-        Plotly.newPlot(targetId, [traceHist, traceCurve, traceSigma], layout, { responsive: true, displaylogo: false });
+        Plotly.newPlot(container, [traceHist, traceCurve, traceSigma], layout, { responsive: true, displaylogo: false });
     };
 
     return { renderTrendChart, renderNormalDistChart, clearChart, exportChart };
