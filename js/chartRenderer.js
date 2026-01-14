@@ -3,7 +3,10 @@
  * Handles Plotly.js chart generation and updates
  */
 const ChartRenderer = (() => {
-    const chartId = 'plotly-chart';
+    /**
+     * Helper to get current theme status
+     */
+    const isDark = () => document.body.classList.contains('dark-mode');
 
     /**
      * Render Trend Chart
@@ -16,18 +19,21 @@ const ChartRenderer = (() => {
      */
     const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend') => {
         const container = document.getElementById(targetId);
+        if (!container) return;
         if (!data || data.length === 0 || !xColumn || !yColumns || yColumns.length === 0) {
-            clearChart();
+            clearChart(targetId);
             return;
         }
 
         // Clear placeholder/previous content before Plotly renders
         container.innerHTML = '';
 
-        const isDarkMode = document.body.classList.contains('dark-mode');
+        const currentIsDark = isDark();
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+
         const traces = yColumns.map((yCol, idx) => {
-            const yValues = data.map(row => ExcelParser.parseNumber(row[yCol]));
+            const rawValues = data.map(row => row[yCol]);
+            const yValues = rawValues.map(v => ExcelParser.parseNumber(v));
             const baseColor = colorPalette[idx % colorPalette.length];
 
             // Highlight OOS points in red
@@ -37,7 +43,7 @@ const ChartRenderer = (() => {
                 return isOOS ? '#ef4444' : baseColor;
             });
 
-            // Make OOS markers slightly larger and add an outline
+            // Make OOS markers slightly larger
             const markerSizes = yValues.map(val => {
                 const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
                     (!isNaN(specs.lsl) && val < specs.lsl);
@@ -55,14 +61,13 @@ const ChartRenderer = (() => {
                     size: markerSizes,
                     color: markerColors,
                     line: {
-                        color: isDarkMode ? '#1e293b' : '#ffffff',
+                        color: currentIsDark ? '#1e293b' : '#ffffff',
                         width: yValues.map((v, i) => markerColors[i] === '#ef4444' ? 1.5 : 0)
                     }
                 }
             };
         });
 
-        // Add Spec Limits as horizontal lines
         const shapes = [];
         if (!isNaN(specs.usl)) {
             shapes.push({
@@ -77,58 +82,49 @@ const ChartRenderer = (() => {
             });
         }
 
-        // Add Control Limits as horizontal lines
         if (stats && !isNaN(stats.ucl)) {
             shapes.push({
                 type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: stats.ucl, y1: stats.ucl,
-                line: { color: 'rgba(245, 158, 11, 0.7)', width: 1.5, dash: 'dot' },
-                name: 'UCL'
+                line: { color: 'rgba(245, 158, 11, 0.7)', width: 1.5, dash: 'dot' }
             });
         }
         if (stats && !isNaN(stats.lcl)) {
             shapes.push({
                 type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: stats.lcl, y1: stats.lcl,
-                line: { color: 'rgba(245, 158, 11, 0.7)', width: 1.5, dash: 'dot' },
-                name: 'LCL'
+                line: { color: 'rgba(245, 158, 11, 0.7)', width: 1.5, dash: 'dot' }
             });
         }
 
         const layout = {
             title: {
                 text: `數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { color: isDarkMode ? '#f1f5f9' : '#0f172a', size: 16 }
+                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             shapes: shapes,
             xaxis: {
                 title: xColumn,
-                gridcolor: isDarkMode ? '#334155' : '#e2e8f0',
-                tickfont: { color: isDarkMode ? '#94a3b8' : '#475569' },
-                titlefont: { color: isDarkMode ? '#94a3b8' : '#475569' }
+                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
+                titlefont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             yaxis: {
                 title: '數值',
-                gridcolor: isDarkMode ? '#334155' : '#e2e8f0',
-                tickfont: { color: isDarkMode ? '#94a3b8' : '#475569' },
-                titlefont: { color: isDarkMode ? '#94a3b8' : '#475569' }
+                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
+                titlefont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
-                font: { color: isDarkMode ? '#f1f5f9' : '#0f172a' }
+                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }
             },
-            margin: { t: 60, r: 40, l: 70, b: 80 }, // Increased Left margin
+            margin: { t: 60, r: 40, l: 70, b: 80 },
             autosize: true,
             height: 400,
             hovermode: 'closest'
         };
 
-        const config = {
-            responsive: true,
-            displaylogo: false,
-            modeBarButtonsToRemove: ['select2d', 'lasso2d']
-        };
-
-        Plotly.newPlot(targetId, traces, layout, config);
+        Plotly.newPlot(targetId, traces, layout, { responsive: true, displaylogo: false });
     };
 
     /**
@@ -161,35 +157,24 @@ const ChartRenderer = (() => {
     };
 
     /**
-     * Render Normal Distribution Analysis (Histogram + Curve)
-     * @param {Array} data
-     * @param {string} column
-     * @param {Object} specs
-     * @param {string} targetId
+     * Render Normal Distribution Analysis
      */
     const renderNormalDistChart = (data, column, specs = {}, targetId = 'plotly-dist') => {
         const container = document.getElementById(targetId);
-        const values = data.map(row => {
-            return ExcelParser.parseNumber(row[column]);
-        }).filter(v => !isNaN(v));
+        if (!container) return;
+        const values = data.map(row => ExcelParser.parseNumber(row[column])).filter(v => !isNaN(v));
 
         if (values.length === 0) {
-            clearChart();
+            clearChart(targetId);
             return;
         }
 
         container.innerHTML = '';
         const stats = ExcelParser.getStats(values, specs);
-        const { mean, stdevOverall, ca, cp, cpk, ppk } = stats;
-        const sigma = stdevOverall; // Use overall standard deviation for the curve
+        const { mean, stdevOverall, cpk, ppk } = stats;
+        const sigma = stdevOverall;
+        const currentIsDark = isDark();
 
-        const titlePrefix = `${column} 常態分析`;
-        const metrics = [];
-        if (cpk !== null) metrics.push(`Cpk: ${cpk.toFixed(3)}`);
-        if (ppk !== null) metrics.push(`Ppk: ${ppk.toFixed(3)}`);
-        const metricsText = metrics.length > 0 ? ` (${metrics.join(', ')})` : '';
-
-        // Histogram Trace
         const traceHist = {
             x: values,
             type: 'histogram',
@@ -202,11 +187,9 @@ const ChartRenderer = (() => {
             }
         };
 
-        // Normal Curve Trace
         const min = Math.min(...values, mean - 4 * sigma);
         const max = Math.max(...values, mean + 4 * sigma);
-        const curveX = [];
-        const curveY = [];
+        const curveX = [], curveY = [];
         for (let i = 0; i <= 100; i++) {
             const x = min + (i * (max - min) / 100);
             curveX.push(x);
@@ -214,18 +197,12 @@ const ChartRenderer = (() => {
         }
 
         const traceCurve = {
-            x: curveX,
-            y: curveY,
-            type: 'scatter',
-            mode: 'lines',
-            name: '常態分佈曲線',
-            line: { color: '#0ea5e9', width: 3 }
+            x: curveX, y: curveY, type: 'scatter', mode: 'lines',
+            name: '常態分佈曲線', line: { color: '#0ea5e9', width: 3 }
         };
 
-        // Sigma Multipliers for Markers
-        const sigmaMarkersX = [];
-        const sigmaMarkersY = [];
-        const sigmaLabels = ['-3σ', '-2σ', '-1σ', '平均值', '+1σ', '+2σ', '+3σ'];
+        const sigmaMarkersX = [], sigmaMarkersY = [];
+        const sigmaLabels = ['-3\u03c3', '-2\u03c3', '-1\u03c3', '\u5e73\u5747\u503c', '+1\u03c3', '+2\u03c3', '+3\u03c3'];
         for (let i = -3; i <= 3; i++) {
             const x = mean + i * sigma;
             sigmaMarkersX.push(x);
@@ -233,66 +210,27 @@ const ChartRenderer = (() => {
         }
 
         const traceSigma = {
-            x: sigmaMarkersX,
-            y: sigmaMarkersY,
-            type: 'scatter',
-            mode: 'markers+text',
-            name: 'σ 標記',
-            text: sigmaLabels,
-            textposition: 'top center',
+            x: sigmaMarkersX, y: sigmaMarkersY, type: 'scatter', mode: 'markers+text',
+            name: '\u03c3 \u6a19\u8a18', text: sigmaLabels, textposition: 'top center',
             marker: { color: '#ef4444', size: 8 }
         };
 
         const shapes = [];
-        if (!isNaN(specs.usl)) {
-            shapes.push({
-                type: 'line', xref: 'x', yref: 'paper', x0: specs.usl, x1: specs.usl, y0: 0, y1: 0.9,
-                line: { color: '#ef4444', width: 2, dash: 'dash' }
-            });
-        }
-        if (!isNaN(specs.lsl)) {
-            shapes.push({
-                type: 'line', xref: 'x', yref: 'paper', x0: specs.lsl, x1: specs.lsl, y0: 0, y1: 0.9,
-                line: { color: '#ef4444', width: 2, dash: 'dash' }
-            });
-        }
+        if (!isNaN(specs.usl)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.usl, x1: specs.usl, y0: 0, y1: 0.9, line: { color: '#ef4444', width: 2, dash: 'dash' } });
+        if (!isNaN(specs.lsl)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.lsl, x1: specs.lsl, y0: 0, y1: 0.9, line: { color: '#ef4444', width: 2, dash: 'dash' } });
 
-        // Add Control Limits as vertical lines
-        const statsObj = ExcelParser.getStats(values, specs);
-        if (statsObj && !isNaN(statsObj.ucl)) {
-            shapes.push({
-                type: 'line', xref: 'x', yref: 'paper', x0: statsObj.ucl, x1: statsObj.ucl, y0: 0, y1: 0.8,
-                line: { color: 'rgba(245, 158, 11, 0.6)', width: 1.5, dash: 'dot' }
-            });
-        }
-        if (statsObj && !isNaN(statsObj.lcl)) {
-            shapes.push({
-                type: 'line', xref: 'x', yref: 'paper', x0: statsObj.lcl, x1: statsObj.lcl, y0: 0, y1: 0.8,
-                line: { color: 'rgba(245, 158, 11, 0.6)', width: 1.5, dash: 'dot' }
-            });
-        }
-
-        const isDarkMode = document.body.classList.contains('dark-mode');
         const layout = {
             title: {
-                text: `${titlePrefix}${metricsText} (n=${values.length})`,
-                font: { color: isDarkMode ? '#f1f5f9' : '#0f172a', size: 16 }
+                text: `${column} 常態分析 (Cpk:${(cpk || 0).toFixed(3)}, Ppk:${(ppk || 0).toFixed(3)})`,
+                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             shapes: shapes,
-            xaxis: {
-                title: column,
-                gridcolor: isDarkMode ? '#334155' : '#e2e8f0',
-                tickfont: { color: isDarkMode ? '#94a3b8' : '#475569' }
-            },
-            yaxis: {
-                title: '機率密度',
-                gridcolor: isDarkMode ? '#334155' : '#e2e8f0',
-                tickfont: { color: isDarkMode ? '#94a3b8' : '#475569' }
-            },
-            legend: { font: { color: isDarkMode ? '#f1f5f9' : '#0f172a' }, orientation: 'h', y: -0.25 },
-            margin: { t: 60, r: 40, l: 70, b: 120 }, // Increased bottom/left for labels
+            xaxis: { title: column, gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
+            yaxis: { title: '\u6a5f\u7387\u5bc6\u5ea6', gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
+            legend: { font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }, orientation: 'h', y: -0.25 },
+            margin: { t: 60, r: 40, l: 70, b: 120 },
             height: 400,
             hovermode: 'closest',
             bargap: 0.1
@@ -301,10 +239,5 @@ const ChartRenderer = (() => {
         Plotly.newPlot(targetId, [traceHist, traceCurve, traceSigma], layout, { responsive: true, displaylogo: false });
     };
 
-    return {
-        renderTrendChart,
-        renderNormalDistChart,
-        clearChart,
-        exportChart
-    };
+    return { renderTrendChart, renderNormalDistChart, clearChart, exportChart };
 })();
