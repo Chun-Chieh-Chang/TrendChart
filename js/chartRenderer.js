@@ -57,7 +57,13 @@ const ChartRenderer = (() => {
                 x: data.map(row => row[xColumn]),
                 y: yValues,
                 name: yCol,
-                mode: 'markers+lines',
+                mode: 'markers+lines+text',
+                text: yValues.map(v => isNaN(v) ? '' : v.toFixed(2)),
+                textposition: 'top center',
+                textfont: {
+                    size: 9,
+                    color: currentIsDark ? '#94a3b8' : '#64748b'
+                },
                 type: 'scatter',
                 line: { width: 2, color: baseColor },
                 marker: {
@@ -71,38 +77,46 @@ const ChartRenderer = (() => {
             };
         });
 
-        const shapes = [];
-        // Green Center Line (Long-Short-Long pattern)
-        if (!isNaN(specs.target)) {
-            shapes.push({
-                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: specs.target, y1: specs.target,
-                line: { color: '#10b981', width: 2, dash: '40px 10px 10px 10px' }
-            });
-        }
-        if (!isNaN(specs.usl)) {
-            shapes.push({
-                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: specs.usl, y1: specs.usl,
-                line: { color: '#ef4444', width: 2, dash: 'dash' }
-            });
-        }
-        if (!isNaN(specs.lsl)) {
-            shapes.push({
-                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: specs.lsl, y1: specs.lsl,
-                line: { color: '#ef4444', width: 2, dash: 'dash' }
+        // Add dummy trace for secondary axis if target exists to force it to show
+        if (!isNaN(specs.target) && specs.target !== 0) {
+            traces.push({
+                x: [data[0][xColumn]],
+                y: [null],
+                yaxis: 'y2',
+                type: 'scatter',
+                showlegend: false,
+                hoverinfo: 'none'
             });
         }
 
-        if (stats && !isNaN(stats.ucl)) {
+        const shapes = [];
+        const annotations = [];
+
+        const addLimitLine = (val, label, color, dash, width = 2) => {
+            if (isNaN(val)) return;
             shapes.push({
-                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: stats.ucl, y1: stats.ucl,
-                line: { color: 'rgba(245, 158, 11, 0.7)', width: 1.5, dash: 'dot' }
+                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: val, y1: val,
+                line: { color: color, width: width, dash: dash }
             });
-        }
-        if (stats && !isNaN(stats.lcl)) {
-            shapes.push({
-                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: stats.lcl, y1: stats.lcl,
-                line: { color: 'rgba(245, 158, 11, 0.7)', width: 1.5, dash: 'dot' }
+            annotations.push({
+                xref: 'paper', x: 1, y: val, yref: 'y',
+                text: `${label}: ${val.toFixed(2)}`,
+                showarrow: false,
+                xanchor: 'left',
+                yanchor: 'middle',
+                font: { color: color, size: 10 },
+                bgcolor: currentIsDark ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.8)'
             });
+        };
+
+        // Green Center Line (Long-Short-Long pattern)
+        addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+        addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
+        addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
+
+        if (stats) {
+            addLimitLine(stats.ucl, 'UCL', 'rgba(245, 158, 11, 0.8)', 'dot', 1.5);
+            addLimitLine(stats.lcl, 'LCL', 'rgba(245, 158, 11, 0.8)', 'dot', 1.5);
         }
 
         const layout = {
@@ -113,6 +127,7 @@ const ChartRenderer = (() => {
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             shapes: shapes,
+            annotations: annotations,
             xaxis: {
                 title: xColumn,
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
@@ -126,11 +141,13 @@ const ChartRenderer = (() => {
                 titlefont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
-                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }
+                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' },
+                orientation: 'h',
+                y: -0.2
             },
-            margin: { t: 60, r: 80, l: 70, b: 80 },
+            margin: { t: 60, r: 100, l: 60, b: 100 },
             autosize: true,
-            height: 400,
+            height: 450,
             hovermode: 'closest'
         };
 
@@ -142,16 +159,10 @@ const ChartRenderer = (() => {
                 side: 'right',
                 showgrid: false,
                 tickfont: { color: '#10b981', size: 10 },
-                titlefont: { color: '#10b981', size: 12 },
-                anchor: 'free',
-                position: 1
+                titlefont: { color: '#10b981', size: 11 },
+                tickformat: '.1f',
+                ticksuffix: '%'
             };
-
-            // To effectively create a secondary scale that is tied to the primary scale,
-            // we need to set the range of yaxis2 based on yaxis1.
-            // Since yaxis1 range might be auto, we can use a dummy trace or let Plotly handle it 
-            // but manual range sync is most robust.
-            // However, Plotly 'tickvals/ticktext' is easier for a "mirror" scale.
         }
 
         Plotly.newPlot(targetId, traces, layout, { responsive: true, displaylogo: false });
@@ -159,16 +170,31 @@ const ChartRenderer = (() => {
         // Sync Y-axis scaling for percentage if target exists
         if (!isNaN(specs.target) && specs.target !== 0) {
             const gd = document.getElementById(targetId);
-            const updateY2 = () => {
+            const syncYAxes = () => {
                 const y1Range = gd.layout.yaxis.range;
                 const y2Range = [
                     ((y1Range[0] - specs.target) / specs.target) * 100,
                     ((y1Range[1] - specs.target) / specs.target) * 100
                 ];
-                Plotly.relayout(targetId, { 'yaxis2.range': y2Range });
+                Plotly.relayout(targetId, {
+                    'yaxis2.range': y2Range,
+                    'yaxis2.autorange': false
+                });
             };
-            // Initial sync
-            setTimeout(updateY2, 100);
+
+            // Listen for user zoom/pan to keep y2 synced
+            gd.on('plotly_relayout', (event) => {
+                if (event['yaxis.range[0]'] !== undefined) {
+                    const r0 = event['yaxis.range[0]'];
+                    const r1 = event['yaxis.range[1]'];
+                    Plotly.relayout(targetId, {
+                        'yaxis2.range': [((r0 - specs.target) / specs.target) * 100, ((r1 - specs.target) / specs.target) * 100]
+                    });
+                }
+            });
+
+            // Initial sync after Plotly finishes auto-scaling y1
+            setTimeout(syncYAxes, 200);
         }
     };
 
@@ -261,9 +287,22 @@ const ChartRenderer = (() => {
         };
 
         const shapes = [];
-        if (!isNaN(specs.target)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.target, x1: specs.target, y0: 0, y1: 0.9, line: { color: '#10b981', width: 2, dash: '40px 10px 10px 10px' } });
-        if (!isNaN(specs.usl)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.usl, x1: specs.usl, y0: 0, y1: 0.9, line: { color: '#ef4444', width: 2, dash: 'dash' } });
-        if (!isNaN(specs.lsl)) shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: specs.lsl, x1: specs.lsl, y0: 0, y1: 0.9, line: { color: '#ef4444', width: 2, dash: 'dash' } });
+        const annotations = [];
+
+        const addLimitLine = (val, label, color, dash) => {
+            if (isNaN(val)) return;
+            shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: 2, dash: dash } });
+            annotations.push({
+                x: val, y: 0.95, xref: 'x', yref: 'paper',
+                text: `${label}: ${val.toFixed(2)}`,
+                showarrow: false,
+                font: { color: color, size: 10 }
+            });
+        };
+
+        addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+        addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
+        addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
 
         const layout = {
             title: {
@@ -273,11 +312,12 @@ const ChartRenderer = (() => {
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             shapes: shapes,
+            annotations: annotations,
             xaxis: { title: column, gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
             yaxis: { title: '\u6a5f\u7387\u5bc6\u5ea6', gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
             legend: { font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }, orientation: 'h', y: -0.25 },
             margin: { t: 60, r: 40, l: 70, b: 120 },
-            height: 400,
+            height: 450,
             hovermode: 'closest',
             bargap: 0.1
         };
