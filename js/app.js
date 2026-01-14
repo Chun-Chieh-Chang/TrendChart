@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let filteredData = [];
     let activeFilters = {};
     let currentSheet = '';
+    let allColumns = [];
 
     // --- Initialization ---
 
@@ -171,6 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalRowsEl.textContent = '0';
         filteredRowsEl.textContent = '0';
+        const countDisplay = document.getElementById('table-count');
+        if (countDisplay) countDisplay.textContent = '';
         yMeanEl.textContent = '0';
 
         tableHead.innerHTML = '';
@@ -207,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Get Union of all columns from all rows
-        const allColumns = [...new Set(rawData.reduce((cols, row) => cols.concat(Object.keys(row)), []))];
+        allColumns = [...new Set(rawData.reduce((cols, row) => cols.concat(Object.keys(row)), []))];
 
         totalRowsEl.textContent = rawData.length;
         filteredRowsEl.textContent = rawData.length;
@@ -363,7 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UI Updates ---
 
     function updateTable(columns) {
-        if (!columns) columns = Object.keys(rawData[0] || {});
+        if (!columns) columns = allColumns;
+        if (columns.length === 0 && rawData.length > 0) columns = Object.keys(rawData[0] || {});
 
         // Header
         tableHead.innerHTML = '';
@@ -376,6 +380,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Rows (Preview first 100 rows for performance)
         tableBody.innerHTML = '';
         const previewData = filteredData.slice(0, 100);
+
+        // Update table count indicator
+        const countDisplay = document.getElementById('table-count');
+        if (countDisplay) {
+            countDisplay.textContent = `(顯示前 ${previewData.length} 筆 / 共 ${filteredData.length} 筆篩選數據)`;
+        }
+
+        if (previewData.length === 0) {
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = columns.length || 1;
+            td.style.textAlign = 'center';
+            td.style.padding = '2rem';
+            td.textContent = '無匹配篩選條件的數據';
+            tr.appendChild(td);
+            tableBody.appendChild(tr);
+            return;
+        }
 
         previewData.forEach(row => {
             const tr = document.createElement('tr');
