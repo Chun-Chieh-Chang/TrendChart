@@ -24,17 +24,40 @@ const ChartRenderer = (() => {
         // Clear placeholder/previous content before Plotly renders
         container.innerHTML = '';
 
-        const traces = yColumns.map(yCol => {
+        const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const traces = yColumns.map((yCol, idx) => {
+            const yValues = data.map(row => ExcelParser.parseNumber(row[yCol]));
+            const baseColor = colorPalette[idx % colorPalette.length];
+
+            // Highlight OOS points in red
+            const markerColors = yValues.map(val => {
+                const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
+                    (!isNaN(specs.lsl) && val < specs.lsl);
+                return isOOS ? '#ef4444' : baseColor;
+            });
+
+            // Make OOS markers slightly larger and add an outline
+            const markerSizes = yValues.map(val => {
+                const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
+                    (!isNaN(specs.lsl) && val < specs.lsl);
+                return isOOS ? 10 : 6;
+            });
+
             return {
                 x: data.map(row => row[xColumn]),
-                y: data.map(row => {
-                    return ExcelParser.parseNumber(row[yCol]);
-                }),
+                y: yValues,
                 name: yCol,
                 mode: 'lines+markers',
                 type: 'scatter',
-                line: { width: 2 }, // Default is linear
-                marker: { size: 6 }
+                line: { width: 2, color: baseColor },
+                marker: {
+                    size: markerSizes,
+                    color: markerColors,
+                    line: {
+                        color: isDarkMode ? '#1e293b' : '#ffffff',
+                        width: yValues.map((v, i) => markerColors[i] === '#ef4444' ? 1.5 : 0)
+                    }
+                }
             };
         });
 
