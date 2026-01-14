@@ -24,6 +24,7 @@ const ChartRenderer = (() => {
         // Clear placeholder/previous content before Plotly renders
         container.innerHTML = '';
 
+        const isDarkMode = document.body.classList.contains('dark-mode');
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         const traces = yColumns.map((yCol, idx) => {
             const yValues = data.map(row => ExcelParser.parseNumber(row[yCol]));
@@ -60,8 +61,6 @@ const ChartRenderer = (() => {
                 }
             };
         });
-
-        const isDarkMode = document.body.classList.contains('dark-mode');
 
         // Add Spec Limits as horizontal lines
         const shapes = [];
