@@ -57,7 +57,7 @@ const ChartRenderer = (() => {
                 x: data.map(row => row[xColumn]),
                 y: yValues,
                 name: yCol,
-                mode: 'markers+lines+text',
+                mode: 'markers+lines',
                 text: yValues.map(v => isNaN(v) ? '' : v.toFixed(2)),
                 textposition: 'top center',
                 textfont: {
