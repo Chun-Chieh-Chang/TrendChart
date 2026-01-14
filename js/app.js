@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (stats.ca !== null) {
                 const caVal = stats.ca * 100;
                 const absCa = Math.abs(caVal);
-                caValueEl.textContent = caVal.toFixed(2) + '%';
+                caValueEl.textContent = caVal.toFixed(4) + '%';
                 if (absCa <= 12.5) caValueEl.style.color = 'var(--green)';
                 else if (absCa <= 25) caValueEl.style.color = 'var(--blue)';
                 else if (absCa <= 50) caValueEl.style.color = 'var(--amber)';
@@ -567,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Render Cp/Cpk/Ppk with Color Coding
             const renderIndex = (el, val) => {
                 if (val !== null) {
-                    el.textContent = val.toFixed(3);
+                    el.textContent = val.toFixed(4);
                     if (val >= 1.67) el.style.color = 'var(--green)';
                     else if (val >= 1.33) el.style.color = 'var(--blue)';
                     else if (val >= 1.0) el.style.color = 'var(--amber)';

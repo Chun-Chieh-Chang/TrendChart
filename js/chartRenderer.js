@@ -20,18 +20,18 @@ const ChartRenderer = (() => {
     const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend') => {
         const container = document.getElementById(targetId);
         if (!container) return;
+
+        // Purge existing Plotly instance and clear container
+        try { Plotly.purge(container); } catch (e) { }
+        container.innerHTML = '';
+
         if (!data || data.length === 0 || !xColumn || !yColumns || yColumns.length === 0) {
             clearChart(targetId);
             return;
         }
 
-        // Clear placeholder/previous content before Plotly renders
-        container.innerHTML = '';
-
         const currentIsDark = isDark();
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-
-        // Define OOS color based on dark mode (Yellow in dark mode, Red in light mode)
         const oosColor = currentIsDark ? '#fbbf24' : '#ef4444';
 
         const traces = yColumns.map((yCol, idx) => {
@@ -39,14 +39,12 @@ const ChartRenderer = (() => {
             const yValues = rawValues.map(v => ExcelParser.parseNumber(v));
             const baseColor = colorPalette[idx % colorPalette.length];
 
-            // Highlight OOS points
             const markerColors = yValues.map(val => {
                 const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
                     (!isNaN(specs.lsl) && val < specs.lsl);
                 return isOOS ? oosColor : baseColor;
             });
 
-            // Make OOS markers slightly larger
             const markerSizes = yValues.map(val => {
                 const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
                     (!isNaN(specs.lsl) && val < specs.lsl);
@@ -58,12 +56,8 @@ const ChartRenderer = (() => {
                 y: yValues,
                 name: yCol,
                 mode: 'markers+lines',
-                text: yValues.map(v => isNaN(v) ? '' : v.toFixed(2)),
-                textposition: 'top center',
-                textfont: {
-                    size: 9,
-                    color: currentIsDark ? '#94a3b8' : '#64748b'
-                },
+                text: yValues.map(v => isNaN(v) ? '' : v.toFixed(4)),
+                hoverinfo: 'x+y+name+text',
                 type: 'scatter',
                 line: { width: 2, color: baseColor },
                 marker: {
@@ -77,7 +71,7 @@ const ChartRenderer = (() => {
             };
         });
 
-        // Add dummy trace for secondary axis if target exists to force it to show
+        // Add dummy trace for secondary axis
         if (!isNaN(specs.target) && specs.target !== 0) {
             traces.push({
                 x: [data[0][xColumn]],
@@ -100,23 +94,23 @@ const ChartRenderer = (() => {
             });
             annotations.push({
                 xref: 'paper', x: 1, y: val, yref: 'y',
-                text: `${label}: ${val.toFixed(2)}`,
+                text: `<b>${label}: ${val.toFixed(4)}</b>`,
                 showarrow: false,
-                xanchor: 'left',
-                yanchor: 'middle',
+                xanchor: 'right', // Changed to right anchor to stay inside plotting area
+                yanchor: 'bottom',
                 font: { color: color, size: 10 },
-                bgcolor: currentIsDark ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.8)'
+                bgcolor: currentIsDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                borderpad: 2
             });
         };
 
-        // Green Center Line (Long-Short-Long pattern)
         addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
         addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
         addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
 
         if (stats) {
-            addLimitLine(stats.ucl, 'UCL', 'rgba(245, 158, 11, 0.8)', 'dot', 1.5);
-            addLimitLine(stats.lcl, 'LCL', 'rgba(245, 158, 11, 0.8)', 'dot', 1.5);
+            addLimitLine(stats.ucl, 'UCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
+            addLimitLine(stats.lcl, 'LCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
         }
 
         const layout = {
@@ -131,27 +125,23 @@ const ChartRenderer = (() => {
             xaxis: {
                 title: xColumn,
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
-                titlefont: { color: currentIsDark ? '#94a3b8' : '#475569' }
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             yaxis: {
                 title: '數值',
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
-                titlefont: { color: currentIsDark ? '#94a3b8' : '#475569' }
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
                 font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' },
-                orientation: 'h',
-                y: -0.2
+                orientation: 'h', y: -0.2
             },
-            margin: { t: 60, r: 100, l: 60, b: 100 },
+            margin: { t: 60, r: 80, l: 60, b: 80 },
             autosize: true,
             height: 450,
             hovermode: 'closest'
         };
 
-        // Add Secondary Axis for Percentage Deviation if Target exists
         if (!isNaN(specs.target) && specs.target !== 0) {
             layout.yaxis2 = {
                 title: '偏離目標 (%)',
@@ -160,55 +150,38 @@ const ChartRenderer = (() => {
                 showgrid: false,
                 tickfont: { color: '#10b981', size: 10 },
                 titlefont: { color: '#10b981', size: 11 },
-                tickformat: '.1f',
+                tickformat: '.2f',
                 ticksuffix: '%'
             };
         }
 
-        Plotly.newPlot(container, traces, layout, { responsive: true, displaylogo: false });
+        // Use Plotly.newPlot and handle the promise
+        Plotly.newPlot(container, traces, layout, { responsive: true, displaylogo: false }).then(gd => {
+            if (!isNaN(specs.target) && specs.target !== 0) {
+                const sync = () => {
+                    if (!gd || !gd.layout || !gd.layout.yaxis) return;
+                    const r = gd.layout.yaxis.range;
+                    if (!r) return;
 
-        // Sync Y-axis scaling for percentage if target exists
-        if (!isNaN(specs.target) && specs.target !== 0) {
-            const gd = container;
+                    const nr = [((r[0] - specs.target) / specs.target) * 100, ((r[1] - specs.target) / specs.target) * 100];
+                    Plotly.relayout(gd, { 'yaxis2.range': nr, 'yaxis2.autorange': false }).catch(() => { });
+                };
 
-            const syncYAxes = () => {
-                // Safety check: is the plot still valid and in the DOM?
-                if (!gd || !gd.layout || !gd.layout.yaxis || !gd.layout.yaxis.range) return;
-
-                const y1Range = gd.layout.yaxis.range;
-                const y2Range = [
-                    ((y1Range[0] - specs.target) / specs.target) * 100,
-                    ((y1Range[1] - specs.target) / specs.target) * 100
-                ];
-
-                try {
-                    Plotly.relayout(gd, {
-                        'yaxis2.range': y2Range,
-                        'yaxis2.autorange': false
-                    });
-                } catch (e) { }
-            };
-
-            // Listen for user zoom/pan to keep y2 synced
-            gd.on('plotly_relayout', (event) => {
-                // Avoid recursive sync if y2 range was the trigger or if plot cleared
-                if (!gd.data || event['yaxis2.range[0]'] !== undefined) return;
-
-                if (event['yaxis.range[0]'] !== undefined) {
-                    const r0 = event['yaxis.range[0]'];
-                    const r1 = event['yaxis.range[1]'];
-                    try {
+                gd.on('plotly_relayout', (edata) => {
+                    if (edata['yaxis.range[0]'] !== undefined) {
+                        const r0 = edata['yaxis.range[0]'];
+                        const r1 = edata['yaxis.range[1]'];
                         Plotly.relayout(gd, {
                             'yaxis2.range': [((r0 - specs.target) / specs.target) * 100, ((r1 - specs.target) / specs.target) * 100],
                             'yaxis2.autorange': false
-                        });
-                    } catch (e) { }
-                }
-            });
+                        }).catch(() => { });
+                    }
+                });
 
-            // Initial sync after Plotly finishes auto-scaling y1
-            setTimeout(syncYAxes, 300);
-        }
+                // Trigger initial sync
+                sync();
+            }
+        }).catch(err => console.error('Plotly Error:', err));
     };
 
     /**
@@ -217,7 +190,6 @@ const ChartRenderer = (() => {
     const clearChart = (targetId = 'plotly-trend') => {
         const container = document.getElementById(targetId);
         if (!container) return;
-        // Purge plotly instance before clearing content to clean up event listeners
         try { Plotly.purge(container); } catch (e) { }
         container.innerHTML = `
             <div class="empty-state">
@@ -237,7 +209,7 @@ const ChartRenderer = (() => {
                 format: 'png',
                 width: 1600,
                 height: 800,
-                filename: targetId === 'plotly-trend' ? 'trend_chart' : 'normal_dist'
+                filename: 'chart_export'
             });
         }
     };
@@ -248,29 +220,25 @@ const ChartRenderer = (() => {
     const renderNormalDistChart = (data, column, specs = {}, targetId = 'plotly-dist') => {
         const container = document.getElementById(targetId);
         if (!container) return;
-        const values = data.map(row => ExcelParser.parseNumber(row[column])).filter(v => !isNaN(v));
 
+        try { Plotly.purge(container); } catch (e) { }
+        container.innerHTML = '';
+
+        const values = data.map(row => ExcelParser.parseNumber(row[column])).filter(v => !isNaN(v));
         if (values.length === 0) {
             clearChart(targetId);
             return;
         }
 
-        container.innerHTML = '';
         const stats = ExcelParser.getStats(values, specs);
         const { mean, stdevOverall, cpk, ppk } = stats;
         const sigma = stdevOverall;
         const currentIsDark = isDark();
 
         const traceHist = {
-            x: values,
-            type: 'histogram',
-            name: '數據分佈',
-            nbinsx: 20,
+            x: values, type: 'histogram', name: '分佈', nbinsx: 20,
             histnorm: 'probability density',
-            marker: {
-                color: 'rgba(100, 116, 139, 0.4)',
-                line: { color: 'rgba(100, 116, 139, 1)', width: 1 }
-            }
+            marker: { color: 'rgba(100, 116, 139, 0.4)', line: { color: 'rgba(100, 116, 139, 1)', width: 1 } }
         };
 
         const min = Math.min(...values, mean - 4 * sigma);
@@ -282,59 +250,39 @@ const ChartRenderer = (() => {
             curveY.push(ExcelParser.normDist(x, mean, sigma));
         }
 
-        const traceCurve = {
-            x: curveX, y: curveY, type: 'scatter', mode: 'lines',
-            name: '常態分佈曲線', line: { color: '#0ea5e9', width: 3 }
-        };
+        const traceCurve = { x: curveX, y: curveY, type: 'scatter', mode: 'lines', name: '常態曲線', line: { color: '#0ea5e9', width: 3 } };
 
-        const sigmaMarkersX = [], sigmaMarkersY = [];
-        const sigmaLabels = ['-3\u03c3', '-2\u03c3', '-1\u03c3', '平均值', '+1\u03c3', '+2\u03c3', '+3\u03c3'];
+        const sigmaMarkersX = [], sigmaMarkersY = [], sigmaLabels = ['-3\u03c3', '-2\u03c3', '-1\u03c3', 'Avg', '+1\u03c3', '+2\u03c3', '+3\u03c3'];
         for (let i = -3; i <= 3; i++) {
             const x = mean + i * sigma;
             sigmaMarkersX.push(x);
             sigmaMarkersY.push(ExcelParser.normDist(x, mean, sigma));
         }
 
-        const traceSigma = {
-            x: sigmaMarkersX, y: sigmaMarkersY, type: 'scatter', mode: 'markers+text',
-            name: '\u03c3 \u6a19\u8a18', text: sigmaLabels, textposition: 'top center',
-            marker: { color: '#ef4444', size: 8 }
-        };
+        const traceSigma = { x: sigmaMarkersX, y: sigmaMarkersY, type: 'scatter', mode: 'markers+text', name: '\u03c3 標記', text: sigmaLabels, textposition: 'top center', marker: { color: '#ef4444', size: 8 } };
 
         const shapes = [];
         const annotations = [];
 
-        const addLimitLine = (val, label, color, dash) => {
+        const addLimit = (val, label, color, dash) => {
             if (isNaN(val)) return;
             shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: 2, dash: dash } });
-            annotations.push({
-                x: val, y: 0.95, xref: 'x', yref: 'paper',
-                text: `${label}: ${val.toFixed(2)}`,
-                showarrow: false,
-                font: { color: color, size: 10 }
-            });
+            annotations.push({ x: val, y: 0.95, xref: 'x', yref: 'paper', text: `<b>${label}: ${val.toFixed(4)}</b>`, showarrow: false, font: { color: color, size: 10 }, bgcolor: currentIsDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)' });
         };
 
-        addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
-        addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
-        addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
+        addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+        addLimit(specs.usl, 'USL', '#ef4444', 'dash');
+        addLimit(specs.lsl, 'LSL', '#ef4444', 'dash');
 
         const layout = {
-            title: {
-                text: `${column} 常態分析 (Cpk:${(cpk || 0).toFixed(3)}, Ppk:${(ppk || 0).toFixed(3)})`,
-                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
-            },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            shapes: shapes,
-            annotations: annotations,
+            title: { text: `分佈分析 (Cpk:${(cpk || 0).toFixed(4)}, Ppk:${(ppk || 0).toFixed(4)})`, font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 } },
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            shapes: shapes, annotations: annotations,
             xaxis: { title: column, gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
-            yaxis: { title: '\u6a5f\u7387\u5bc6\u5ea6', gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
+            yaxis: { title: '密度', gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
             legend: { font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }, orientation: 'h', y: -0.25 },
             margin: { t: 60, r: 40, l: 70, b: 120 },
-            height: 450,
-            hovermode: 'closest',
-            bargap: 0.1
+            height: 450, hovermode: 'closest', bargap: 0.1
         };
 
         Plotly.newPlot(container, [traceHist, traceCurve, traceSigma], layout, { responsive: true, displaylogo: false });
