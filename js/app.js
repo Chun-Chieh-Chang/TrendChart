@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateChartBtn = document.getElementById('generate-chart');
     const exportTrendBtn = document.getElementById('export-trend');
     const exportDistBtn = document.getElementById('export-dist');
+    const yVisibilitySection = document.getElementById('y-visibility-section');
+    const ySeriesToggles = document.getElementById('y-series-toggles');
 
     // Spec Limits
     const targetInput = document.getElementById('target-input');
@@ -63,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeFilters = {};
     let currentSheet = '';
     let allColumns = [];
+    let hiddenSeries = new Set();
 
     // Pagination state for table
     let tablePageSize = 50;
@@ -340,7 +343,42 @@ document.addEventListener('DOMContentLoaded', () => {
         yAxisSelector.addEventListener('change', () => {
             const selected = Array.from(yAxisSelector.selectedOptions).map(o => o.value);
             yAxisSelector.dataset.prevValues = JSON.stringify(selected);
+            updateVisibilityUI(selected);
         });
+
+        // Initialize UI for already selected Y axes
+        updateVisibilityUI(Array.from(yAxisSelector.selectedOptions).map(o => o.value));
+
+        function updateVisibilityUI(selected) {
+            ySeriesToggles.innerHTML = '';
+            hiddenSeries.clear(); // Reset hidden state when selection changes
+
+            if (selected.length > 1) {
+                yVisibilitySection.classList.remove('hidden');
+                selected.forEach(col => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox-item';
+
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.checked = true;
+                    cb.addEventListener('change', () => {
+                        if (cb.checked) hiddenSeries.delete(col);
+                        else hiddenSeries.add(col);
+                        renderChart(); // Auto-refresh chart
+                    });
+
+                    const span = document.createElement('span');
+                    span.textContent = col;
+
+                    label.appendChild(cb);
+                    label.appendChild(span);
+                    ySeriesToggles.appendChild(label);
+                });
+            } else {
+                yVisibilitySection.classList.add('hidden');
+            }
+        }
 
         function selectDefaultY(cols) {
             const valCols = cols.filter(c => {
@@ -559,7 +597,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderChart() {
         const xCol = xAxisSelector.value;
-        const yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
+        let yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
+
+        // Filter out hidden series
+        yCols = yCols.filter(c => !hiddenSeries.has(c));
+
         const specs = {
             target: parseFloat(targetInput.value),
             usl: parseFloat(uslInput.value),
