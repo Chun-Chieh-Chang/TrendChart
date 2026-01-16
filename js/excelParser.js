@@ -13,7 +13,7 @@ const ExcelParser = (() => {
             try {
                 const options = {
                     type: data instanceof ArrayBuffer ? 'array' : 'binary',
-                    cellDates: true,
+                    cellDates: false,
                     cellNF: false,
                     cellText: false
                 };
@@ -67,7 +67,7 @@ const ExcelParser = (() => {
     const getUniqueValues = (data, column) => {
         const values = data.map(row => row[column])
             .filter(val => val !== undefined && val !== null && val !== '');
-        return [...new Set(values)].sort();
+        return [...new Set(values)];
     };
 
     /**

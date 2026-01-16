@@ -52,7 +52,7 @@ const ChartRenderer = (() => {
             });
 
             return {
-                x: data.map(row => row[xColumn]),
+                x: data.map(row => String(row[xColumn] ?? '')),
                 y: yValues,
                 name: yCol,
                 mode: 'markers+lines',
@@ -74,7 +74,7 @@ const ChartRenderer = (() => {
         // Add dummy trace for secondary axis
         if (!isNaN(specs.target) && specs.target !== 0) {
             traces.push({
-                x: [data[0][xColumn]],
+                x: [String(data[0][xColumn] ?? '')],
                 y: [null],
                 yaxis: 'y2',
                 type: 'scatter',
@@ -124,6 +124,7 @@ const ChartRenderer = (() => {
             annotations: annotations,
             xaxis: {
                 title: xColumn,
+                type: 'category',
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
                 tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
