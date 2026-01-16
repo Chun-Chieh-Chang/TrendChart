@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend');
         }
         if (toggleDist.checked) {
-            ChartRenderer.renderNormalDistChart(filteredData, yCols[0], specs, 'plotly-dist');
+            ChartRenderer.renderNormalDistChart(filteredData, yCols, specs, 'plotly-dist');
         }
         updateStats();
     }

@@ -223,58 +223,124 @@ const ChartRenderer = (() => {
 
     /**
      * Render Normal Distribution Analysis
+     * @param {Array} data - Filtered JSON data
+     * @param {Array} columns - Array of Y-axis column names
+     * @param {Object} specs - Target/USL/LSL limits
+     * @param {string} targetId - Container ID to render in
      */
-    const renderNormalDistChart = (data, column, specs = {}, targetId = 'plotly-dist') => {
+    const renderNormalDistChart = (data, columns, specs = {}, targetId = 'plotly-dist') => {
         const container = document.getElementById(targetId);
         if (!container) return;
 
         try { Plotly.purge(container); } catch (e) { }
         container.innerHTML = '';
 
-        const values = data.map(row => ExcelParser.parseNumber(row[column])).filter(v => !isNaN(v));
-        if (values.length === 0) {
+        if (!data || data.length === 0 || !columns || columns.length === 0) {
             clearChart(targetId);
             return;
         }
 
-        const stats = ExcelParser.getStats(values, specs);
-        const { mean, stdevOverall, cpk, ppk } = stats;
-        const sigma = stdevOverall;
         const currentIsDark = isDark();
-
-        const traceHist = {
-            x: values, type: 'histogram', name: '分佈', nbinsx: 20,
-            histnorm: 'probability density',
-            marker: { color: 'rgba(100, 116, 139, 0.4)', line: { color: 'rgba(100, 116, 139, 1)', width: 1 } }
-        };
-
-        const min = Math.min(...values, mean - 4 * sigma);
-        const max = Math.max(...values, mean + 4 * sigma);
-        const curveX = [], curveY = [];
-        for (let i = 0; i <= 100; i++) {
-            const x = min + (i * (max - min) / 100);
-            curveX.push(x);
-            curveY.push(ExcelParser.normDist(x, mean, sigma));
-        }
-
-        const traceCurve = { x: curveX, y: curveY, type: 'scatter', mode: 'lines', name: '常態曲線', line: { color: '#0ea5e9', width: 3 } };
-
-        const sigmaMarkersX = [], sigmaMarkersY = [], sigmaLabels = ['-3\u03c3', '-2\u03c3', '-1\u03c3', 'Avg', '+1\u03c3', '+2\u03c3', '+3\u03c3'];
-        for (let i = -3; i <= 3; i++) {
-            const x = mean + i * sigma;
-            sigmaMarkersX.push(x);
-            sigmaMarkersY.push(ExcelParser.normDist(x, mean, sigma));
-        }
-
-        const traceSigma = { x: sigmaMarkersX, y: sigmaMarkersY, type: 'scatter', mode: 'markers+text', name: '\u03c3 標記', text: sigmaLabels, textposition: 'top center', marker: { color: '#ef4444', size: 8 } };
-
+        const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const allTraces = [];
         const shapes = [];
         const annotations = [];
 
+        // Global min/max for curve X-axis range
+        let globalMin = Infinity;
+        let globalMax = -Infinity;
+
+        const columnStats = columns.map((col, idx) => {
+            const values = data.map(row => ExcelParser.parseNumber(row[col])).filter(v => !isNaN(v));
+            if (values.length === 0) return null;
+
+            const stats = ExcelParser.getStats(values, specs);
+            const baseColor = colorPalette[idx % colorPalette.length];
+
+            // Update global range
+            const colMin = Math.min(...values, stats.mean - 4 * stats.stdevOverall);
+            const colMax = Math.max(...values, stats.mean + 4 * stats.stdevOverall);
+            globalMin = Math.min(globalMin, colMin);
+            globalMax = Math.max(globalMax, colMax);
+
+            return { col, values, stats, baseColor };
+        }).filter(s => s !== null);
+
+        if (columnStats.length === 0) {
+            clearChart(targetId);
+            return;
+        }
+
+        columnStats.forEach(({ col, values, stats, baseColor }) => {
+            const { mean, stdevOverall } = stats;
+            const sigma = stdevOverall;
+
+            // 1. Histogram (only if single column to avoid clutter, or very transparent)
+            allTraces.push({
+                x: values,
+                type: 'histogram',
+                name: `${col} 分佈`,
+                nbinsx: 30,
+                histnorm: 'probability density',
+                visible: columnStats.length === 1 ? true : 'legendonly', // Hide by default if multiple
+                marker: {
+                    color: baseColor,
+                    opacity: 0.2,
+                    line: { color: baseColor, width: 1 }
+                }
+            });
+
+            // 2. Normal Curve
+            const curveX = [], curveY = [];
+            const step = (globalMax - globalMin) / 100;
+            for (let i = 0; i <= 100; i++) {
+                const x = globalMin + (i * step);
+                curveX.push(x);
+                curveY.push(ExcelParser.normDist(x, mean, sigma));
+            }
+
+            allTraces.push({
+                x: curveX,
+                y: curveY,
+                type: 'scatter',
+                mode: 'lines',
+                name: `${col} 曲線 (Ppk:${(stats.ppk || 0).toFixed(3)})`,
+                line: { color: baseColor, width: 3 }
+            });
+
+            // 3. Sigma Markers (Only for the first selected column to avoid mess, or none)
+            if (columnStats.length === 1) {
+                const sigmaMarkersX = [], sigmaMarkersY = [], sigmaLabels = ['-3σ', '-2σ', '-1σ', 'Avg', '+1σ', '+2σ', '+3σ'];
+                for (let i = -3; i <= 3; i++) {
+                    const x = mean + i * sigma;
+                    sigmaMarkersX.push(x);
+                    sigmaMarkersY.push(ExcelParser.normDist(x, mean, sigma));
+                }
+                allTraces.push({
+                    x: sigmaMarkersX,
+                    y: sigmaMarkersY,
+                    type: 'scatter',
+                    mode: 'markers+text',
+                    name: `${col} σ 標記`,
+                    text: sigmaLabels,
+                    textposition: 'top center',
+                    marker: { color: baseColor, size: 8 },
+                    showlegend: false
+                });
+            }
+        });
+
+        // 4. Common Specs
         const addLimit = (val, label, color, dash) => {
             if (isNaN(val)) return;
             shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: 2, dash: dash } });
-            annotations.push({ x: val, y: 0.95, xref: 'x', yref: 'paper', text: `<b>${label}: ${val.toFixed(4)}</b>`, showarrow: false, font: { color: color, size: 10 }, bgcolor: currentIsDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)' });
+            annotations.push({
+                x: val, y: 0.95, xref: 'x', yref: 'paper',
+                text: `<b>${label}: ${val.toFixed(4)}</b>`,
+                showarrow: false,
+                font: { color: color, size: 10 },
+                bgcolor: currentIsDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)'
+            });
         };
 
         addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
@@ -282,17 +348,36 @@ const ChartRenderer = (() => {
         addLimit(specs.lsl, 'LSL', '#ef4444', 'dash');
 
         const layout = {
-            title: { text: `分佈分析 (Cpk:${(cpk || 0).toFixed(4)}, Ppk:${(ppk || 0).toFixed(4)})`, font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 } },
-            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-            shapes: shapes, annotations: annotations,
-            xaxis: { title: column, gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
-            yaxis: { title: '密度', gridcolor: currentIsDark ? '#334155' : '#e2e8f0', tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' } },
-            legend: { font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' }, orientation: 'h', y: -0.25 },
+            title: {
+                text: `常態分佈對比分析`,
+                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            shapes: shapes,
+            annotations: annotations,
+            xaxis: {
+                title: '數值',
+                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
+                range: [globalMin, globalMax]
+            },
+            yaxis: {
+                title: '密度',
+                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
+            },
+            legend: {
+                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 11 },
+                orientation: 'h', y: -0.25
+            },
             margin: { t: 60, r: 40, l: 70, b: 120 },
-            height: 450, hovermode: 'closest', bargap: 0.1
+            height: 450,
+            hovermode: 'closest',
+            bargap: 0.1
         };
 
-        Plotly.newPlot(container, [traceHist, traceCurve, traceSigma], layout, { responsive: true, displaylogo: false });
+        Plotly.newPlot(container, allTraces, layout, { responsive: true, displaylogo: false });
     };
 
     return { renderTrendChart, renderNormalDistChart, clearChart, exportChart };
