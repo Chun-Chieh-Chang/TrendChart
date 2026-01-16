@@ -117,7 +117,7 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
+                font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
@@ -140,7 +140,7 @@ const ChartRenderer = (() => {
                 tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
-                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a' },
+                font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
                 orientation: 'h', y: -0.2
             },
             margin: { t: 60, r: 80, l: 60, b: 80 },
@@ -350,7 +350,7 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `常態分佈對比分析`,
-                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
+                font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
@@ -358,17 +358,19 @@ const ChartRenderer = (() => {
             annotations: annotations,
             xaxis: {
                 title: '數值',
+                titlefont: { family: 'Inter' },
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
+                tickfont: { family: 'Inter', color: currentIsDark ? '#94a3b8' : '#475569' },
                 range: [globalMin, globalMax]
             },
             yaxis: {
                 title: '密度',
+                titlefont: { family: 'Inter' },
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
+                tickfont: { family: 'Inter', color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
-                font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 11 },
+                font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 11 },
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 120 },
