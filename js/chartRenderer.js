@@ -52,12 +52,13 @@ const ChartRenderer = (() => {
             });
 
             return {
-                x: data.map(row => String(row[xColumn] ?? '')),
+                x: data.map((_, i) => i), // Use index as X to keep points separate
+                text: data.map(row => String(row[xColumn] ?? '')), // Actual labels in hover
                 y: yValues,
                 name: yCol,
                 mode: 'markers+lines',
-                text: yValues.map(v => isNaN(v) ? '' : v.toFixed(4)),
-                hoverinfo: 'x+y+name+text',
+                customdata: data.map(row => String(row[xColumn] ?? '')),
+                hovertemplate: `<b>%{customdata}</b><br>${yCol}: %{y:.4f}<extra></extra>`,
                 type: 'scatter',
                 line: { width: 2, color: baseColor },
                 marker: {
@@ -74,7 +75,7 @@ const ChartRenderer = (() => {
         // Add dummy trace for secondary axis
         if (!isNaN(specs.target) && specs.target !== 0) {
             traces.push({
-                x: [String(data[0][xColumn] ?? '')],
+                x: [0],
                 y: [null],
                 yaxis: 'y2',
                 type: 'scatter',
@@ -124,9 +125,11 @@ const ChartRenderer = (() => {
             annotations: annotations,
             xaxis: {
                 title: xColumn,
-                type: 'category',
+                tickvals: data.map((_, i) => i),
+                ticktext: data.map(row => String(row[xColumn] ?? '')),
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
+                range: [-0.5, data.length - 0.5] // Ensure all points are visible
             },
             yaxis: {
                 title: '數值',
