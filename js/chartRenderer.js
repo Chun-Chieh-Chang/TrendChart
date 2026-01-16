@@ -125,11 +125,14 @@ const ChartRenderer = (() => {
             annotations: annotations,
             xaxis: {
                 title: xColumn,
+                type: 'linear',           // Explicitly force linear axis
+                tickmode: 'array',        // Explicitly use array mode for ticks
                 tickvals: data.map((_, i) => i),
                 ticktext: data.map(row => String(row[xColumn] ?? '')),
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' },
-                range: [-0.5, data.length - 0.5] // Ensure all points are visible
+                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569', size: 10 },
+                range: [-0.5, data.length - 0.5], // Ensure all points are visible
+                automargin: true          // Ensure long labels don't get cut off
             },
             yaxis: {
                 title: '數值',
