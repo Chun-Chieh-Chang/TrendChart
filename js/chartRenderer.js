@@ -17,7 +17,7 @@ const ChartRenderer = (() => {
      * @param {Object} stats - Computed statistical metrics (for UCL/LCL)
      * @param {string} targetId - Container ID to render in
      */
-    const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend') => {
+    const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend', sheetName = '') => {
         const container = document.getElementById(targetId);
         if (!container) return;
 
@@ -135,7 +135,7 @@ const ChartRenderer = (() => {
 
         const layout = {
             title: {
-                text: `數據趨勢圖 (${yColumns.join(', ')})`,
+                text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
                 font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
@@ -247,7 +247,7 @@ const ChartRenderer = (() => {
      * @param {Object} specs - Target/USL/LSL limits
      * @param {string} targetId - Container ID to render in
      */
-    const renderNormalDistChart = (data, columns, specs = {}, targetId = 'plotly-dist') => {
+    const renderNormalDistChart = (data, columns, specs = {}, targetId = 'plotly-dist', sheetName = '') => {
         const container = document.getElementById(targetId);
         if (!container) return;
 
@@ -368,7 +368,7 @@ const ChartRenderer = (() => {
 
         const layout = {
             title: {
-                text: `常態分佈對比分析`,
+                text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
                 font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
             paper_bgcolor: 'rgba(0,0,0,0)',

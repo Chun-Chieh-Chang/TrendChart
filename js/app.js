@@ -641,10 +641,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentStats = ExcelParser.getStats(values, specs);
 
         if (toggleTrend.checked) {
-            ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend');
+            ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend', currentSheet);
         }
         if (toggleDist.checked) {
-            ChartRenderer.renderNormalDistChart(filteredData, yCols, specs, 'plotly-dist');
+            ChartRenderer.renderNormalDistChart(filteredData, yCols, specs, 'plotly-dist', currentSheet);
         }
         updateStats();
     }
