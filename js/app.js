@@ -301,15 +301,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (col && filteredData.length > 0) {
                 // Try to find a numeric value in the first few rows
                 const val = filteredData[0][col];
-                if (!isNaN(parseFloat(val))) {
-                    input.value = val;
+                const numVal = ExcelParser.parseNumber(val);
+                if (!isNaN(numVal)) {
+                    input.value = numVal;
+                } else {
+                    input.value = ''; // Clear if not a number
                 }
             }
         };
 
-        targetColSelector.addEventListener('change', () => updateInputFromCol(targetColSelector, targetInput));
-        uslColSelector.addEventListener('change', () => updateInputFromCol(uslColSelector, uslInput));
-        lslColSelector.addEventListener('change', () => updateInputFromCol(lslColSelector, lslInput));
+        targetColSelector.addEventListener('change', () => {
+            updateInputFromCol(targetColSelector, targetInput);
+            targetColSelector.dataset.prevValue = targetColSelector.value;
+        });
+        uslColSelector.addEventListener('change', () => {
+            updateInputFromCol(uslColSelector, uslInput);
+            uslColSelector.dataset.prevValue = uslColSelector.value;
+        });
+        lslColSelector.addEventListener('change', () => {
+            updateInputFromCol(lslColSelector, lslInput);
+            lslColSelector.dataset.prevValue = lslColSelector.value;
+        });
 
         // --- Persistence Logic for Chart Config ---
 
@@ -337,8 +349,19 @@ document.addEventListener('DOMContentLoaded', () => {
             selectDefaultY(columns);
         }
 
+        // Restore Target/USL/LSL Column Selectors
+        const restoreSpecCol = (selector, input) => {
+            const prevVal = selector.dataset.prevValue;
+            if (prevVal && columns.includes(prevVal)) {
+                selector.value = prevVal;
+                updateInputFromCol(selector, input);
+            }
+        };
+        restoreSpecCol(targetColSelector, targetInput);
+        restoreSpecCol(uslColSelector, uslInput);
+        restoreSpecCol(lslColSelector, lslInput);
+
         // Update tracking data attributes on change
-        // We use event listeners that update the "last known good" state
         xAxisSelector.addEventListener('change', () => { xAxisSelector.dataset.prevValue = xAxisSelector.value; });
         yAxisSelector.addEventListener('change', () => {
             const selected = Array.from(yAxisSelector.selectedOptions).map(o => o.value);
