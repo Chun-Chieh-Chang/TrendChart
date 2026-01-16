@@ -324,7 +324,7 @@ const ChartRenderer = (() => {
                 type: 'scatter',
                 mode: 'lines',
                 name: `${col} 曲線 (Ppk:${(stats.ppk || 0).toFixed(3)})`,
-                line: { color: baseColor, width: 3 }
+                line: { color: baseColor, width: 1.5 }
             });
 
             // 3. Sigma Markers (Only for the first selected column to avoid mess, or none)
