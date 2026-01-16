@@ -452,12 +452,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initial render logic
         tableBody.innerHTML = '';
-        tableCurrentIndex = 0;
 
         // Update table count indicator
         const countDisplay = document.getElementById('table-count');
         if (countDisplay) {
-            countDisplay.textContent = `(顯示前 0 筆 / 共 ${filteredData.length} 筆篩選數據)`;
+            countDisplay.textContent = `(共 ${filteredData.length} 筆篩選數據)`;
         }
 
         if (filteredData.length === 0) {
@@ -472,66 +471,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Add sentinel element for infinite scroll
-        const sentinelRow = document.createElement('tr');
-        sentinelRow.id = 'table-sentinel';
-        tableBody.appendChild(sentinelRow);
-
-        // Setup Intersection Observer for infinite scrolling
-        if (tableObserver) tableObserver.disconnect();
-
-        if (window.IntersectionObserver) {
-            tableObserver = new IntersectionObserver((entries) => {
-                if (entries[0].isIntersecting) {
-                    loadMoreData(columns);
-                }
-            }, { root: document.querySelector('.table-wrapper'), threshold: 0.1 });
-
-            tableObserver.observe(sentinelRow);
-        } else {
-            // Fallback for very old browsers: just load a larger initial chunk or show a button
-            console.warn('IntersectionObserver not supported, falling back to eager loading');
-            loadMoreData(columns); // Load second batch
-            sentinelRow.innerHTML = `<td colspan="${columns.length}" style="text-align:center; padding:1rem;"><button class="secondary-button" onclick="window.loadMoreData()">載入更多...</button></td>`;
-            // Make loadMoreData global for the fallback button
-            window.loadMoreData = () => loadMoreData(columns);
-        }
-
-        // Load first batch
-        loadMoreData(columns);
-
-        // Update stats
-        updateStats();
-    }
-
-    function loadMoreData(columns) {
-        if (tableCurrentIndex >= filteredData.length) return;
-
-        const nextBatch = filteredData.slice(tableCurrentIndex, tableCurrentIndex + tablePageSize);
-        const sentinel = document.getElementById('table-sentinel');
-
-        nextBatch.forEach(row => {
+        // Render all data at once using a DocumentFragment for performance
+        const fragment = document.createDocumentFragment();
+        filteredData.forEach(row => {
             const tr = document.createElement('tr');
             columns.forEach(col => {
                 const td = document.createElement('td');
                 td.textContent = ExcelParser.formatValue(row[col] ?? '');
                 tr.appendChild(td);
             });
-            tableBody.insertBefore(tr, sentinel);
+            fragment.appendChild(tr);
         });
+        tableBody.appendChild(fragment);
 
-        tableCurrentIndex += nextBatch.length;
-
-        // Update count display
-        const countDisplay = document.getElementById('table-count');
-        if (countDisplay) {
-            countDisplay.textContent = `(顯示前 ${tableCurrentIndex} 筆 / 共 ${filteredData.length} 筆篩選數據)`;
-        }
-
-        // Hide sentinel if all data loaded
-        if (tableCurrentIndex >= filteredData.length) {
-            sentinel.style.display = 'none';
-        }
+        // Update stats
+        updateStats();
     }
 
     function updateStats() {
