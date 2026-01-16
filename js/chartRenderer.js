@@ -30,12 +30,31 @@ const ChartRenderer = (() => {
             return;
         }
 
+        // Trim trailing rows with no valid Y data to ensure chart fills the available space
+        let lastValidIndex = -1;
+        for (let i = data.length - 1; i >= 0; i--) {
+            const hasData = yColumns.some(yCol => {
+                const val = ExcelParser.parseNumber(data[i][yCol]);
+                return !isNaN(val);
+            });
+            if (hasData) {
+                lastValidIndex = i;
+                break;
+            }
+        }
+
+        const chartData = (lastValidIndex === -1) ? [] : data.slice(0, lastValidIndex + 1);
+        if (chartData.length === 0) {
+            clearChart(targetId);
+            return;
+        }
+
         const currentIsDark = isDark();
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         const oosColor = currentIsDark ? '#fbbf24' : '#ef4444';
 
         const traces = yColumns.map((yCol, idx) => {
-            const rawValues = data.map(row => row[yCol]);
+            const rawValues = chartData.map(row => row[yCol]);
             const yValues = rawValues.map(v => ExcelParser.parseNumber(v));
             const baseColor = colorPalette[idx % colorPalette.length];
 
@@ -52,12 +71,12 @@ const ChartRenderer = (() => {
             });
 
             return {
-                x: data.map((_, i) => i), // Use index as X to keep points separate
-                text: data.map(row => String(row[xColumn] ?? '')), // Actual labels in hover
+                x: chartData.map((_, i) => i), // Use index as X to keep points separate
+                text: chartData.map(row => String(row[xColumn] ?? '')), // Actual labels in hover
                 y: yValues,
                 name: yCol,
                 mode: 'markers+lines',
-                customdata: data.map(row => String(row[xColumn] ?? '')),
+                customdata: chartData.map(row => String(row[xColumn] ?? '')),
                 hovertemplate: `<b>%{customdata}</b><br>${yCol}: %{y:.4f}<extra></extra>`,
                 type: 'scatter',
                 line: { width: 2, color: baseColor },
@@ -127,11 +146,11 @@ const ChartRenderer = (() => {
                 title: xColumn,
                 type: 'linear',           // Explicitly force linear axis
                 tickmode: 'array',        // Explicitly use array mode for ticks
-                tickvals: data.map((_, i) => i),
-                ticktext: data.map(row => String(row[xColumn] ?? '')),
+                tickvals: chartData.map((_, i) => i),
+                ticktext: chartData.map(row => String(row[xColumn] ?? '')),
                 gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
                 tickfont: { color: currentIsDark ? '#94a3b8' : '#475569', size: 10 },
-                range: [-0.5, data.length - 0.5], // Ensure all points are visible
+                range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
                 automargin: true          // Ensure long labels don't get cut off
             },
             yaxis: {
