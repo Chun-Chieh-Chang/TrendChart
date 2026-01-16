@@ -164,7 +164,7 @@ const ChartRenderer = (() => {
             },
             margin: { t: 60, r: 80, l: 60, b: 80 },
             autosize: true,
-            height: 450,
+            height: container.closest('.single-view') ? 800 : 450,
             hovermode: 'closest'
         };
 
@@ -393,7 +393,7 @@ const ChartRenderer = (() => {
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 120 },
-            height: 450,
+            height: container.closest('.single-view') ? 800 : 450,
             hovermode: 'closest',
             bargap: 0.1
         };

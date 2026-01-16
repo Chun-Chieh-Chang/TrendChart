@@ -86,6 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const visibleCount = [toggleTrend.checked, toggleDist.checked].filter(v => v).length;
         chartsMainContainer.classList.toggle('single-view', visibleCount === 1);
         chartsMainContainer.classList.toggle('dual-view', visibleCount === 2);
+        // Re-render if data exists to apply height changes
+        if (filteredData.length > 0) renderChart();
         // Trigger resize
         window.dispatchEvent(new Event('resize'));
     };
