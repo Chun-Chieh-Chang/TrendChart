@@ -148,14 +148,16 @@ const ChartRenderer = (() => {
                 tickmode: 'array',        // Explicitly use array mode for ticks
                 tickvals: chartData.map((_, i) => i),
                 ticktext: chartData.map(row => String(row[xColumn] ?? '')),
-                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
                 tickfont: { color: currentIsDark ? '#94a3b8' : '#475569', size: 10 },
                 range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
                 automargin: true          // Ensure long labels don't get cut off
             },
             yaxis: {
                 title: '數值',
-                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
                 tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
@@ -378,14 +380,16 @@ const ChartRenderer = (() => {
             xaxis: {
                 title: '數值',
                 titlefont: { family: 'Inter' },
-                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
                 tickfont: { family: 'Inter', color: currentIsDark ? '#94a3b8' : '#475569' },
                 range: [globalMin, globalMax]
             },
             yaxis: {
                 title: '密度',
                 titlefont: { family: 'Inter' },
-                gridcolor: currentIsDark ? '#334155' : '#e2e8f0',
+                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
                 tickfont: { family: 'Inter', color: currentIsDark ? '#94a3b8' : '#475569' }
             },
             legend: {
