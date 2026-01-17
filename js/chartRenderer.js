@@ -51,7 +51,7 @@ const ChartRenderer = (() => {
 
         const currentIsDark = isDark();
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-        const oosColor = currentIsDark ? '#fbbf24' : '#ef4444';
+        const oosColor = currentIsDark ? '#fde047' : '#ef4444';
 
         const traces = yColumns.map((yCol, idx) => {
             const rawValues = chartData.map(row => row[yCol]);
