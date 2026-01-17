@@ -150,10 +150,21 @@ const ChartRenderer = (() => {
                 type: 'linear',           // Explicitly force linear axis
                 tickmode: 'array',        // Explicitly use array mode for ticks
                 tickvals: chartData.map((_, i) => i),
-                ticktext: chartData.map(row => String(row[xColumn] ?? '')),
+                ticktext: (() => {
+                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
+                    let colorIdx = 0;
+                    return chartData.map((row, i) => {
+                        const val = String(row[xColumn] ?? '');
+                        if (i > 0) {
+                            const prevVal = String(chartData[i - 1][xColumn] ?? '');
+                            if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
+                        }
+                        return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
+                    });
+                })(),
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { color: currentIsDark ? '#cbd5e1' : '#475569', size: 10 },
+                tickfont: { size: 10 },
                 range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
                 automargin: true          // Ensure long labels don't get cut off
             },
