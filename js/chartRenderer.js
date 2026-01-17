@@ -58,6 +58,19 @@ const ChartRenderer = (() => {
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         const oosColor = currentIsDark ? '#fde047' : '#ef4444';
 
+        const formatX = (val, isDate) => {
+            if (isDate) {
+                const d = ExcelParser.parseDate(val);
+                if (d) {
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${day}`;
+                }
+            }
+            return String(val ?? '');
+        };
+
         const traces = yColumns.map((yCol, idx) => {
             // Filter data specifically for this trace to ensure continuity
             const validPoints = chartData.map((row, i) => {
@@ -85,8 +98,8 @@ const ChartRenderer = (() => {
             return {
                 x: validPoints.map(pt => pt.i),
                 text: validPoints.map(pt => {
-                    let txt = String(pt.row[xColumn] ?? '');
-                    if (xColumn2) txt += ` | ${String(pt.row[xColumn2] ?? '')}`;
+                    let txt = formatX(pt.row[xColumn], isXDate);
+                    if (xColumn2) txt += ` | ${formatX(pt.row[xColumn2], isX2Date)}`;
                     return txt;
                 }),
                 y: validPoints.map(pt => pt.y),
@@ -94,8 +107,8 @@ const ChartRenderer = (() => {
                 mode: 'markers+lines',
                 customdata: validPoints.map(pt => {
                     return {
-                        x1: String(pt.row[xColumn] ?? ''),
-                        x2: xColumn2 ? String(pt.row[xColumn2] ?? '') : null
+                        x1: formatX(pt.row[xColumn], isXDate),
+                        x2: xColumn2 ? formatX(pt.row[xColumn2], isX2Date) : null
                     };
                 }),
                 hovertemplate: `<b>${xColumn}: %{customdata.x1}</b>${xColumn2 ? `<br><b>${xColumn2}: %{customdata.x2}</b>` : ''}<br>${yCol}: %{y:.4f}<extra></extra>`,
@@ -190,25 +203,10 @@ const ChartRenderer = (() => {
                     const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
-                        let valRaw = row[xColumn];
-                        if (isXDate) {
-                            const d = ExcelParser.parseDate(valRaw);
-                            if (d) {
-                                const y = d.getFullYear();
-                                const m = String(d.getMonth() + 1).padStart(2, '0');
-                                const day = String(d.getDate()).padStart(2, '0');
-                                valRaw = `${y}-${m}-${day}`;
-                            }
-                        }
-                        const val = String(valRaw ?? '');
+                        const val = formatX(row[xColumn], isXDate);
 
                         if (i > 0) {
-                            const prevValRaw = chartData[i - 1][xColumn];
-                            let prevVal = String(prevValRaw ?? '');
-                            if (isXDate) {
-                                const pd = ExcelParser.parseDate(prevValRaw);
-                                prevVal = pd ? pd.toISOString().split('T')[0] : prevVal;
-                            }
+                            const prevVal = formatX(chartData[i - 1][xColumn], isXDate);
                             if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
                         }
                         return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
@@ -269,25 +267,10 @@ const ChartRenderer = (() => {
                     const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
-                        let valRaw = row[xColumn2];
-                        if (isX2Date) {
-                            const d = ExcelParser.parseDate(valRaw);
-                            if (d) {
-                                const y = d.getFullYear();
-                                const m = String(d.getMonth() + 1).padStart(2, '0');
-                                const day = String(d.getDate()).padStart(2, '0');
-                                valRaw = `${y}-${m}-${day}`;
-                            }
-                        }
-                        const val = String(valRaw ?? '');
+                        const val = formatX(row[xColumn2], isX2Date);
 
                         if (i > 0) {
-                            const prevValRaw = chartData[i - 1][xColumn2];
-                            let prevVal = String(prevValRaw ?? '');
-                            if (isX2Date) {
-                                const pd = ExcelParser.parseDate(prevValRaw);
-                                prevVal = pd ? pd.toISOString().split('T')[0] : prevVal;
-                            }
+                            const prevVal = formatX(chartData[i - 1][xColumn2], isX2Date);
                             if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
                         }
                         return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
