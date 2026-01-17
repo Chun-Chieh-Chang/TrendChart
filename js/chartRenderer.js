@@ -138,8 +138,8 @@ const ChartRenderer = (() => {
                 text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
                 font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
+            plot_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
             shapes: shapes,
             annotations: annotations,
             xaxis: {
@@ -373,8 +373,8 @@ const ChartRenderer = (() => {
                 text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
                 font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
             },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
+            plot_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
             shapes: shapes,
             annotations: annotations,
             xaxis: {
