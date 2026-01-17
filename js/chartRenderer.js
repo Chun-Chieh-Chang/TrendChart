@@ -143,22 +143,28 @@ const ChartRenderer = (() => {
             shapes: shapes,
             annotations: annotations,
             xaxis: {
-                title: xColumn,
+                title: {
+                    text: xColumn,
+                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                },
                 type: 'linear',           // Explicitly force linear axis
                 tickmode: 'array',        // Explicitly use array mode for ticks
                 tickvals: chartData.map((_, i) => i),
                 ticktext: chartData.map(row => String(row[xColumn] ?? '')),
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569', size: 10 },
+                tickfont: { color: currentIsDark ? '#cbd5e1' : '#475569', size: 10 },
                 range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
                 automargin: true          // Ensure long labels don't get cut off
             },
             yaxis: {
-                title: '數值',
+                title: {
+                    text: '數值',
+                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                },
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { color: currentIsDark ? '#94a3b8' : '#475569' }
+                tickfont: { color: currentIsDark ? '#cbd5e1' : '#475569' }
             },
             legend: {
                 font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
@@ -378,19 +384,23 @@ const ChartRenderer = (() => {
             shapes: shapes,
             annotations: annotations,
             xaxis: {
-                title: '數值',
-                titlefont: { family: 'Inter' },
+                title: {
+                    text: '數值',
+                    font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                },
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { family: 'Inter', color: currentIsDark ? '#94a3b8' : '#475569' },
+                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#475569' },
                 range: [globalMin, globalMax]
             },
             yaxis: {
-                title: '密度',
-                titlefont: { family: 'Inter' },
+                title: {
+                    text: '密度',
+                    font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                },
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { family: 'Inter', color: currentIsDark ? '#94a3b8' : '#475569' }
+                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#475569' }
             },
             legend: {
                 font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 11 },
