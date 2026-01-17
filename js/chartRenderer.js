@@ -30,20 +30,15 @@ const ChartRenderer = (() => {
             return;
         }
 
-        // Trim trailing rows with no valid Y data to ensure chart fills the available space
-        let lastValidIndex = -1;
-        for (let i = data.length - 1; i >= 0; i--) {
-            const hasData = yColumns.some(yCol => {
-                const val = ExcelParser.parseNumber(data[i][yCol]);
+        // Aggressively filter data to only include rows that have at least one valid Y data point
+        // This eliminates gaps and trailing empty rows from mismatched sheets or junk Excel rows.
+        const chartData = data.filter(row => {
+            return yColumns.some(yCol => {
+                const val = ExcelParser.parseNumber(row[yCol]);
                 return !isNaN(val);
             });
-            if (hasData) {
-                lastValidIndex = i;
-                break;
-            }
-        }
+        });
 
-        const chartData = (lastValidIndex === -1) ? [] : data.slice(0, lastValidIndex + 1);
         if (chartData.length === 0) {
             clearChart(targetId);
             return;
@@ -54,36 +49,43 @@ const ChartRenderer = (() => {
         const oosColor = currentIsDark ? '#fde047' : '#ef4444';
 
         const traces = yColumns.map((yCol, idx) => {
-            const rawValues = chartData.map(row => row[yCol]);
-            const yValues = rawValues.map(v => ExcelParser.parseNumber(v));
+            // Filter data specifically for this trace to ensure continuity
+            const validPoints = chartData.map((row, i) => {
+                return {
+                    i: i,
+                    y: ExcelParser.parseNumber(row[yCol]),
+                    row: row
+                };
+            }).filter(pt => !isNaN(pt.y));
+
             const baseColor = colorPalette[idx % colorPalette.length];
 
-            const markerColors = yValues.map(val => {
-                const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
-                    (!isNaN(specs.lsl) && val < specs.lsl);
+            const markerColors = validPoints.map(pt => {
+                const isOOS = (!isNaN(specs.usl) && pt.y > specs.usl) ||
+                    (!isNaN(specs.lsl) && pt.y < specs.lsl);
                 return isOOS ? oosColor : baseColor;
             });
 
-            const markerSizes = yValues.map(val => {
-                const isOOS = (!isNaN(specs.usl) && val > specs.usl) ||
-                    (!isNaN(specs.lsl) && val < specs.lsl);
+            const markerSizes = validPoints.map(pt => {
+                const isOOS = (!isNaN(specs.usl) && pt.y > specs.usl) ||
+                    (!isNaN(specs.lsl) && pt.y < specs.lsl);
                 return isOOS ? 10 : 6;
             });
 
             return {
-                x: chartData.map((_, i) => i), // Use index as X to keep points separate
-                text: chartData.map(row => {
-                    let txt = String(row[xColumn] ?? '');
-                    if (xColumn2) txt += ` | ${String(row[xColumn2] ?? '')}`;
+                x: validPoints.map(pt => pt.i),
+                text: validPoints.map(pt => {
+                    let txt = String(pt.row[xColumn] ?? '');
+                    if (xColumn2) txt += ` | ${String(pt.row[xColumn2] ?? '')}`;
                     return txt;
                 }),
-                y: yValues,
+                y: validPoints.map(pt => pt.y),
                 name: yCol,
                 mode: 'markers+lines',
-                customdata: chartData.map(row => {
+                customdata: validPoints.map(pt => {
                     return {
-                        x1: String(row[xColumn] ?? ''),
-                        x2: xColumn2 ? String(row[xColumn2] ?? '') : null
+                        x1: String(pt.row[xColumn] ?? ''),
+                        x2: xColumn2 ? String(pt.row[xColumn2] ?? '') : null
                     };
                 }),
                 hovertemplate: `<b>${xColumn}: %{customdata.x1}</b>${xColumn2 ? `<br><b>${xColumn2}: %{customdata.x2}</b>` : ''}<br>${yCol}: %{y:.4f}<extra></extra>`,
@@ -94,7 +96,7 @@ const ChartRenderer = (() => {
                     color: markerColors,
                     line: {
                         color: currentIsDark ? '#1e293b' : '#ffffff',
-                        width: yValues.map((v, i) => markerColors[i] === oosColor ? 1.5 : 0)
+                        width: validPoints.map((pt, i) => markerColors[i] === oosColor ? 1.5 : 0)
                     }
                 }
             };
