@@ -17,7 +17,7 @@ const ChartRenderer = (() => {
      * @param {Object} stats - Computed statistical metrics (for UCL/LCL)
      * @param {string} targetId - Container ID to render in
      */
-    const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend', sheetName = '', xColumn2 = '') => {
+    const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend', sheetName = '', xColumn2 = '', isXDate = false, isX2Date = false) => {
         const container = document.getElementById(targetId);
         if (!container) return;
 
@@ -30,9 +30,8 @@ const ChartRenderer = (() => {
             return;
         }
 
-        // Aggressively filter data to only include rows that have at least one valid Y data point
-        // This eliminates gaps and trailing empty rows from mismatched sheets or junk Excel rows.
-        const chartData = data.filter(row => {
+        // Create a local copy of data and filter out rows with no Y data
+        let chartData = data.filter(row => {
             return yColumns.some(yCol => {
                 const val = ExcelParser.parseNumber(row[yCol]);
                 return !isNaN(val);
@@ -42,6 +41,17 @@ const ChartRenderer = (() => {
         if (chartData.length === 0) {
             clearChart(targetId);
             return;
+        }
+
+        // --- Date Handling & Sorting ---
+        // Note: isXDate and isX2Date are now passed from the UI
+
+        if (isXDate) {
+            chartData.sort((a, b) => {
+                const da = ExcelParser.parseDate(a[xColumn]) || new Date(0);
+                const db = ExcelParser.parseDate(b[xColumn]) || new Date(0);
+                return da - db;
+            });
         }
 
         const currentIsDark = isDark();
@@ -180,9 +190,20 @@ const ChartRenderer = (() => {
                     const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
-                        const val = String(row[xColumn] ?? '');
+                        let valRaw = row[xColumn];
+                        if (isXDate) {
+                            const d = ExcelParser.parseDate(valRaw);
+                            valRaw = d ? d.toISOString().split('T')[0] : valRaw;
+                        }
+                        const val = String(valRaw ?? '');
+
                         if (i > 0) {
-                            const prevVal = String(chartData[i - 1][xColumn] ?? '');
+                            const prevValRaw = chartData[i - 1][xColumn];
+                            let prevVal = String(prevValRaw ?? '');
+                            if (isXDate) {
+                                const pd = ExcelParser.parseDate(prevValRaw);
+                                prevVal = pd ? pd.toISOString().split('T')[0] : prevVal;
+                            }
                             if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
                         }
                         return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
@@ -243,9 +264,20 @@ const ChartRenderer = (() => {
                     const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
-                        const val = String(row[xColumn2] ?? '');
+                        let valRaw = row[xColumn2];
+                        if (isX2Date) {
+                            const d = ExcelParser.parseDate(valRaw);
+                            valRaw = d ? d.toISOString().split('T')[0] : valRaw;
+                        }
+                        const val = String(valRaw ?? '');
+
                         if (i > 0) {
-                            const prevVal = String(chartData[i - 1][xColumn2] ?? '');
+                            const prevValRaw = chartData[i - 1][xColumn2];
+                            let prevVal = String(prevValRaw ?? '');
+                            if (isX2Date) {
+                                const pd = ExcelParser.parseDate(prevValRaw);
+                                prevVal = pd ? pd.toISOString().split('T')[0] : prevVal;
+                            }
                             if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
                         }
                         return `<span style="color: ${colors[colorIdx]}">${val}</span>`;

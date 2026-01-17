@@ -62,6 +62,55 @@ const ExcelParser = (() => {
     };
 
     /**
+     * Parse date-like values strictly
+     */
+    const parseDate = (val) => {
+        if (val instanceof Date) return val;
+        if (!val) return null;
+
+        // Handle Excel numeric dates (days since 1900-01-01)
+        if (typeof val === 'number') {
+            // Very rough check: dates in modern era are > 30000 (roughly 1982)
+            if (val > 30000 && val < 60000) {
+                return new Date((val - 25569) * 86400 * 1000);
+            }
+            return null;
+        }
+
+        const date = new Date(val);
+        return isNaN(date.getTime()) ? null : date;
+    };
+
+    /**
+     * Detect if a column is likely a Date column (Detailed identification)
+     */
+    const detectDateConfidence = (data, column) => {
+        if (!data || !data.length) return { isDate: false, confidence: 0 };
+
+        const samples = data
+            .map(row => row[column])
+            .filter(v => v !== undefined && v !== null && String(v).trim() !== '')
+            .slice(0, 20);
+
+        if (samples.length === 0) return { isDate: false, confidence: 0 };
+
+        const dateScore = samples.filter(v => {
+            const d = parseDate(v);
+            if (!d) return false;
+            const s = String(v);
+            if (/^\d+$/.test(s) && s.length < 5) return false;
+            return true;
+        }).length;
+
+        const confidence = dateScore / samples.length;
+        return {
+            isDate: confidence >= 0.8,
+            isUncertain: confidence > 0.2 && confidence < 0.8,
+            confidence: confidence
+        };
+    };
+
+    /**
      * Extract unique values for filtering
      */
     const getUniqueValues = (data, column) => {
@@ -165,6 +214,8 @@ const ExcelParser = (() => {
         formatValue,
         getStats,
         normDist,
-        parseNumber
+        parseNumber,
+        parseDate,
+        detectDateConfidence
     };
 })();

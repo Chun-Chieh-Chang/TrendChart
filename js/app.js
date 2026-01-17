@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const configSection = document.getElementById('config-section');
     const xAxisSelector = document.getElementById('x-axis-selector');
     const xAxis2Selector = document.getElementById('x-axis-2-selector');
+    const xIsDateCheckbox = document.getElementById('x-is-date');
+    const x2IsDateCheckbox = document.getElementById('x2-is-date');
     const yAxisSelector = document.getElementById('y-axis-selector');
     const generateChartBtn = document.getElementById('generate-chart');
     const exportTrendBtn = document.getElementById('export-trend');
@@ -349,6 +351,20 @@ document.addEventListener('DOMContentLoaded', () => {
             xAxis2Selector.value = prevX2;
         }
 
+        // Restore Date Checkboxes
+        if (xAxisSelector.value) {
+            const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
+            xIsDateCheckbox.checked = xAxisSelector.dataset.prevDate === 'true' ||
+                (!xAxisSelector.dataset.prevDate && detect.isDate);
+            updateDateHint(xIsDateCheckbox, detect);
+        }
+        if (xAxis2Selector.value) {
+            const detect = xAxis2Selector.value ? ExcelParser.detectDateConfidence(filteredData, xAxis2Selector.value) : { isDate: false };
+            x2IsDateCheckbox.checked = xAxis2Selector.dataset.prevDate === 'true' ||
+                (!xAxis2Selector.dataset.prevDate && detect.isDate);
+            updateDateHint(x2IsDateCheckbox, detect);
+        }
+
         // Restore Y-Axis (Multiple)
         const prevY = JSON.parse(yAxisSelector.dataset.prevValues || "[]");
         if (prevY.length > 0) {
@@ -377,8 +393,20 @@ document.addEventListener('DOMContentLoaded', () => {
         restoreSpecCol(lslColSelector, lslInput);
 
         // Update tracking data attributes on change
-        xAxisSelector.addEventListener('change', () => { xAxisSelector.dataset.prevValue = xAxisSelector.value; });
-        xAxis2Selector.addEventListener('change', () => { xAxis2Selector.dataset.prevValue = xAxis2Selector.value; });
+        xAxisSelector.addEventListener('change', () => {
+            xAxisSelector.dataset.prevValue = xAxisSelector.value;
+            const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
+            xIsDateCheckbox.checked = detect.isDate;
+            updateDateHint(xIsDateCheckbox, detect);
+        });
+        xAxis2Selector.addEventListener('change', () => {
+            xAxis2Selector.dataset.prevValue = xAxis2Selector.value;
+            const detect = xAxis2Selector.value ? ExcelParser.detectDateConfidence(filteredData, xAxis2Selector.value) : { isDate: false, isUncertain: false };
+            x2IsDateCheckbox.checked = detect.isDate;
+            updateDateHint(x2IsDateCheckbox, detect);
+        });
+        xIsDateCheckbox.addEventListener('change', () => { xIsDateCheckbox.dataset.prevValue = xIsDateCheckbox.checked; });
+        x2IsDateCheckbox.addEventListener('change', () => { x2IsDateCheckbox.dataset.prevValue = x2IsDateCheckbox.checked; });
         yAxisSelector.addEventListener('change', () => {
             const selected = Array.from(yAxisSelector.selectedOptions).map(o => o.value);
             yAxisSelector.dataset.prevValues = JSON.stringify(selected);
@@ -387,6 +415,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initialize UI for already selected Y axes
         updateVisibilityUI(Array.from(yAxisSelector.selectedOptions).map(o => o.value));
+
+        function updateDateHint(checkbox, detect) {
+            const label = checkbox.nextElementSibling;
+            const wrapper = checkbox.parentElement;
+
+            if (detect.isUncertain) {
+                label.innerHTML = '視為時間格式 (系統不確定，建議檢查)';
+                label.style.color = 'var(--amber)';
+                wrapper.style.opacity = '1';
+            } else if (detect.isDate) {
+                label.innerHTML = '視為時間格式 (已自動偵測)';
+                label.style.color = 'var(--green)';
+                wrapper.style.opacity = '1';
+            } else {
+                label.innerHTML = '視為時間格式 (自動排序)';
+                label.style.color = 'var(--text-secondary)';
+                wrapper.style.opacity = '0.7';
+            }
+        }
 
         function updateVisibilityUI(selected) {
             ySeriesToggles.innerHTML = '';
@@ -637,6 +684,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderChart() {
         const xCol = xAxisSelector.value;
         const xCol2 = xAxis2Selector.value;
+        const xIsDate = xIsDateCheckbox.checked;
+        const x2IsDate = x2IsDateCheckbox.checked;
         let yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
 
         // Filter out hidden series
@@ -658,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentStats = ExcelParser.getStats(values, specs);
 
         if (toggleTrend.checked) {
-            ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend', currentSheet, xCol2);
+            ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend', currentSheet, xCol2, xIsDate, x2IsDate);
         }
         if (toggleDist.checked) {
             ChartRenderer.renderNormalDistChart(filteredData, yCols, specs, 'plotly-dist', currentSheet);
