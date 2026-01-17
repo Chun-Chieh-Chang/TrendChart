@@ -396,17 +396,25 @@ document.addEventListener('DOMContentLoaded', () => {
         xAxisSelector.addEventListener('change', () => {
             xAxisSelector.dataset.prevValue = xAxisSelector.value;
             const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
-            xIsDateCheckbox.checked = detect.isDate;
+            // Always set to false initially to let user confirm, unless it was previously saved
+            xIsDateCheckbox.checked = false;
             updateDateHint(xIsDateCheckbox, detect);
         });
         xAxis2Selector.addEventListener('change', () => {
             xAxis2Selector.dataset.prevValue = xAxis2Selector.value;
             const detect = xAxis2Selector.value ? ExcelParser.detectDateConfidence(filteredData, xAxis2Selector.value) : { isDate: false, isUncertain: false };
-            x2IsDateCheckbox.checked = detect.isDate;
+            // Always set to false initially to let user confirm
+            x2IsDateCheckbox.checked = false;
             updateDateHint(x2IsDateCheckbox, detect);
         });
-        xIsDateCheckbox.addEventListener('change', () => { xIsDateCheckbox.dataset.prevValue = xIsDateCheckbox.checked; });
-        x2IsDateCheckbox.addEventListener('change', () => { x2IsDateCheckbox.dataset.prevValue = x2IsDateCheckbox.checked; });
+        xIsDateCheckbox.addEventListener('change', () => {
+            xIsDateCheckbox.dataset.prevValue = xIsDateCheckbox.checked;
+            renderChart();
+        });
+        x2IsDateCheckbox.addEventListener('change', () => {
+            x2IsDateCheckbox.dataset.prevValue = x2IsDateCheckbox.checked;
+            renderChart();
+        });
         yAxisSelector.addEventListener('change', () => {
             const selected = Array.from(yAxisSelector.selectedOptions).map(o => o.value);
             yAxisSelector.dataset.prevValues = JSON.stringify(selected);
@@ -421,15 +429,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const wrapper = checkbox.parentElement;
 
             if (detect.isUncertain) {
-                label.innerHTML = '視為時間格式 (系統不確定，建議檢查)';
+                label.innerHTML = '偵測到疑為時間格式，建議確認勾選';
                 label.style.color = 'var(--amber)';
                 wrapper.style.opacity = '1';
             } else if (detect.isDate) {
-                label.innerHTML = '視為時間格式 (已自動偵測)';
+                label.innerHTML = '偵測為時間格式，建議勾選以正確顯示';
                 label.style.color = 'var(--green)';
                 wrapper.style.opacity = '1';
             } else {
-                label.innerHTML = '視為時間格式 (自動排序)';
+                label.innerHTML = '視為時間格式 (手動開啟)';
                 label.style.color = 'var(--text-secondary)';
                 wrapper.style.opacity = '0.7';
             }
