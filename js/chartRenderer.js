@@ -158,7 +158,9 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
+                font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 },
+                y: 0.98,
+                yanchor: 'top'
             },
             paper_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
             plot_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
@@ -188,7 +190,7 @@ const ChartRenderer = (() => {
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
                 tickfont: { size: 10 },
                 range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
-                automargin: true,          // Ensure long labels don't get cut off
+                automargin: true,
                 anchor: 'y'
             },
             yaxis: {
@@ -205,7 +207,7 @@ const ChartRenderer = (() => {
                 font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
                 orientation: 'h', y: -0.2
             },
-            margin: { t: 60, r: 80, l: 60, b: 80 },
+            margin: { t: xColumn2 ? 120 : 80, r: 80, l: 60, b: 80 },
             autosize: true,
             height: container.closest('.single-view') ? 800 : 450,
             hovermode: 'closest'
@@ -250,6 +252,7 @@ const ChartRenderer = (() => {
                 gridcolor: 'rgba(0,0,0,0)', // Hide grid for top axis
                 tickfont: { size: 10 },
                 range: [-0.5, chartData.length - 0.5],
+                automargin: true,
                 anchor: 'y'
             };
         }
