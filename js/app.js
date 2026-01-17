@@ -663,4 +663,49 @@ document.addEventListener('DOMContentLoaded', () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredData");
         XLSX.writeFile(workbook, `filtered_data_${currentSheet}.xlsx`);
     });
+
+    // --- Formula Tooltips (KaTeX) ---
+    const formulaTooltip = document.getElementById('formula-tooltip');
+
+    document.querySelectorAll('[data-formula]').forEach(el => {
+        el.addEventListener('mouseenter', (e) => {
+            const formula = el.getAttribute('data-formula');
+            if (formula && typeof katex !== 'undefined') {
+                try {
+                    katex.render(formula, formulaTooltip, {
+                        throwOnError: false,
+                        displayMode: false
+                    });
+                    formulaTooltip.classList.remove('hidden');
+                } catch (err) {
+                    console.error('KaTeX error:', err);
+                }
+            }
+        });
+
+        el.addEventListener('mousemove', (e) => {
+            const x = e.clientX + 15;
+            const y = e.clientY + 15;
+
+            // Boundary check
+            const tooltipRect = formulaTooltip.getBoundingClientRect();
+            let finalX = x;
+            let finalY = y;
+
+            if (x + tooltipRect.width > window.innerWidth) {
+                finalX = e.clientX - tooltipRect.width - 15;
+            }
+            if (y + tooltipRect.height > window.innerHeight) {
+                finalY = e.clientY - tooltipRect.height - 15;
+            }
+
+            formulaTooltip.style.left = `${finalX}px`;
+            formulaTooltip.style.top = `${finalY}px`;
+        });
+
+        el.addEventListener('mouseleave', () => {
+            formulaTooltip.classList.add('hidden');
+        });
+    });
 });
+

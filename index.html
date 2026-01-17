@@ -30,6 +30,10 @@
 
     <!-- Plotly.js (Charting) -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- KaTeX (Math Rendering) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 </head>
 
 <body class="dark-mode">
@@ -58,19 +62,21 @@
                 </div>
                 <div class="summary-card stats-group-card">
                     <div class="mini-stats-grid">
-                        <div class="mini-stat">
+                        <div class="mini-stat" data-formula="C_a = \frac{\bar{X} - \text{Target}}{T/2}">
                             <label>Ca</label>
                             <span id="ca-value">N/A</span>
                         </div>
-                        <div class="mini-stat">
+                        <div class="mini-stat"
+                            data-formula="C_p = \frac{\text{USL} - \text{LSL}}{6\sigma_{\text{within}}}">
                             <label>Cp</label>
                             <span id="cp-value">N/A</span>
                         </div>
-                        <div class="mini-stat">
+                        <div class="mini-stat" data-formula="C_{pk} = C_p(1 - |C_a|)">
                             <label>Cpk</label>
                             <span id="cpk-value">N/A</span>
                         </div>
-                        <div class="mini-stat">
+                        <div class="mini-stat"
+                            data-formula="P_{pk} = \min\left(\frac{\text{USL} - \bar{X}}{3\sigma_{\text{overall}}}, \frac{\bar{X} - \text{LSL}}{3\sigma_{\text{overall}}}\right)">
                             <label>Ppk</label>
                             <span id="ppk-value">N/A</span>
                         </div>
@@ -80,7 +86,7 @@
                     <div class="card-icon amber">
                         <span class="material-icons-round">functions</span>
                     </div>
-                    <div class="card-info">
+                    <div class="card-info" data-formula="UCL/LCL = \bar{X} \pm 3\sigma_{\text{within}}">
                         <label>平均值 / 管制界限 (UCL/LCL)</label>
                         <span id="y-mean">0</span>
                         <div class="sub-text" id="cl-text">UCL: - | LCL: -</div>
@@ -90,9 +96,14 @@
                     <div class="card-info">
                         <label>標準差 (StdDev)</label>
                         <div class="dev-stats">
-                            <div class="dev-item"><span>組內:</span><b id="sd-within">-</b></div>
-                            <div class="dev-item"><span>組間:</span><b id="sd-between">-</b></div>
-                            <div class="dev-item"><span>總體:</span><b id="sd-overall">-</b></div>
+                            <div class="dev-item" data-formula="\sigma_{within} = \frac{\overline{MR}}{d_2}, d_2=1.128">
+                                <span>組內:</span><b id="sd-within">-</b></div>
+                            <div class="dev-item"
+                                data-formula="\sigma_{between} = \sqrt{\sigma_{overall}^2 - \sigma_{within}^2}">
+                                <span>組間:</span><b id="sd-between">-</b></div>
+                            <div class="dev-item"
+                                data-formula="\sigma_{overall} = \sqrt{\frac{\sum(X_i - \bar{X})^2}{N-1}}">
+                                <span>總體:</span><b id="sd-overall">-</b></div>
                         </div>
                     </div>
                 </div>
@@ -368,6 +379,9 @@
             </footer>
         </aside>
     </div>
+
+    <!-- Formula Tooltip Container -->
+    <div id="formula-tooltip" class="formula-tooltip hidden"></div>
 
     <!-- Scripts -->
     <script src="js/excelParser.js"></script>
