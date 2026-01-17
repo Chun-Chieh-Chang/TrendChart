@@ -188,9 +188,45 @@ const ChartRenderer = (() => {
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
                 tickfont: { size: 10 },
                 range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
-                automargin: true          // Ensure long labels don't get cut off
+                automargin: true,          // Ensure long labels don't get cut off
+                anchor: 'y'
             },
-            xaxis2: xColumn2 ? {
+            yaxis: {
+                title: {
+                    text: '數值',
+                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                },
+                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
+                tickfont: { color: currentIsDark ? '#cbd5e1' : '#475569' },
+                anchor: 'x'
+            },
+            legend: {
+                font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
+                orientation: 'h', y: -0.2
+            },
+            margin: { t: 60, r: 80, l: 60, b: 80 },
+            autosize: true,
+            height: container.closest('.single-view') ? 800 : 450,
+            hovermode: 'closest'
+        };
+
+        if (!isNaN(specs.target) && specs.target !== 0) {
+            layout.yaxis2 = {
+                title: '偏離目標 (%)',
+                overlaying: 'y',
+                side: 'right',
+                showgrid: false,
+                tickfont: { color: '#10b981', size: 10 },
+                titlefont: { color: '#10b981', size: 11 },
+                tickformat: '.2f',
+                ticksuffix: '%',
+                anchor: 'x'
+            };
+        }
+
+        if (xColumn2) {
+            layout.xaxis2 = {
                 title: {
                     text: xColumn2,
                     font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
@@ -213,37 +249,8 @@ const ChartRenderer = (() => {
                 })(),
                 gridcolor: 'rgba(0,0,0,0)', // Hide grid for top axis
                 tickfont: { size: 10 },
-                range: [-0.5, chartData.length - 0.5]
-            } : undefined,
-            yaxis: {
-                title: {
-                    text: '數值',
-                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
-                },
-                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
-                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { color: currentIsDark ? '#cbd5e1' : '#475569' }
-            },
-            legend: {
-                font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
-                orientation: 'h', y: -0.2
-            },
-            margin: { t: 60, r: 80, l: 60, b: 80 },
-            autosize: true,
-            height: container.closest('.single-view') ? 800 : 450,
-            hovermode: 'closest'
-        };
-
-        if (!isNaN(specs.target) && specs.target !== 0) {
-            layout.yaxis2 = {
-                title: '偏離目標 (%)',
-                overlaying: 'y',
-                side: 'right',
-                showgrid: false,
-                tickfont: { color: '#10b981', size: 10 },
-                titlefont: { color: '#10b981', size: 11 },
-                tickformat: '.2f',
-                ticksuffix: '%'
+                range: [-0.5, chartData.length - 0.5],
+                anchor: 'y'
             };
         }
 
