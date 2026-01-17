@@ -17,7 +17,7 @@ const ChartRenderer = (() => {
      * @param {Object} stats - Computed statistical metrics (for UCL/LCL)
      * @param {string} targetId - Container ID to render in
      */
-    const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend', sheetName = '') => {
+    const renderTrendChart = (data, xColumn, yColumns, specs = {}, stats = null, targetId = 'plotly-trend', sheetName = '', xColumn2 = '') => {
         const container = document.getElementById(targetId);
         if (!container) return;
 
@@ -72,12 +72,21 @@ const ChartRenderer = (() => {
 
             return {
                 x: chartData.map((_, i) => i), // Use index as X to keep points separate
-                text: chartData.map(row => String(row[xColumn] ?? '')), // Actual labels in hover
+                text: chartData.map(row => {
+                    let txt = String(row[xColumn] ?? '');
+                    if (xColumn2) txt += ` | ${String(row[xColumn2] ?? '')}`;
+                    return txt;
+                }),
                 y: yValues,
                 name: yCol,
                 mode: 'markers+lines',
-                customdata: chartData.map(row => String(row[xColumn] ?? '')),
-                hovertemplate: `<b>%{customdata}</b><br>${yCol}: %{y:.4f}<extra></extra>`,
+                customdata: chartData.map(row => {
+                    return {
+                        x1: String(row[xColumn] ?? ''),
+                        x2: xColumn2 ? String(row[xColumn2] ?? '') : null
+                    };
+                }),
+                hovertemplate: `<b>${xColumn}: %{customdata.x1}</b>${xColumn2 ? `<br><b>${xColumn2}: %{customdata.x2}</b>` : ''}<br>${yCol}: %{y:.4f}<extra></extra>`,
                 type: 'scatter',
                 line: { width: 2, color: baseColor },
                 marker: {
@@ -91,7 +100,7 @@ const ChartRenderer = (() => {
             };
         });
 
-        // Add dummy trace for secondary axis
+        // Add dummy trace for secondary Y axis
         if (!isNaN(specs.target) && specs.target !== 0) {
             traces.push({
                 x: [0],
@@ -102,6 +111,19 @@ const ChartRenderer = (() => {
                 hoverinfo: 'none'
             });
         }
+
+        // Add dummy trace for secondary X axis
+        if (xColumn2) {
+            traces.push({
+                x: chartData.map((_, i) => i),
+                y: chartData.map(() => null),
+                xaxis: 'x2',
+                type: 'scatter',
+                showlegend: false,
+                hoverinfo: 'none'
+            });
+        }
+
 
         const shapes = [];
         const annotations = [];
@@ -168,6 +190,31 @@ const ChartRenderer = (() => {
                 range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
                 automargin: true          // Ensure long labels don't get cut off
             },
+            xaxis2: xColumn2 ? {
+                title: {
+                    text: xColumn2,
+                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                },
+                overlaying: 'x',
+                side: 'top',
+                tickmode: 'array',
+                tickvals: chartData.map((_, i) => i),
+                ticktext: (() => {
+                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
+                    let colorIdx = 0;
+                    return chartData.map((row, i) => {
+                        const val = String(row[xColumn2] ?? '');
+                        if (i > 0) {
+                            const prevVal = String(chartData[i - 1][xColumn2] ?? '');
+                            if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
+                        }
+                        return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
+                    });
+                })(),
+                gridcolor: 'rgba(0,0,0,0)', // Hide grid for top axis
+                tickfont: { size: 10 },
+                range: [-0.5, chartData.length - 0.5]
+            } : undefined,
             yaxis: {
                 title: {
                     text: '數值',

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const configSection = document.getElementById('config-section');
     const xAxisSelector = document.getElementById('x-axis-selector');
+    const xAxis2Selector = document.getElementById('x-axis-2-selector');
     const yAxisSelector = document.getElementById('y-axis-selector');
     const generateChartBtn = document.getElementById('generate-chart');
     const exportTrendBtn = document.getElementById('export-trend');
@@ -264,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupSelectors(columns) {
         xAxisSelector.innerHTML = '';
+        xAxis2Selector.innerHTML = '<option value="">無</option>';
         yAxisSelector.innerHTML = '';
         targetColSelector.innerHTML = '<option value="">選取欄位</option>';
         uslColSelector.innerHTML = '<option value="">選取欄位</option>';
@@ -274,6 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
             optX.value = col;
             optX.textContent = col;
             xAxisSelector.appendChild(optX);
+
+            const optX2 = document.createElement('option');
+            optX2.value = col;
+            optX2.textContent = col;
+            xAxis2Selector.appendChild(optX2);
 
             const optY = document.createElement('option');
             optY.value = col;
@@ -336,6 +343,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dateCol) xAxisSelector.value = dateCol;
         }
 
+        // Restore X-Axis 2
+        const prevX2 = xAxis2Selector.dataset.prevValue;
+        if (prevX2 && columns.includes(prevX2)) {
+            xAxis2Selector.value = prevX2;
+        }
+
         // Restore Y-Axis (Multiple)
         const prevY = JSON.parse(yAxisSelector.dataset.prevValues || "[]");
         if (prevY.length > 0) {
@@ -365,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update tracking data attributes on change
         xAxisSelector.addEventListener('change', () => { xAxisSelector.dataset.prevValue = xAxisSelector.value; });
+        xAxis2Selector.addEventListener('change', () => { xAxis2Selector.dataset.prevValue = xAxis2Selector.value; });
         yAxisSelector.addEventListener('change', () => {
             const selected = Array.from(yAxisSelector.selectedOptions).map(o => o.value);
             yAxisSelector.dataset.prevValues = JSON.stringify(selected);
@@ -622,6 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderChart() {
         const xCol = xAxisSelector.value;
+        const xCol2 = xAxis2Selector.value;
         let yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
 
         // Filter out hidden series
@@ -643,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentStats = ExcelParser.getStats(values, specs);
 
         if (toggleTrend.checked) {
-            ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend', currentSheet);
+            ChartRenderer.renderTrendChart(filteredData, xCol, yCols, specs, currentStats, 'plotly-trend', currentSheet, xCol2);
         }
         if (toggleDist.checked) {
             ChartRenderer.renderNormalDistChart(filteredData, yCols, specs, 'plotly-dist', currentSheet);

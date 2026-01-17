@@ -97,13 +97,16 @@
                         <label>標準差 (StdDev)</label>
                         <div class="dev-stats">
                             <div class="dev-item" data-formula="\sigma_{within} = \frac{\overline{MR}}{d_2}, d_2=1.128">
-                                <span>組內:</span><b id="sd-within">-</b></div>
+                                <span>組內:</span><b id="sd-within">-</b>
+                            </div>
                             <div class="dev-item"
                                 data-formula="\sigma_{between} = \sqrt{\sigma_{overall}^2 - \sigma_{within}^2}">
-                                <span>組間:</span><b id="sd-between">-</b></div>
+                                <span>組間:</span><b id="sd-between">-</b>
+                            </div>
                             <div class="dev-item"
                                 data-formula="\sigma_{overall} = \sqrt{\frac{\sum(X_i - \bar{X})^2}{N-1}}">
-                                <span>總體:</span><b id="sd-overall">-</b></div>
+                                <span>總體:</span><b id="sd-overall">-</b>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -271,8 +274,14 @@
                         圖表設定
                     </h2>
                     <div class="config-group">
-                        <label>X 軸欄位 (時間/序號)</label>
+                        <label>主 X 軸欄位 (底部)</label>
                         <select id="x-axis-selector" class="custom-select"></select>
+                    </div>
+                    <div class="config-group">
+                        <label>副 X 軸欄位 (頂部)</label>
+                        <select id="x-axis-2-selector" class="custom-select">
+                            <option value="">無</option>
+                        </select>
                     </div>
                     <div class="config-group">
                         <label>Y 軸欄位 (數值數據)</label>
