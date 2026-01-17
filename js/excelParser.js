@@ -13,7 +13,7 @@ const ExcelParser = (() => {
             try {
                 const options = {
                     type: data instanceof ArrayBuffer ? 'array' : 'binary',
-                    cellDates: false,
+                    cellDates: true,
                     cellNF: false,
                     cellText: false
                 };
@@ -35,9 +35,9 @@ const ExcelParser = (() => {
 
         try {
             const worksheet = workbook.Sheets[sheetName];
-            // Convert to JSON, handling headers automatically
+            // Get raw data to handle Date objects correctly
             const data = XLSX.utils.sheet_to_json(worksheet, {
-                raw: false,
+                raw: true,
                 dateNF: 'yyyy-mm-dd hh:mm:ss'
             });
 
@@ -68,16 +68,20 @@ const ExcelParser = (() => {
         if (val instanceof Date) return val;
         if (!val) return null;
 
-        // Handle Excel numeric dates (days since 1900-01-01)
+        // If it's a number, it's an Excel numeric date
         if (typeof val === 'number') {
-            // Very rough check: dates in modern era are > 30000 (roughly 1982)
-            if (val > 30000 && val < 60000) {
+            // Excel dates are usually between 1.0 (1900) and 100000.0 (2173)
+            if (val > 100 && val < 100000) {
                 return new Date((val - 25569) * 86400 * 1000);
             }
             return null;
         }
 
-        const date = new Date(val);
+        const s = String(val).trim();
+        if (!s) return null;
+
+        // Try standard parsing
+        const date = new Date(s);
         return isNaN(date.getTime()) ? null : date;
     };
 

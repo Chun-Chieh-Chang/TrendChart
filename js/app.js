@@ -351,17 +351,15 @@ document.addEventListener('DOMContentLoaded', () => {
             xAxis2Selector.value = prevX2;
         }
 
-        // Restore Date Checkboxes
+        // Always set checkboxes to false on load to force manual confirmation
         if (xAxisSelector.value) {
             const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
-            xIsDateCheckbox.checked = xAxisSelector.dataset.prevDate === 'true' ||
-                (!xAxisSelector.dataset.prevDate && detect.isDate);
+            xIsDateCheckbox.checked = xAxisSelector.dataset.prevDate === 'true';
             updateDateHint(xIsDateCheckbox, detect);
         }
         if (xAxis2Selector.value) {
             const detect = xAxis2Selector.value ? ExcelParser.detectDateConfidence(filteredData, xAxis2Selector.value) : { isDate: false };
-            x2IsDateCheckbox.checked = xAxis2Selector.dataset.prevDate === 'true' ||
-                (!xAxis2Selector.dataset.prevDate && detect.isDate);
+            x2IsDateCheckbox.checked = xAxis2Selector.dataset.prevDate === 'true';
             updateDateHint(x2IsDateCheckbox, detect);
         }
 
@@ -432,14 +430,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 label.innerHTML = '偵測到疑為時間格式，建議確認勾選';
                 label.style.color = 'var(--amber)';
                 wrapper.style.opacity = '1';
+                wrapper.classList.add('pulse-hint');
             } else if (detect.isDate) {
                 label.innerHTML = '偵測為時間格式，建議勾選以正確顯示';
                 label.style.color = 'var(--green)';
                 wrapper.style.opacity = '1';
+                wrapper.classList.add('pulse-hint');
             } else {
                 label.innerHTML = '視為時間格式 (手動開啟)';
                 label.style.color = 'var(--text-secondary)';
                 wrapper.style.opacity = '0.7';
+                wrapper.classList.remove('pulse-hint');
             }
         }
 

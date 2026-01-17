@@ -183,7 +183,7 @@ const ChartRenderer = (() => {
                     text: xColumn,
                     font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
                 },
-                type: 'linear',           // Explicitly force linear axis
+                type: 'category',          // Safe mode to prevent Plotly from misinterpreting text/dates
                 tickmode: 'array',        // Explicitly use array mode for ticks
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
@@ -193,7 +193,12 @@ const ChartRenderer = (() => {
                         let valRaw = row[xColumn];
                         if (isXDate) {
                             const d = ExcelParser.parseDate(valRaw);
-                            valRaw = d ? d.toISOString().split('T')[0] : valRaw;
+                            if (d) {
+                                const y = d.getFullYear();
+                                const m = String(d.getMonth() + 1).padStart(2, '0');
+                                const day = String(d.getDate()).padStart(2, '0');
+                                valRaw = `${y}-${m}-${day}`;
+                            }
                         }
                         const val = String(valRaw ?? '');
 
@@ -267,7 +272,12 @@ const ChartRenderer = (() => {
                         let valRaw = row[xColumn2];
                         if (isX2Date) {
                             const d = ExcelParser.parseDate(valRaw);
-                            valRaw = d ? d.toISOString().split('T')[0] : valRaw;
+                            if (d) {
+                                const y = d.getFullYear();
+                                const m = String(d.getMonth() + 1).padStart(2, '0');
+                                const day = String(d.getDate()).padStart(2, '0');
+                                valRaw = `${y}-${m}-${day}`;
+                            }
                         }
                         const val = String(valRaw ?? '');
 

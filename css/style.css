@@ -796,3 +796,32 @@ body.dark-mode .formula-tooltip {
 .mt-2 {
     margin-top: 0.5rem;
 }
+
+/* Date Hint Animation */
+@keyframes pulse-amber {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.02);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.pulse-hint {
+    animation: pulse-amber 2s infinite ease-in-out;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+body.dark-mode .pulse-hint {
+    background: rgba(245, 158, 11, 0.05);
+}
