@@ -34,161 +34,6 @@
 
 <body class="dark-mode">
     <div class="app-container">
-        <!-- Sidebar / Control Panel -->
-        <aside class="sidebar">
-            <header class="sidebar-header">
-                <div class="logo">
-                    <span class="material-icons-round">analytics</span>
-                    <h1>TrendChart Pro</h1>
-                </div>
-            </header>
-
-            <div class="control-sections">
-                <!-- File Upload -->
-                <section class="control-section">
-                    <h2 class="section-title">
-                        <span class="material-icons-round">upload_file</span>
-                        資料導入
-                    </h2>
-                    <div id="drop-zone" class="drop-zone">
-                        <input type="file" id="file-input" accept=".xlsx, .xls" hidden>
-                        <span class="material-icons-round">cloud_upload</span>
-                        <p>拖放 Excel 檔案或點擊上傳</p>
-                    </div>
-                    <div id="file-info" class="file-info hidden">
-                        <span class="material-icons-round">description</span>
-                        <span id="filename">filename.xlsx</span>
-                        <button id="remove-file" class="icon-button">
-                            <span class="material-icons-round">close</span>
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Worksheet Selection -->
-                <section class="control-section hidden" id="sheet-section">
-                    <h2 class="section-title">
-                        <span class="material-icons-round">layers</span>
-                        選擇工作表
-                    </h2>
-                    <select id="sheet-selector" class="custom-select" multiple></select>
-                    <small class="hint">按住 Ctrl 可選擇多個工作表進行數據拼接</small>
-                </section>
-
-                <!-- Column Configuration -->
-                <section class="control-section hidden" id="config-section">
-                    <h2 class="section-title">
-                        <span class="material-icons-round">settings</span>
-                        圖表設定
-                    </h2>
-                    <div class="config-group">
-                        <label>X 軸欄位 (時間/序號)</label>
-                        <select id="x-axis-selector" class="custom-select"></select>
-                    </div>
-                    <div class="config-group">
-                        <label>Y 軸欄位 (數值數據)</label>
-                        <select id="y-axis-selector" class="custom-select" multiple></select>
-                        <small class="hint">按住 Ctrl 可多選</small>
-                    </div>
-
-                    <div id="y-visibility-section" class="config-group hidden">
-                        <label>顯示切換 (快速勾選)</label>
-                        <div id="y-series-toggles" class="checkbox-list-container"></div>
-                    </div>
-
-                    <!-- Spec Limits Section -->
-                    <div class="spec-limits-container">
-                        <div class="config-group">
-                            <label>目標值 (Target)</label>
-                            <div class="input-with-select">
-                                <input type="number" id="target-input" class="custom-input" placeholder="手動輸入">
-                                <select id="target-col-selector" class="custom-select col-pick" title="從欄位選取">
-                                    <option value="">選取欄位</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="config-group">
-                            <label>規格上限 (USL)</label>
-                            <div class="input-with-select">
-                                <input type="number" id="usl-input" class="custom-input" placeholder="手動輸入">
-                                <select id="usl-col-selector" class="custom-select col-pick" title="從欄位選取">
-                                    <option value="">選取欄位</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="config-group">
-                            <label>規格下限 (LSL)</label>
-                            <div class="input-with-select">
-                                <input type="number" id="lsl-input" class="custom-input" placeholder="手動輸入">
-                                <select id="lsl-col-selector" class="custom-select col-pick" title="從欄位選取">
-                                    <option value="">選取欄位</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="button-group">
-                        <button id="generate-chart" class="primary-button">
-                            <span class="material-icons-round">refresh</span>
-                            更新圖表
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Layout Config -->
-                <section class="control-section hidden" id="layout-section">
-                    <h2 class="section-title">
-                        <span class="material-icons-round">dashboard</span>
-                        佈局設定
-                    </h2>
-                    <div class="layout-toggles">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="toggle-trend" checked>
-                            <span>顯示趨勢圖</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="toggle-dist" checked>
-                            <span>顯示常態分析</span>
-                        </label>
-                    </div>
-                </section>
-
-                <!-- Filtering -->
-                <section class="control-section hidden" id="filter-section">
-                    <h2 class="section-title">
-                        <span class="material-icons-round">filter_alt</span>
-                        數據篩選
-                    </h2>
-                    <div id="filter-container" class="filter-container">
-                        <!-- Filters will be generated dynamically -->
-                    </div>
-                    <button id="reset-filters" class="secondary-button size-sm">
-                        清除所有篩選
-                    </button>
-                </section>
-
-                <!-- Author Info -->
-                <section class="control-section">
-                    <h2 class="section-title">
-                        <span class="material-icons-round">person_outline</span>
-                        作者資訊
-                    </h2>
-                    <div class="author-card">
-                        <p class="author-name">Wesley Chang, 2026-01-16.</p>
-                        <p class="author-label">Mouldex Inc. / Quality Control Dept.</p>
-                    </div>
-                </section>
-            </div>
-
-            <footer class="sidebar-footer">
-                <button id="show-help" class="icon-button" title="參數說明">
-                    <span class="material-icons-round">help_outline</span>
-                </button>
-                <button id="theme-toggle" class="icon-button">
-                    <span class="material-icons-round">dark_mode</span>
-                </button>
-                <span class="version">v1.0.0</span>
-            </footer>
-        </aside>
-
         <!-- Main Content Area -->
         <main class="main-content">
             <!-- Summary Cards -->
@@ -367,6 +212,161 @@
                 </div>
             </div>
         </main>
+
+        <!-- Sidebar / Control Panel -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <div class="logo">
+                    <span class="material-icons-round">analytics</span>
+                    <h1>TrendChart Pro</h1>
+                </div>
+            </header>
+
+            <div class="control-sections">
+                <!-- File Upload -->
+                <section class="control-section">
+                    <h2 class="section-title">
+                        <span class="material-icons-round">upload_file</span>
+                        資料導入
+                    </h2>
+                    <div id="drop-zone" class="drop-zone">
+                        <input type="file" id="file-input" accept=".xlsx, .xls" hidden>
+                        <span class="material-icons-round">cloud_upload</span>
+                        <p>拖放 Excel 檔案或點擊上傳</p>
+                    </div>
+                    <div id="file-info" class="file-info hidden">
+                        <span class="material-icons-round">description</span>
+                        <span id="filename">filename.xlsx</span>
+                        <button id="remove-file" class="icon-button">
+                            <span class="material-icons-round">close</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Worksheet Selection -->
+                <section class="control-section hidden" id="sheet-section">
+                    <h2 class="section-title">
+                        <span class="material-icons-round">layers</span>
+                        選擇工作表
+                    </h2>
+                    <select id="sheet-selector" class="custom-select" multiple></select>
+                    <small class="hint">按住 Ctrl 可選擇多個工作表進行數據拼接</small>
+                </section>
+
+                <!-- Column Configuration -->
+                <section class="control-section hidden" id="config-section">
+                    <h2 class="section-title">
+                        <span class="material-icons-round">settings</span>
+                        圖表設定
+                    </h2>
+                    <div class="config-group">
+                        <label>X 軸欄位 (時間/序號)</label>
+                        <select id="x-axis-selector" class="custom-select"></select>
+                    </div>
+                    <div class="config-group">
+                        <label>Y 軸欄位 (數值數據)</label>
+                        <select id="y-axis-selector" class="custom-select" multiple></select>
+                        <small class="hint">按住 Ctrl 可多選</small>
+                    </div>
+
+                    <div id="y-visibility-section" class="config-group hidden">
+                        <label>顯示切換 (快速勾選)</label>
+                        <div id="y-series-toggles" class="checkbox-list-container"></div>
+                    </div>
+
+                    <!-- Spec Limits Section -->
+                    <div class="spec-limits-container">
+                        <div class="config-group">
+                            <label>目標值 (Target)</label>
+                            <div class="input-with-select">
+                                <input type="number" id="target-input" class="custom-input" placeholder="手動輸入">
+                                <select id="target-col-selector" class="custom-select col-pick" title="從欄位選取">
+                                    <option value="">選取欄位</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="config-group">
+                            <label>規格上限 (USL)</label>
+                            <div class="input-with-select">
+                                <input type="number" id="usl-input" class="custom-input" placeholder="手動輸入">
+                                <select id="usl-col-selector" class="custom-select col-pick" title="從欄位選取">
+                                    <option value="">選取欄位</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="config-group">
+                            <label>規格下限 (LSL)</label>
+                            <div class="input-with-select">
+                                <input type="number" id="lsl-input" class="custom-input" placeholder="手動輸入">
+                                <select id="lsl-col-selector" class="custom-select col-pick" title="從欄位選取">
+                                    <option value="">選取欄位</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button id="generate-chart" class="primary-button">
+                            <span class="material-icons-round">refresh</span>
+                            更新圖表
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Layout Config -->
+                <section class="control-section hidden" id="layout-section">
+                    <h2 class="section-title">
+                        <span class="material-icons-round">dashboard</span>
+                        佈局設定
+                    </h2>
+                    <div class="layout-toggles">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="toggle-trend" checked>
+                            <span>顯示趨勢圖</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="toggle-dist" checked>
+                            <span>顯示常態分析</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Filtering -->
+                <section class="control-section hidden" id="filter-section">
+                    <h2 class="section-title">
+                        <span class="material-icons-round">filter_alt</span>
+                        數據篩選
+                    </h2>
+                    <div id="filter-container" class="filter-container">
+                        <!-- Filters will be generated dynamically -->
+                    </div>
+                    <button id="reset-filters" class="secondary-button size-sm">
+                        清除所有篩選
+                    </button>
+                </section>
+
+                <!-- Author Info -->
+                <section class="control-section">
+                    <h2 class="section-title">
+                        <span class="material-icons-round">person_outline</span>
+                        作者資訊
+                    </h2>
+                    <div class="author-card">
+                        <p class="author-name">Wesley Chang, 2026-01-16.</p>
+                        <p class="author-label">Mouldex Inc. / Quality Control Dept.</p>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="sidebar-footer">
+                <button id="show-help" class="icon-button" title="參數說明">
+                    <span class="material-icons-round">help_outline</span>
+                </button>
+                <button id="theme-toggle" class="icon-button">
+                    <span class="material-icons-round">dark_mode</span>
+                </button>
+                <span class="version">v1.0.0</span>
+            </footer>
+        </aside>
     </div>
 
     <!-- Scripts -->
