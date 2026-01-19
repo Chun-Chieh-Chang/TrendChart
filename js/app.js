@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartsMainContainer = document.getElementById('charts-main-container');
     const trendCard = document.getElementById('trend-card');
     const distCard = document.getElementById('dist-card');
+    const togglePreview = document.getElementById('toggle-preview');
+    const tableContainer = document.querySelector('.table-container');
 
     const totalRowsEl = document.getElementById('total-rows');
     const filteredRowsEl = document.getElementById('filtered-rows');
@@ -96,6 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     toggleTrend.addEventListener('change', updateLayout);
     toggleDist.addEventListener('change', updateLayout);
+
+    togglePreview.addEventListener('change', () => {
+        if (filteredData.length > 0) {
+            updateTable();
+        }
+    });
+
     updateLayout(); // Initialize layout state
 
     // Theme Toggle
@@ -583,8 +592,15 @@ document.addEventListener('DOMContentLoaded', () => {
             tableHead.appendChild(th);
         });
 
-        // Initial render logic
+        // Clear existing body
         tableBody.innerHTML = '';
+        tableCurrentIndex = 0;
+
+        // Disconnect previous observer if any
+        if (tableObserver) {
+            tableObserver.disconnect();
+            tableObserver = null;
+        }
 
         // Update table count indicator
         const countDisplay = document.getElementById('table-count');
@@ -604,9 +620,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Render all data at once using a DocumentFragment for performance
+        // Check if preview is enabled
+        if (!togglePreview.checked) {
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = columns.length || 1;
+            td.style.textAlign = 'center';
+            td.style.padding = '2rem';
+            td.innerHTML = '<i>數據預覽已關閉以提升效能</i>';
+            tr.appendChild(td);
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        // Implement Incremental Rendering (Lazy Load)
+        renderTableBatch(columns);
+
+        // Update stats
+        updateStats();
+    }
+
+    function renderTableBatch(columns) {
+        const start = tableCurrentIndex;
+        const end = Math.min(start + tablePageSize, filteredData.length);
         const fragment = document.createDocumentFragment();
-        filteredData.forEach(row => {
+
+        for (let i = start; i < end; i++) {
+            const row = filteredData[i];
             const tr = document.createElement('tr');
             columns.forEach(col => {
                 const td = document.createElement('td');
@@ -614,11 +654,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.appendChild(td);
             });
             fragment.appendChild(tr);
-        });
-        tableBody.appendChild(fragment);
+        }
 
-        // Update stats
-        updateStats();
+        tableBody.appendChild(fragment);
+        tableCurrentIndex = end;
+
+        // If there are more rows, setup IntersectionObserver for the last row
+        if (tableCurrentIndex < filteredData.length) {
+            const lastRow = tableBody.lastElementChild;
+            if (lastRow) {
+                if (!tableObserver) {
+                    tableObserver = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting) {
+                            tableObserver.unobserve(lastRow);
+                            renderTableBatch(columns);
+                        }
+                    }, { root: null, rootMargin: '100px', threshold: 0.1 });
+                }
+                tableObserver.observe(lastRow);
+            }
+        }
     }
 
     function updateStats() {

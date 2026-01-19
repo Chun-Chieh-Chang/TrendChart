@@ -118,9 +118,14 @@ const ExcelParser = (() => {
      * Extract unique values for filtering
      */
     const getUniqueValues = (data, column) => {
-        const values = data.map(row => row[column])
-            .filter(val => val !== undefined && val !== null && val !== '');
-        return [...new Set(values)];
+        const set = new Set();
+        for (let i = 0; i < data.length; i++) {
+            const val = data[i][column];
+            if (val !== undefined && val !== null && val !== '') {
+                set.add(val);
+            }
+        }
+        return Array.from(set);
     };
 
     /**
