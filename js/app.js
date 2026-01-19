@@ -536,22 +536,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 const label = document.createElement('label');
                 label.textContent = col;
 
+                // Search Input for Filter
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.className = 'filter-search';
+                searchInput.placeholder = `搜尋 ${col}...`;
+
                 const select = document.createElement('select');
                 select.className = 'custom-select';
                 select.innerHTML = `<option value="">全部</option>`;
 
-                uniqueValues.forEach(val => {
-                    const opt = document.createElement('option');
-                    opt.value = val;
-                    opt.textContent = val;
-                    select.appendChild(opt);
+                const renderOptions = (filterText = '') => {
+                    const currentVal = select.value;
+                    select.innerHTML = `<option value="">全部</option>`;
+
+                    uniqueValues
+                        .filter(val => String(val).toLowerCase().includes(filterText.toLowerCase()))
+                        .forEach(val => {
+                            const opt = document.createElement('option');
+                            opt.value = val;
+                            opt.textContent = val;
+                            select.appendChild(opt);
+                        });
+
+                    // Maintain selection if it still exists in the filtered list
+                    if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+                        select.value = currentVal;
+                    }
+                };
+
+                renderOptions();
+
+                searchInput.addEventListener('input', (e) => {
+                    renderOptions(e.target.value);
                 });
 
                 // Restore previous selection if applicable
                 if (activeFilters[col] !== undefined && uniqueValues.includes(String(activeFilters[col]))) {
+                    // Make sure the selected option is visible even if it doesn't match current search
                     select.value = activeFilters[col];
                 } else if (activeFilters[col] !== undefined) {
-                    // If the old value is no longer valid for this column's unique values, remove it
                     delete activeFilters[col];
                 }
 
@@ -565,6 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 div.appendChild(label);
+                div.appendChild(searchInput);
                 div.appendChild(select);
                 filterContainer.appendChild(div);
             }

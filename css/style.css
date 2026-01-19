@@ -464,6 +464,29 @@ tr:hover td {
     font-weight: 500;
 }
 
+.filter-search {
+    width: 100%;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-bottom: none;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.filter-search:focus {
+    border-color: var(--primary-color);
+    background: rgba(14, 165, 233, 0.05);
+}
+
+.filter-item .custom-select {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
 /* Button Group for Analysis */
 .checkbox-list-container {
     display: flex;
