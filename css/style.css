@@ -628,6 +628,13 @@ tr:hover td {
     accent-color: var(--primary-color);
 }
 
+.section-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 0.5rem 0;
+    opacity: 0.5;
+}
+
 .charts-grid {
     display: grid;
     gap: 1.5rem;

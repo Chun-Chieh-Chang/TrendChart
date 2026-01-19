@@ -171,11 +171,16 @@ const ChartRenderer = (() => {
             });
         };
 
-        addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
-        addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
-        addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
+        if (specs.showTarget !== false) {
+            addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+        }
 
-        if (stats) {
+        if (specs.showSpec !== false) {
+            addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
+            addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
+        }
+
+        if (stats && specs.showLimits !== false) {
             addLimitLine(stats.ucl, 'UCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
             addLimitLine(stats.lcl, 'LCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
         }
@@ -465,9 +470,14 @@ const ChartRenderer = (() => {
             });
         };
 
-        addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
-        addLimit(specs.usl, 'USL', '#ef4444', 'dash');
-        addLimit(specs.lsl, 'LSL', '#ef4444', 'dash');
+        if (specs.showTarget !== false) {
+            addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+        }
+
+        if (specs.showSpec !== false) {
+            addLimit(specs.usl, 'USL', '#ef4444', 'dash');
+            addLimit(specs.lsl, 'LSL', '#ef4444', 'dash');
+        }
 
         const layout = {
             title: {

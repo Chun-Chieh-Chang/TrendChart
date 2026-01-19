@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const togglePreview = document.getElementById('toggle-preview');
     const tableContainer = document.querySelector('.table-container');
 
+    const showTargetToggle = document.getElementById('show-target');
+    const showSpecToggle = document.getElementById('show-spec');
+    const showLimitsToggle = document.getElementById('show-limits');
+
     const totalRowsEl = document.getElementById('total-rows');
     const filteredRowsEl = document.getElementById('filtered-rows');
     const yMeanEl = document.getElementById('y-mean');
@@ -133,6 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filteredData.length > 0) {
             updateTable();
         }
+    });
+
+    [showTargetToggle, showSpecToggle, showLimitsToggle].forEach(t => {
+        t.addEventListener('change', () => {
+            if (filteredData.length > 0) renderChart();
+        });
     });
 
     updateLayout(); // Initialize layout state
@@ -724,7 +734,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const specs = {
             target: parseFloat(targetInput.value),
             usl: parseFloat(uslInput.value),
-            lsl: parseFloat(lslInput.value)
+            lsl: parseFloat(lslInput.value),
+            showTarget: showTargetToggle.checked,
+            showSpec: showSpecToggle.checked,
+            showLimits: showLimitsToggle.checked
         };
 
         if (yCols.length > 0 && filteredData.length > 0) {
@@ -801,7 +814,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const specs = {
             target: parseFloat(targetInput.value),
             usl: parseFloat(uslInput.value),
-            lsl: parseFloat(lslInput.value)
+            lsl: parseFloat(lslInput.value),
+            showTarget: showTargetToggle.checked,
+            showSpec: showSpecToggle.checked,
+            showLimits: showLimitsToggle.checked
         };
 
         if (!xCol || yCols.length === 0) {
