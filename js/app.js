@@ -77,6 +77,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let tableCurrentIndex = 0;
     let tableObserver = null;
 
+    // --- Utility Functions for Spec Extraction ---
+
+    // Binding column selection to manual inputs
+    const updateInputFromCol = (selector, input) => {
+        const col = selector.value;
+        if (col && filteredData.length > 0) {
+            // Find the first valid numeric value in the filtered data set
+            let foundValue = null;
+            for (let i = 0; i < filteredData.length; i++) {
+                const val = ExcelParser.parseNumber(filteredData[i][col]);
+                if (!isNaN(val)) {
+                    foundValue = val;
+                    break;
+                }
+            }
+
+            if (foundValue !== null) {
+                input.value = foundValue;
+            } else {
+                input.value = ''; // Clear if no numeric value found in the entire column
+            }
+        }
+    };
+
+    const syncSpecInputs = () => {
+        updateInputFromCol(targetColSelector, targetInput);
+        updateInputFromCol(uslColSelector, uslInput);
+        updateInputFromCol(lslColSelector, lslInput);
+    };
+
     // --- Initialization ---
 
     // Help Modal
@@ -314,34 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
             optL.textContent = col;
             lslColSelector.appendChild(optL);
         });
-
-        // Binding column selection to manual inputs
-        const updateInputFromCol = (selector, input) => {
-            const col = selector.value;
-            if (col && filteredData.length > 0) {
-                // Find the first valid numeric value in the filtered data set
-                let foundValue = null;
-                for (let i = 0; i < filteredData.length; i++) {
-                    const val = ExcelParser.parseNumber(filteredData[i][col]);
-                    if (!isNaN(val)) {
-                        foundValue = val;
-                        break;
-                    }
-                }
-
-                if (foundValue !== null) {
-                    input.value = foundValue;
-                } else {
-                    input.value = ''; // Clear if no numeric value found in the entire column
-                }
-            }
-        };
-
-        const syncSpecInputs = () => {
-            updateInputFromCol(targetColSelector, targetInput);
-            updateInputFromCol(uslColSelector, uslInput);
-            updateInputFromCol(lslColSelector, lslInput);
-        };
 
         targetColSelector.addEventListener('change', () => {
             updateInputFromCol(targetColSelector, targetInput);
