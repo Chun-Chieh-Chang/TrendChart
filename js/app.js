@@ -319,15 +319,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateInputFromCol = (selector, input) => {
             const col = selector.value;
             if (col && filteredData.length > 0) {
-                // Try to find a numeric value in the first few rows
-                const val = filteredData[0][col];
-                const numVal = ExcelParser.parseNumber(val);
-                if (!isNaN(numVal)) {
-                    input.value = numVal;
+                // Find the first valid numeric value in the filtered data set
+                let foundValue = null;
+                for (let i = 0; i < filteredData.length; i++) {
+                    const val = ExcelParser.parseNumber(filteredData[i][col]);
+                    if (!isNaN(val)) {
+                        foundValue = val;
+                        break;
+                    }
+                }
+
+                if (foundValue !== null) {
+                    input.value = foundValue;
                 } else {
-                    input.value = ''; // Clear if not a number
+                    input.value = ''; // Clear if no numeric value found in the entire column
                 }
             }
+        };
+
+        const syncSpecInputs = () => {
+            updateInputFromCol(targetColSelector, targetInput);
+            updateInputFromCol(uslColSelector, uslInput);
+            updateInputFromCol(lslColSelector, lslInput);
         };
 
         targetColSelector.addEventListener('change', () => {
@@ -565,6 +578,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredRowsEl.textContent = filteredData.length;
         updateTable();
+
+        // Sync Spec Inputs based on filtered results
+        syncSpecInputs();
 
         // Auto update chart if it's already rendered
         if (document.querySelector('.plotly') || xAxisSelector.value) {
