@@ -111,6 +111,54 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputFromCol(lslColSelector, lslInput);
     };
 
+    // --- Persistence Support ---
+    const STORAGE_KEY_LAYOUT = 'trendchart_layout_config';
+    const STORAGE_KEY_FILTERS = 'trendchart_filters_config';
+
+    const saveLayoutConfig = () => {
+        const config = {
+            trend: toggleTrend.checked,
+            dist: toggleDist.checked,
+            preview: togglePreview.checked,
+            target: showTargetToggle.checked,
+            spec: showSpecToggle.checked,
+            limits: showLimitsToggle.checked
+        };
+        localStorage.setItem(STORAGE_KEY_LAYOUT, JSON.stringify(config));
+    };
+
+    const loadLayoutConfig = () => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY_LAYOUT);
+            if (saved) {
+                const config = JSON.parse(saved);
+                if (config.trend !== undefined) toggleTrend.checked = config.trend;
+                if (config.dist !== undefined) toggleDist.checked = config.dist;
+                if (config.preview !== undefined) togglePreview.checked = config.preview;
+                if (config.target !== undefined) showTargetToggle.checked = config.target;
+                if (config.spec !== undefined) showSpecToggle.checked = config.spec;
+                if (config.limits !== undefined) showLimitsToggle.checked = config.limits;
+            }
+        } catch (e) {
+            console.warn('Failed to load layout config:', e);
+        }
+    };
+
+    const saveFiltersConfig = () => {
+        localStorage.setItem(STORAGE_KEY_FILTERS, JSON.stringify(activeFilters));
+    };
+
+    const loadFiltersConfig = () => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY_FILTERS);
+            if (saved) {
+                activeFilters = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.warn('Failed to load filters config:', e);
+        }
+    };
+
     // --- Initialization ---
 
     // Help Modal
@@ -130,10 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Trigger resize
         window.dispatchEvent(new Event('resize'));
     };
-    toggleTrend.addEventListener('change', updateLayout);
-    toggleDist.addEventListener('change', updateLayout);
+
+    toggleTrend.addEventListener('change', () => {
+        saveLayoutConfig();
+        updateLayout();
+    });
+    toggleDist.addEventListener('change', () => {
+        saveLayoutConfig();
+        updateLayout();
+    });
 
     togglePreview.addEventListener('change', () => {
+        saveLayoutConfig();
         if (filteredData.length > 0) {
             updateTable();
         }
@@ -141,10 +197,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     [showTargetToggle, showSpecToggle, showLimitsToggle].forEach(t => {
         t.addEventListener('change', () => {
+            saveLayoutConfig();
             if (filteredData.length > 0) renderChart();
         });
     });
 
+    loadLayoutConfig(); // Load before initial layout update
+    loadFiltersConfig(); // Load previous filters
     updateLayout(); // Initialize layout state
 
     // Theme Toggle
@@ -428,23 +487,23 @@ document.addEventListener('DOMContentLoaded', () => {
         xAxisSelector.addEventListener('change', () => {
             xAxisSelector.dataset.prevValue = xAxisSelector.value;
             const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
-            // Always set to false initially to let user confirm, unless it was previously saved
-            xIsDateCheckbox.checked = false;
+            // Keep the previous state instead of forcing false
             updateDateHint(xIsDateCheckbox, detect);
         });
         xAxis2Selector.addEventListener('change', () => {
             xAxis2Selector.dataset.prevValue = xAxis2Selector.value;
             const detect = xAxis2Selector.value ? ExcelParser.detectDateConfidence(filteredData, xAxis2Selector.value) : { isDate: false, isUncertain: false };
-            // Always set to false initially to let user confirm
-            x2IsDateCheckbox.checked = false;
+            // Keep the previous state instead of forcing false
             updateDateHint(x2IsDateCheckbox, detect);
         });
         xIsDateCheckbox.addEventListener('change', () => {
             xIsDateCheckbox.dataset.prevValue = xIsDateCheckbox.checked;
+            xAxisSelector.dataset.prevDate = xIsDateCheckbox.checked; // Store on selector for restoration
             renderChart();
         });
         x2IsDateCheckbox.addEventListener('change', () => {
             x2IsDateCheckbox.dataset.prevValue = x2IsDateCheckbox.checked;
+            xAxis2Selector.dataset.prevDate = x2IsDateCheckbox.checked; // Store on selector for restoration
             renderChart();
         });
         yAxisSelector.addEventListener('change', () => {
@@ -595,6 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         activeFilters[col] = e.target.value;
                     }
+                    saveFiltersConfig(); // Persist filters on change
                     applyFilters();
                 });
 
@@ -627,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     resetFiltersBtn.addEventListener('click', () => {
         activeFilters = {};
+        saveFiltersConfig(); // Clear persisted filters
         document.querySelectorAll('.filter-item select').forEach(sel => sel.value = "");
         applyFilters();
     });
