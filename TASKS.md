@@ -32,6 +32,7 @@
 ### 1.4 UI/UX 與視覺優化
 - [x] **主題適配異常標示**：在深色模式下，超出規格的數據點自動切換為**黃色高亮**（淺色模式維持紅色），確保跨主題的視覺警示效果。
 - [x] **文檔系統建立**：基於 MECE 原則重構 README.md 與 TASKS.md，更新 UI 內幫助文檔。
+- [x] **專案結構優化 (MECE)**：重整目錄結構，新增 `assets/` 與 `docs/`，並實作 GitHub Actions 自動化部署流程。
 
 ---
 
@@ -46,5 +47,5 @@
 - [ ] **報告模板生成**：一鍵生成包含統計數據與圖表的 PDF/HTML 報告頁面。
 
 ---
-*Last Updated: 2026-01-14*
-*Status: Active*
+*Last Updated: 2026-01-31*
+*Status: Active / Optimized*

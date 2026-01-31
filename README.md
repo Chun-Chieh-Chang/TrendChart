@@ -79,8 +79,26 @@
 5. **解析 (Analysis)**：觀察自動同步的規限界線 (Spec) 與統計數值。
 6. **提取 (Extract)**：導出報表或圖表。
 
+---
+
+## 5. 專案結構 (Project Structure) - [MECE 原則實作]
+
+本專案採模組化目錄結構，確保功能邊界清晰：
+
+- **`.github/workflows/`**：自動化 CI/CD 配置，支援 GitHub Actions 一鍵部署。
+- **`assets/`**：專案靜態資源（圖示、標誌、多媒體）。
+- **`css/`**：視覺風格定義 (Glassmorphism UI)。
+- **`js/`**：核心邏輯層。
+  - `app.js`：UI 控制器與狀態管理中心。
+  - `chartRenderer.js`：Plotly 渲染引擎與視覺化邏輯。
+  - `excelParser.js`：數據解析與統計運算核心。
+- **`docs/`**：技術文檔與開發參考資料。
+- **`index.html`**：應用程式進入點與布局定義。
+- **`README.md`**：專案說明與開發規範。
+- **`TASKS.md`**：開發進度與異動紀律紀錄。
 
 ---
+
 
 ## 5. 資料安全與隱私 (Data Security & Privacy)
 
