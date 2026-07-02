@@ -48,7 +48,7 @@
                     </div>
                     <div class="card-info">
                         <label>總數據筆數</label>
-                        <span id="total-rows">0</span>
+                        <span id="total-rows" class="metric-value hero">0</span>
                     </div>
                 </div>
                 <div class="summary-card">
@@ -57,28 +57,28 @@
                     </div>
                     <div class="card-info">
                         <label>篩選後筆數</label>
-                        <span id="filtered-rows">0</span>
+                        <span id="filtered-rows" class="metric-value hero">0</span>
                     </div>
                 </div>
                 <div class="summary-card stats-group-card">
                     <div class="mini-stats-grid">
                         <div class="mini-stat" data-formula="C_a = \frac{\bar{X} - \text{Target}}{T/2}">
                             <label>Ca</label>
-                            <span id="ca-value">N/A</span>
+                            <span id="ca-value" class="metric-value primary">N/A</span>
                         </div>
                         <div class="mini-stat"
                             data-formula="C_p = \frac{\text{USL} - \text{LSL}}{6\sigma_{\text{within}}}">
                             <label>Cp</label>
-                            <span id="cp-value">N/A</span>
+                            <span id="cp-value" class="metric-value primary">N/A</span>
                         </div>
                         <div class="mini-stat" data-formula="C_{pk} = C_p(1 - |C_a|)">
                             <label>Cpk</label>
-                            <span id="cpk-value">N/A</span>
+                            <span id="cpk-value" class="metric-value primary">N/A</span>
                         </div>
                         <div class="mini-stat"
                             data-formula="P_{pk} = \min\left(\frac{\text{USL} - \bar{X}}{3\sigma_{\text{overall}}}, \frac{\bar{X} - \text{LSL}}{3\sigma_{\text{overall}}}\right)">
                             <label>Ppk</label>
-                            <span id="ppk-value">N/A</span>
+                            <span id="ppk-value" class="metric-value primary">N/A</span>
                         </div>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                     </div>
                     <div class="card-info" data-formula="UCL/LCL = \bar{X} \pm 3\sigma_{\text{within}}">
                         <label>平均值 / 管制界限 (UCL/LCL)</label>
-                        <span id="y-mean">0</span>
+                        <span id="y-mean" class="metric-value hero">0</span>
                         <div class="sub-text" id="cl-text">UCL: - | LCL: -</div>
                     </div>
                 </div>
@@ -97,15 +97,15 @@
                         <label>標準差 (StdDev)</label>
                         <div class="dev-stats">
                             <div class="dev-item" data-formula="\sigma_{within} = \frac{\overline{MR}}{d_2}, d_2=1.128">
-                                <span>組內:</span><b id="sd-within">-</b>
+                                <span class="metric-label micro">組內:</span><b id="sd-within" class="metric-value secondary">-</b>
                             </div>
                             <div class="dev-item"
                                 data-formula="\sigma_{between} = \sqrt{\sigma_{overall}^2 - \sigma_{within}^2}">
-                                <span>組間:</span><b id="sd-between">-</b>
+                                <span class="metric-label micro">組間:</span><b id="sd-between" class="metric-value secondary">-</b>
                             </div>
                             <div class="dev-item"
                                 data-formula="\sigma_{overall} = \sqrt{\frac{\sum(X_i - \bar{X})^2}{N-1}}">
-                                <span>總體:</span><b id="sd-overall">-</b>
+                                <span class="metric-label micro">總體:</span><b id="sd-overall" class="metric-value secondary">-</b>
                             </div>
                         </div>
                     </div>

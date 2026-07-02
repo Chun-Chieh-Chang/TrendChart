@@ -17,3 +17,22 @@
 
 **結果與驗證**：
 修改以最小影響範圍 (Surgical Edits) 達成目標。無引入新依賴或破壞既有架構。
+
+---
+
+**任務目標 (Typography Redesign)**：
+1. 建立全局字體比例尺 (Typography Scale)。
+2. 修復標準差面板中「組內:」字體被異常放大的 CSS 污染問題。
+3. 統一各數據卡片的字級層次 (Hero, Primary, Secondary, Micro)。
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**：
+   - 移除過度泛用的 `.card-info span` 與 `.mini-stat span`。
+   - 新增 `.metric-value.hero` (24px)、`.metric-value.primary` (18px)、`.metric-value.secondary` (14px) 與 `.metric-label.micro` (10.4px)。
+2. **`index.html`**：
+   - 為總數據筆數、篩選後筆數、平均值等主數據加上 `.metric-value.hero`。
+   - 為 Ca/Cp 等網格數據加上 `.metric-value.primary`。
+   - 將標準差中的標籤與數值明確拆分為 `<span class="metric-label micro">` 與 `<b class="metric-value secondary">`。
+
+**結果與驗證**：
+字體層次獲得統一，版面資訊降噪成功，成功解決了 CSS 選擇器污染導致的 UI 破版問題。

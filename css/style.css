@@ -323,9 +323,23 @@ body.dark-mode .custom-select option {
     font-weight: 600;
 }
 
-.card-info span {
+/* Typography Scale */
+.metric-value.hero {
     font-size: 1.5rem;
     font-weight: 700;
+}
+.metric-value.primary {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+.metric-value.secondary {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.metric-label.micro {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 /* Main Content - Glassmorphism */
@@ -599,10 +613,7 @@ tr:hover td {
     font-weight: 700;
 }
 
-.mini-stat span {
-    font-size: 1rem !important;
-    font-weight: 700;
-}
+/* .mini-stat span was removed to avoid CSS collision and replaced by Typography Scale */
 
 /* Layout & Chart Grid */
 .layout-toggles {
