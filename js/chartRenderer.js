@@ -113,7 +113,7 @@ const ChartRenderer = (() => {
                 }),
                 hovertemplate: `<b>${xColumn}: %{customdata.x1}</b>${xColumn2 ? `<br><b>${xColumn2}: %{customdata.x2}</b>` : ''}<br>${yCol}: %{y:.4f}<extra></extra>`,
                 type: validPoints.length > 500 ? 'scattergl' : 'scatter',
-                line: { width: 2, color: baseColor },
+                line: { width: 1, color: baseColor, dash: 'dash' },
                 marker: {
                     size: markerSizes,
                     color: markerColors,
@@ -183,6 +183,7 @@ const ChartRenderer = (() => {
         if (stats && specs.showLimits !== false) {
             addLimitLine(stats.ucl, 'UCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
             addLimitLine(stats.lcl, 'LCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
+            addLimitLine(stats.mean, 'CL', 'rgba(245, 158, 11, 0.7)', 'dash', 1);
         }
 
         const layout = {
