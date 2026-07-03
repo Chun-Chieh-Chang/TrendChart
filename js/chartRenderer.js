@@ -3,6 +3,8 @@
  * Handles Plotly.js chart generation and updates
  */
 const ChartRenderer = (() => {
+    const TREND_CHART_HEIGHT_RATIO = 0.8;
+
     /**
      * Helper to get current theme status
      */
@@ -55,6 +57,7 @@ const ChartRenderer = (() => {
         }
 
         const currentIsDark = isDark();
+        const baseTrendHeight = container.closest('.single-view') ? 800 : 450;
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         const oosColor = currentIsDark ? '#fde047' : '#ef4444';
 
@@ -241,7 +244,7 @@ const ChartRenderer = (() => {
             },
             margin: { t: xColumn2 ? 120 : 80, r: 80, l: 60, b: 80 },
             autosize: true,
-            height: container.closest('.single-view') ? 800 : 450,
+            height: Math.round(baseTrendHeight * TREND_CHART_HEIGHT_RATIO),
             hovermode: 'closest'
         };
 
