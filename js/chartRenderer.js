@@ -402,6 +402,20 @@ const ChartRenderer = (() => {
             return;
         }
 
+        // Extend x-axis range to include spec limits & control limits
+        if (!isNaN(specs.usl)) globalMax = Math.max(globalMax, specs.usl);
+        if (!isNaN(specs.lsl)) globalMin = Math.min(globalMin, specs.lsl);
+        if (stats && !isNaN(stats.ucl)) globalMax = Math.max(globalMax, stats.ucl);
+        if (stats && !isNaN(stats.lcl)) globalMin = Math.min(globalMin, stats.lcl);
+        if (!isNaN(specs.target)) {
+            globalMin = Math.min(globalMin, specs.target);
+            globalMax = Math.max(globalMax, specs.target);
+        }
+        // Add padding so limit lines aren't flush with edge
+        const padding = (globalMax - globalMin) * 0.05 || 1;
+        globalMin -= padding;
+        globalMax += padding;
+
         columnStats.forEach(({ col, values, stats, baseColor }) => {
             const { mean, stdevOverall } = stats;
             const sigma = stdevOverall;
