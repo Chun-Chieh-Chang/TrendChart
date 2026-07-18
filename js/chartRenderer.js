@@ -359,7 +359,7 @@ const ChartRenderer = (() => {
      * @param {Object} specs - Target/USL/LSL limits
      * @param {string} targetId - Container ID to render in
      */
-    const renderNormalDistChart = (data, columns, specs = {}, targetId = 'plotly-dist', sheetName = '') => {
+    const renderNormalDistChart = (data, columns, specs = {}, stats = null, targetId = 'plotly-dist', sheetName = '') => {
         const container = document.getElementById(targetId);
         if (!container) return;
 
@@ -462,9 +462,9 @@ const ChartRenderer = (() => {
         });
 
         // 4. Common Specs
-        const addLimit = (val, label, color, dash) => {
+        const addLimit = (val, label, color, dash, width = 2) => {
             if (isNaN(val)) return;
-            shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: 2, dash: dash } });
+            shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: width, dash: dash } });
             annotations.push({
                 x: val, y: 0.95, xref: 'x', yref: 'paper',
                 text: `<b>${label}: ${val.toFixed(4)}</b>`,
@@ -474,13 +474,33 @@ const ChartRenderer = (() => {
             });
         };
 
+        // Helper to add shaded range between two bounds
+        const addRange = (lo, hi, color) => {
+            if (isNaN(lo) || isNaN(hi)) return;
+            shapes.push({
+                type: 'rect', xref: 'x', yref: 'paper',
+                x0: lo, x1: hi, y0: 0, y1: 1,
+                fillcolor: color,
+                line: { width: 0 },
+                layer: 'below'
+            });
+        };
+
         if (specs.showTarget !== false) {
             addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
         }
 
         if (specs.showSpec !== false) {
+            addRange(specs.lsl, specs.usl, currentIsDark ? 'rgba(239, 68, 68, 0.06)' : 'rgba(239, 68, 68, 0.06)');
             addLimit(specs.usl, 'USL', '#ef4444', 'dash');
             addLimit(specs.lsl, 'LSL', '#ef4444', 'dash');
+        }
+
+        if (stats && specs.showLimits !== false) {
+            addRange(stats.lcl, stats.ucl, currentIsDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.05)');
+            addLimit(stats.ucl, 'UCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
+            addLimit(stats.lcl, 'LCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
+            addLimit(stats.mean, 'CL', 'rgba(245, 158, 11, 0.7)', 'dash', 1);
         }
 
         const layout = {
