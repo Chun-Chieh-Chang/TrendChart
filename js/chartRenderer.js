@@ -296,23 +296,30 @@ const ChartRenderer = (() => {
         // Use Plotly.newPlot and handle the promise
         Plotly.newPlot(container, traces, layout, { responsive: true, displaylogo: false }).then(gd => {
             if (!isNaN(specs.target) && specs.target !== 0) {
-                const sync = () => {
-                    if (!gd || !gd.layout || !gd.layout.yaxis) return;
-                    const r = gd.layout.yaxis.range;
-                    if (!r) return;
+                const syncFromRange = (r0, r1) => {
+                    Plotly.relayout(gd, {
+                        'yaxis2.range': [((r0 - specs.target) / specs.target) * 100, ((r1 - specs.target) / specs.target) * 100],
+                        'yaxis2.autorange': false
+                    }).catch(() => { });
+                };
 
-                    const nr = [((r[0] - specs.target) / specs.target) * 100, ((r[1] - specs.target) / specs.target) * 100];
-                    Plotly.relayout(gd, { 'yaxis2.range': nr, 'yaxis2.autorange': false }).catch(() => { });
+                const sync = () => {
+                    if (!gd) return;
+                    // Try layout.range first; fall back to _fullLayout for initial auto-range
+                    const r = (gd.layout.yaxis && gd.layout.yaxis.range)
+                        || (gd._fullLayout && gd._fullLayout.yaxis && gd._fullLayout.yaxis.range);
+                    if (!r || r.length < 2) return;
+                    syncFromRange(r[0], r[1]);
                 };
 
                 gd.on('plotly_relayout', (edata) => {
                     if (edata['yaxis.range[0]'] !== undefined) {
-                        const r0 = edata['yaxis.range[0]'];
-                        const r1 = edata['yaxis.range[1]'];
-                        Plotly.relayout(gd, {
-                            'yaxis2.range': [((r0 - specs.target) / specs.target) * 100, ((r1 - specs.target) / specs.target) * 100],
-                            'yaxis2.autorange': false
-                        }).catch(() => { });
+                        syncFromRange(edata['yaxis.range[0]'], edata['yaxis.range[1]']);
+                    } else if (edata['yaxis.range'] && edata['yaxis.range'].length === 2) {
+                        syncFromRange(edata['yaxis.range'][0], edata['yaxis.range'][1]);
+                    } else if (edata['yaxis.autorange']) {
+                        // Auto-range reset → re-sync after Plotly re-renders
+                        setTimeout(sync, 100);
                     }
                 });
 
