@@ -474,12 +474,13 @@ const ChartRenderer = (() => {
             });
         };
 
-        // Helper to add shaded range between two bounds
+        // Helper to add shaded range between two bounds (safe rect)
         const addRange = (lo, hi, color) => {
-            if (isNaN(lo) || isNaN(hi)) return;
+            if (isNaN(lo) || isNaN(hi) || lo === hi) return;
+            const [x0, x1] = lo < hi ? [lo, hi] : [hi, lo];
             shapes.push({
                 type: 'rect', xref: 'x', yref: 'paper',
-                x0: lo, x1: hi, y0: 0, y1: 1,
+                x0: x0, x1: x1, y0: 0, y1: 1,
                 fillcolor: color,
                 line: { width: 0 },
                 layer: 'below'
@@ -541,7 +542,8 @@ const ChartRenderer = (() => {
             bargap: 0.1
         };
 
-        Plotly.newPlot(container, allTraces, layout, { responsive: true, displaylogo: false });
+        Plotly.newPlot(container, allTraces, layout, { responsive: true, displaylogo: false })
+            .catch(err => console.error('Plotly DistChart Error:', err));
     };
 
     return { renderTrendChart, renderNormalDistChart, clearChart, exportChart };
