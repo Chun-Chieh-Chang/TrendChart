@@ -37,8 +37,7 @@ const ExcelParser = (() => {
             const worksheet = workbook.Sheets[sheetName];
             // Get raw data to handle Date objects correctly
             const data = XLSX.utils.sheet_to_json(worksheet, {
-                raw: true,
-                dateNF: 'yyyy-mm-dd hh:mm:ss'
+                raw: true
             });
 
             return data;
@@ -141,7 +140,7 @@ const ExcelParser = (() => {
     /**
      * Advanced Statistical Calculations including Within/Between StdDev and QC Metrics
      */
-    const getStats = (values, specs = {}, subgroupSize = 1) => {
+    const getStats = (values, specs = {}) => {
         const validValues = values
             .map(v => typeof v === 'number' ? v : parseNumber(v))
             .filter(v => !isNaN(v));

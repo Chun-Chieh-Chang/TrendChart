@@ -31,8 +31,10 @@
 - **穩定性保障**：Plotly 渲染安全性檢查與異步同步邏輯。
 
 ### 1.3 表現輸出層 (Presentation Layer)
-- **視覺化分析**：互動式趨勢圖 (Trend) 與常態分佈分析 (Distribution)。
-- **管制線控制**：支援 Target, USL/LSL, UCL/LCL 以及**管制中心線 (CL)** 的獨立顯示/隱藏開關。
+- **視覺化分析**：互動式趨勢圖 (Trend) 與**常態分佈分析 (Distribution)**，後者包含直方圖疊加、常態曲線、Sigma 標記、規格線與管制界限色帶。
+- **管制線控制**：支援 Target, USL/LSL, UCL/LCL 以及**管制中心線 (CL)** 的獨立顯示/隱藏開關，兩張圖表同步受控。
+- **多欄位對比**：常態分佈圖支援多 Y 欄位同時繪製曲線（直方圖預設隱藏避免雜亂），管制界限不受欄位數量限制。
+- **X 軸智慧範圍**：常態分佈圖自動擴展 X 軸範圍包含所有參考線（Target/USL/LSL/UCL/LCL）並加入 5% 邊距，防止標線被裁切。
 - **預設佈景主題**：預設為**淺色模式 (Light Mode)**，帶來乾淨專業的視覺體驗。
 - **高效能模式**：支援 WebGL (scattergl) 加速渲染、大數據表格預覽開關、以及增量懶加載 (Lazy Load)。
 - **數據輸出**：PNG 圖表匯出與純數據 Excel/CSV 導出。
@@ -89,20 +91,21 @@
 
 - **`.github/workflows/`**：自動化 CI/CD 配置，支援 GitHub Actions 一鍵部署。
 - **`assets/`**：專案靜態資源（圖示、標誌、多媒體）。
-- **`css/`**：視覺風格定義 (Glassmorphism UI)。
-- **`js/`**：核心邏輯層。
-  - `app.js`：UI 控制器與狀態管理中心。
-  - `chartRenderer.js`：Plotly 渲染引擎與視覺化邏輯。
-  - `excelParser.js`：數據解析與統計運算核心。
-- **`wiki/`**：知識庫，包含技術文檔、開發參考資料與高價值資產。
-- **`index.html`**：應用程式進入點與布局定義。
-- **`README.md`**：專案說明與開發規範。
-- **`TASKS.md`**：開發進度與異動紀律紀錄。
+- **`css/`**：視覺風格定義 (Glassmorphism UI)，含完整暗/亮主題變數。
+- **`js/`**：核心邏輯層（零依賴、純原生 ES6+ 模組）。
+  - `app.js`：UI 控制器、狀態管理與持久化（LocalStorage）。
+  - `chartRenderer.js`：Plotly 渲染引擎（趨勢圖 + 常態分佈圖 + PNG 匯出）。
+  - `excelParser.js`：數據解析（SheetJS）與完整 SPC 統計引擎（Ca/Cp/Cpk/Ppk、UCL/LCL/CL）。
+- **`wiki/`**：知識庫，包含技術文檔與 Excel VBA 參考巨集。
+- **`index.html`**：應用程式進入點與佈局定義（SPA 結構）。
+- **`README.md`**：專案說明與開發規範（本文件）。
+- **`TASKS.md`**：開發進度與任務追蹤清單。
+- **`DEV_LOG.md`**：開發歷程記錄與問題 RCA。
 
 ---
 
 
-## 5. 資料安全與隱私 (Data Security & Privacy)
+## 6. 資料安全與隱私 (Data Security & Privacy)
 
 本工具高度重視企業數據保密需求，採用 **100% Client-Side** 技術架構：
 
@@ -112,7 +115,7 @@
 
 ---
 
-## 6. 開發規範與專案準則 (Development Standards)
+## 7. 開發規範與專案準則 (Development Standards)
 
 本專案遵循 **Antigravity 專案全局規範**，確保開發品質與視覺一致性：
 

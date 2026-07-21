@@ -22,9 +22,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- Alpine.js (for simple tooltips/modals) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <!-- SheetJS (Excel Parsing) -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 
@@ -36,7 +33,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 </head>
 
-<body class="">
+<body>
     <div class="app-container">
         <!-- Main Content Area -->
         <main class="main-content">
@@ -217,7 +214,7 @@
                     </div>
                 </div>
                 <div class="table-wrapper">
-                    <table id="data-table">
+                    <table>
                         <thead>
                             <tr id="table-head"></tr>
                         </thead>
@@ -406,7 +403,7 @@
                 <button id="show-help" class="icon-button" title="參數說明">
                     <span class="material-icons-round">help_outline</span>
                 </button>
-                <button id="theme-toggle" class="icon-button">
+                <button id="theme-toggle" class="icon-button" title="切換深色模式">
                     <span class="material-icons-round">dark_mode</span>
                 </button>
                 <span class="version">v1.0.0</span>

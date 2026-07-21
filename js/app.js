@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const trendCard = document.getElementById('trend-card');
     const distCard = document.getElementById('dist-card');
     const togglePreview = document.getElementById('toggle-preview');
-    const tableContainer = document.querySelector('.table-container');
 
     const showTargetToggle = document.getElementById('show-target');
     const showSpecToggle = document.getElementById('show-spec');
@@ -343,7 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, []);
 
         filteredData = [...rawData];
-        // activeFilters = {}; // Removed to persist filter states across sheet switches
 
         if (rawData.length === 0) {
             alert('所選工作表無數據');
@@ -497,13 +495,11 @@ document.addEventListener('DOMContentLoaded', () => {
             updateDateHint(x2IsDateCheckbox, detect);
         });
         xIsDateCheckbox.addEventListener('change', () => {
-            xIsDateCheckbox.dataset.prevValue = xIsDateCheckbox.checked;
-            xAxisSelector.dataset.prevDate = xIsDateCheckbox.checked; // Store on selector for restoration
+            xAxisSelector.dataset.prevDate = xIsDateCheckbox.checked;
             renderChart();
         });
         x2IsDateCheckbox.addEventListener('change', () => {
-            x2IsDateCheckbox.dataset.prevValue = x2IsDateCheckbox.checked;
-            xAxis2Selector.dataset.prevDate = x2IsDateCheckbox.checked; // Store on selector for restoration
+            xAxis2Selector.dataset.prevDate = x2IsDateCheckbox.checked;
             renderChart();
         });
         yAxisSelector.addEventListener('change', () => {
