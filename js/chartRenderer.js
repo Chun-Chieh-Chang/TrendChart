@@ -57,7 +57,12 @@ const ChartRenderer = (() => {
         }
 
         const currentIsDark = isDark();
-        const baseTrendHeight = container.closest('.single-view') ? 800 : 450;
+        // Only single-view applies the height reduction (to avoid exceeding the
+        // browser viewport when a single chart spans the full width).
+        // In dual-view the chart shares the row with the normal-distribution
+        // chart, so it must keep its full 450px height to align with it.
+        const isSingleView = !!container.closest('.single-view');
+        const baseTrendHeight = isSingleView ? 800 : 450;
         const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
         const oosColor = currentIsDark ? '#fde047' : '#ef4444';
 
@@ -240,11 +245,11 @@ const ChartRenderer = (() => {
             },
             legend: {
                 font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
-                orientation: 'h', y: -0.2
+                orientation: 'h', y: -0.25
             },
-            margin: { t: xColumn2 ? 120 : 80, r: 80, l: 60, b: 80 },
+            margin: { t: xColumn2 ? 120 : 80, r: 80, l: 60, b: 120 },
             autosize: true,
-            height: Math.round(baseTrendHeight * TREND_CHART_HEIGHT_RATIO),
+            height: isSingleView ? Math.round(baseTrendHeight * TREND_CHART_HEIGHT_RATIO) : baseTrendHeight,
             hovermode: 'closest'
         };
 
