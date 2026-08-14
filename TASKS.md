@@ -49,6 +49,13 @@
 - [x] **文件同步更新**：DEV_LOG.md、TASKS.md、README.md 同步至最新專案狀態。
 - [x] **MECE 結構維護**：重整目錄結構，確保檔案存放與功能分類遵循相互獨立、完全窮盡原則。
 
+### 1.7 高級感設計系統 (v1.1.0)
+- [x] **奶油紙 × 青藍漸層設計系統**：`#F7F3EC` 奶油紙底 + 三層青藍 radial 漸層光暈（`#2F7FE0 → #3EC7D8`），低飽和印刷色質感，依 huashu-design 反 AI slop 原則去除 AI 味。
+- [x] **字體系統升級**：display 字體 Outfit → **Newsreader** 出版級襯線，全站最小字體提升至 13px。
+- [x] **圖標系統替換**：Material Icons Round → **Lucide** 細描邊 SVG（21 處），主題切換 moon/sun 動態替換，CDN 失敗時漸層降級不崩潰。
+- [x] **Favicon 去 emoji**：📊 emoji → 自製青藍漸層 SVG 趨勢線標誌。
+- [x] **圖表視覺同步**：Plotly 色盤移除紫色系（AI 味典型色），改青藍領軍；標題字體、軸文字色對齊新設計系統。
+
 ---
 
 ## 2. 進行中與待優化 (Pending & Future Improvements)
@@ -62,5 +69,5 @@
 - [ ] **報告模板生成**：一鍵生成包含統計數據與圖表的 PDF/HTML 報告頁面。
 
 ---
-*Last Updated: 2026-07-21*
-*Status: Active / Optimized*
+*Last Updated: 2026-08-14*
+*Status: Active / Optimized (v1.1.0)*

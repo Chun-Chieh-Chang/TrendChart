@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
@@ -11,13 +11,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
     <!-- Favicon -->
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232F7FE0'/><stop offset='1' stop-color='%233EC7D8'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><polyline points='18,68 38,52 56,58 82,28' fill='none' stroke='white' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
@@ -41,7 +40,7 @@
             <div class="summary-grid">
                 <div class="summary-card">
                     <div class="card-icon blue">
-                        <span class="material-icons-round">list_alt</span>
+                        <i data-lucide="list"></i>
                     </div>
                     <div class="card-info">
                         <label>總數據筆數</label>
@@ -50,7 +49,7 @@
                 </div>
                 <div class="summary-card">
                     <div class="card-icon green">
-                        <span class="material-icons-round">filter_list</span>
+                        <i data-lucide="filter"></i>
                     </div>
                     <div class="card-info">
                         <label>篩選後筆數</label>
@@ -81,7 +80,7 @@
                 </div>
                 <div class="summary-card">
                     <div class="card-icon amber">
-                        <span class="material-icons-round">functions</span>
+                        <i data-lucide="sigma"></i>
                     </div>
                     <div class="card-info" data-formula="UCL/LCL = \bar{X} \pm 3\sigma_{\text{within}}">
                         <label>平均值 / 管制界限 (UCL/LCL)</label>
@@ -114,8 +113,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>參數與指標說明</h2>
-                        <button id="close-help" class="icon-button"><span
-                                class="material-icons-round">close</span></button>
+                        <button id="close-help" class="icon-button"><i data-lucide="x"></i></button>
                     </div>
                     <div class="modal-body">
                         <div class="help-section">
@@ -170,13 +168,13 @@
                         <h3 class="card-title">數據趨勢圖</h3>
                         <div class="card-actions">
                             <button id="export-trend" class="icon-button" title="下載圖表">
-                                <span class="material-icons-round">download</span>
+                                <i data-lucide="download"></i>
                             </button>
                         </div>
                     </div>
                     <div id="plotly-trend" class="chart-box">
                         <div class="empty-state">
-                            <span class="material-icons-round">insights</span>
+                            <i data-lucide="chart-line"></i>
                             <p>請先上傳檔案並選擇數據欄位</p>
                         </div>
                     </div>
@@ -188,13 +186,13 @@
                         <h3 class="card-title">常態分佈分析</h3>
                         <div class="card-actions">
                             <button id="export-dist" class="icon-button" title="下載圖表">
-                                <span class="material-icons-round">download</span>
+                                <i data-lucide="download"></i>
                             </button>
                         </div>
                     </div>
                     <div id="plotly-dist" class="chart-box">
                         <div class="empty-state">
-                            <span class="material-icons-round">bar_chart</span>
+                            <i data-lucide="bar-chart-3"></i>
                             <p>選擇數據後自動生成</p>
                         </div>
                     </div>
@@ -228,7 +226,7 @@
         <aside class="sidebar">
             <header class="sidebar-header">
                 <div class="logo">
-                    <span class="material-icons-round">analytics</span>
+                    <i data-lucide="chart-spline"></i>
                     <h1>TrendChart Pro</h1>
                 </div>
             </header>
@@ -237,19 +235,19 @@
                 <!-- File Upload -->
                 <section class="control-section">
                     <h2 class="section-title">
-                        <span class="material-icons-round">upload_file</span>
+                        <i data-lucide="file-up"></i>
                         資料導入
                     </h2>
                     <div id="drop-zone" class="drop-zone">
                         <input type="file" id="file-input" accept=".xlsx, .xls" hidden>
-                        <span class="material-icons-round">cloud_upload</span>
+                        <i data-lucide="upload-cloud"></i>
                         <p>拖放 Excel 檔案或點擊上傳</p>
                     </div>
                     <div id="file-info" class="file-info hidden">
-                        <span class="material-icons-round">description</span>
+                        <i data-lucide="file-text"></i>
                         <span id="filename">filename.xlsx</span>
                         <button id="remove-file" class="icon-button">
-                            <span class="material-icons-round">close</span>
+                            <i data-lucide="x"></i>
                         </button>
                     </div>
                 </section>
@@ -257,7 +255,7 @@
                 <!-- Worksheet Selection -->
                 <section class="control-section hidden" id="sheet-section">
                     <h2 class="section-title">
-                        <span class="material-icons-round">layers</span>
+                        <i data-lucide="layers"></i>
                         選擇工作表
                     </h2>
                     <select id="sheet-selector" class="custom-select" multiple></select>
@@ -267,7 +265,7 @@
                 <!-- Column Configuration -->
                 <section class="control-section hidden" id="config-section">
                     <h2 class="section-title">
-                        <span class="material-icons-round">settings</span>
+                        <i data-lucide="sliders-horizontal"></i>
                         圖表設定
                     </h2>
                     <div class="config-group">
@@ -331,7 +329,7 @@
                     </div>
                     <div class="button-group">
                         <button id="generate-chart" class="primary-button">
-                            <span class="material-icons-round">refresh</span>
+                            <i data-lucide="refresh-cw"></i>
                             更新圖表
                         </button>
                     </div>
@@ -340,7 +338,7 @@
                 <!-- Layout Config -->
                 <section class="control-section hidden" id="layout-section">
                     <h2 class="section-title">
-                        <span class="material-icons-round">dashboard</span>
+                        <i data-lucide="layout-dashboard"></i>
                         佈局設定
                     </h2>
                     <div class="layout-toggles">
@@ -375,7 +373,7 @@
                 <!-- Filtering -->
                 <section class="control-section hidden" id="filter-section">
                     <h2 class="section-title">
-                        <span class="material-icons-round">filter_alt</span>
+                        <i data-lucide="funnel"></i>
                         數據篩選
                     </h2>
                     <div id="filter-container" class="filter-container">
@@ -389,7 +387,7 @@
                 <!-- Author Info -->
                 <section class="control-section">
                     <h2 class="section-title">
-                        <span class="material-icons-round">person_outline</span>
+                        <i data-lucide="user"></i>
                         作者資訊
                     </h2>
                     <div class="author-card">
@@ -401,12 +399,12 @@
 
             <footer class="sidebar-footer">
                 <button id="show-help" class="icon-button" title="參數說明">
-                    <span class="material-icons-round">help_outline</span>
+                    <i data-lucide="circle-help"></i>
                 </button>
                 <button id="theme-toggle" class="icon-button" title="切換深色模式">
-                    <span class="material-icons-round">dark_mode</span>
+                    <i data-lucide="moon"></i>
                 </button>
-                <span class="version">v1.0.0</span>
+                <span class="version">v1.1.0</span>
             </footer>
         </aside>
     </div>
@@ -415,6 +413,7 @@
     <div id="formula-tooltip" class="formula-tooltip hidden"></div>
 
     <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="js/excelParser.js"></script>
     <script src="js/chartRenderer.js"></script>
     <script src="js/app.js"></script>

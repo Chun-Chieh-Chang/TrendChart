@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Chart Renderer Module
  * Handles Plotly.js chart generation and updates
  */
@@ -63,7 +63,7 @@ const ChartRenderer = (() => {
         // chart, so it must keep its full 450px height to align with it.
         const isSingleView = !!container.closest('.single-view');
         const baseTrendHeight = isSingleView ? 800 : 450;
-        const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const colorPalette = ['#2f7fe0', '#10b981', '#d98e2b', '#3ec7d8', '#e87966'];
         const oosColor = currentIsDark ? '#fde047' : '#ef4444';
 
         const formatX = (val, isDate) => {
@@ -197,24 +197,24 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 },
+                font: { family: 'Newsreader', color: currentIsDark ? '#edeae2' : '#21262e', size: 16 },
                 y: 0.98,
                 yanchor: 'top'
             },
-            paper_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
-            plot_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
+            paper_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
+            plot_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
             shapes: shapes,
             annotations: annotations,
             xaxis: {
                 title: {
                     text: xColumn,
-                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                    font: { color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
                 },
                 type: 'category',          // Safe mode to prevent Plotly from misinterpreting text/dates
                 tickmode: 'array',        // Explicitly use array mode for ticks
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
+                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#6b655a', '#2f7fe0'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn], isXDate);
@@ -236,15 +236,15 @@ const ChartRenderer = (() => {
             yaxis: {
                 title: {
                     text: '數值',
-                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                    font: { color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
                 },
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { color: currentIsDark ? '#cbd5e1' : '#475569' },
+                tickfont: { color: currentIsDark ? '#cbd5e1' : '#6b655a' },
                 anchor: 'x'
             },
             legend: {
-                font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a' },
+                font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e' },
                 orientation: 'h', y: -0.25
             },
             margin: { t: xColumn2 ? 120 : 80, r: 80, l: 60, b: 120 },
@@ -271,14 +271,14 @@ const ChartRenderer = (() => {
             layout.xaxis2 = {
                 title: {
                     text: xColumn2,
-                    font: { color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                    font: { color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
                 },
                 overlaying: 'x',
                 side: 'top',
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#475569', '#0284c7'];
+                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#6b655a', '#2f7fe0'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn2], isX2Date);
@@ -343,10 +343,11 @@ const ChartRenderer = (() => {
         try { Plotly.purge(container); } catch (e) { }
         container.innerHTML = `
             <div class="empty-state">
-                <span class="material-icons-round">insights</span>
+                <i data-lucide="chart-line"></i>
                 <p>請選擇數據欄位並點擊更新圖表</p>
             </div>
         `;
+        if (window.lucide) window.lucide.createIcons();
     };
 
     /**
@@ -384,7 +385,7 @@ const ChartRenderer = (() => {
         }
 
         const currentIsDark = isDark();
-        const colorPalette = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        const colorPalette = ['#2f7fe0', '#10b981', '#d98e2b', '#3ec7d8', '#e87966'];
         const allTraces = [];
         const shapes = [];
         const annotations = [];
@@ -533,33 +534,33 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
-                font: { family: 'Outfit', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 16 }
+                font: { family: 'Newsreader', color: currentIsDark ? '#edeae2' : '#21262e', size: 16 }
             },
-            paper_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
-            plot_bgcolor: currentIsDark ? '#0f172a' : '#ffffff',
+            paper_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
+            plot_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
             shapes: shapes,
             annotations: annotations,
             xaxis: {
                 title: {
                     text: '數值',
-                    font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                    font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
                 },
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#475569' },
+                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#6b655a' },
                 range: [globalMin, globalMax]
             },
             yaxis: {
                 title: {
                     text: '密度',
-                    font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 12 }
+                    font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
                 },
                 gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
                 zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#475569' }
+                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#6b655a' }
             },
             legend: {
-                font: { family: 'Inter', color: currentIsDark ? '#f1f5f9' : '#0f172a', size: 11 },
+                font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e', size: 11 },
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 120 },

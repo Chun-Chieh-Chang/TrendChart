@@ -1,5 +1,42 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-08-14
+**任務目標 (高級感設計系統 + 全量清理 + 文件同步 + 版本基準)**：
+1. 依 huashu-design 設計 skill 打造「奶油紙 × 青藍漸層」高級感介面，去除 AI 味。
+2. 以 Tool-Calling 系統選型並整合 Lucide 圖標系統。
+3. 全量盤點清理冗餘檔案與程式碼，同步文件至最新狀態。
+4. 建立 Git 還原基準點並推送 GitHub Pages。
+
+**執行內容 (Do & Check)**：
+1. **高級感設計系統 (v1.1.0)**：
+   - `css/style.css`：全面重設計 — `#F7F3EC` 奶油紙底、三層青藍 radial 漸層光暈背景（`--bg-glow`）、暖白玻璃卡片（`blur(18px) saturate(140%)`）、發絲邊框 `#E4DED2`、漸層按鈕/圖示（`--grad-btn`：`#2F7FE0 → #3EC7D8`）。
+   - 全站最小字體提升至 13px (0.8125rem)，符合無障礙規範。
+   - 暗色模式同步為暖調深色 + 青藍光暈。
+   - `index.html`：Outfit → Newsreader 襯線字體；📊 emoji favicon → 自製青藍漸層 SVG 趨勢線標誌；版本 v1.0.0 → v1.1.0。
+   - `js/chartRenderer.js`：色盤移除紫色 `#8b5cf6`（AI 味典型色），改青藍領軍 `['#2f7fe0', '#10b981', '#d98e2b', '#3ec7d8', '#e87966']`；圖表標題字體、文字色、tick 色對齊新設計系統。
+2. **Lucide 圖標系統 (Tool-Calling 選型)**：
+   - 依 Tool-Calling 檢索結果選用 `lucide`（78% 匹配，細描邊風格契合去 AI 味目標；排除 Heroicons 因禁用場景標註「非 Tailwind 用戶體驗最佳」）。
+   - 替換 21 處 Material Icons Round → `<i data-lucide="...">`，移除 Material Icons 字體載入。
+   - `js/app.js`：主題切換改為切換 `data-lucide` 屬性（moon/sun）+ `lucide.createIcons()`，CDN 載入失敗時 no-op 漸層降級。
+   - `js/chartRenderer.js`：空狀態圖示同步替換並觸發 createIcons。
+   - `css/style.css`：Lucide 統一尺寸規則（logo 30px / 上傳區 44px / 卡片 24px / 按鈕 18px）。
+3. **全量清理**：
+   - 移除 `.github/workflows/jules.yml`（外部 Jules agent 工作流，已不使用）。
+   - 移除未使用 CSS 類別 `.chart-area`（經全類別比對驗證，僅此一項未使用）。
+   - 移除本地空目錄 `assets/`（git 未追蹤，無歷史影響；deploy.yml 條件複製邏輯不受影響）。
+   - 驗證 `excelParser.js` 9 個匯出方法全數被引用、`chartRenderer.js` 4 個匯出方法全數被引用、app.js 無死函數（grep 逐函數比對）。
+4. **文件同步**：
+   - `README.md`：視覺風格章節更新為「奶油紙 × 青藍漸層」設計系統、字體體系（Newsreader/Inter/Lucide）、技術規格新增 Lucide、專案結構移除 `assets/`、功能矩陣新增高級感設計系統項目。
+   - `TASKS.md`：新增 1.7「高級感設計系統 (v1.1.0)」完成清單，更新日期與狀態。
+   - `wiki/`：兩個 VBA 參考巨集檔案補充分類標頭（Excel VBA 參考巨集 / Legacy Reference，標明 Web 版取代關係）。
+
+**結果與驗證**：
+1. 所有清理不影響現有功能運作（未改動任何業務邏輯，JS 語法檢查 `node --check` 全數通過）。
+2. 設計系統落地完成，暗/亮主題同步。
+3. 文件與程式碼邏輯一致（MECE）。
+
+---
+
 ## 2026-07-21
 **任務目標 (專案全量清理與文件同步)**：
 1. 全面盤點並移除過時/冗餘/無效的程式碼與檔案。

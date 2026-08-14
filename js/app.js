@@ -209,8 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('theme-toggle');
     themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        const icon = themeToggle.querySelector('.material-icons-round');
-        icon.textContent = document.body.classList.contains('dark-mode') ? 'dark_mode' : 'light_mode';
+        const icon = themeToggle.querySelector('[data-lucide]');
+        if (icon) {
+            icon.setAttribute('data-lucide', document.body.classList.contains('dark-mode') ? 'sun' : 'moon');
+            if (window.lucide) window.lucide.createIcons();
+        }
         if (filteredData.length > 0) renderChart();
     });
 
@@ -951,5 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
             formulaTooltip.classList.add('hidden');
         });
     });
+
+    // Initialize Lucide icons (graceful: no-op if CDN unavailable)
+    if (window.lucide) window.lucide.createIcons();
 });
 

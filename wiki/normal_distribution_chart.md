@@ -1,3 +1,10 @@
+# 常態分佈圖分析 - Excel VBA 參考巨集
+
+> **分類**：Excel VBA 參考巨集 (Legacy Reference)
+> **用途**：本文檔為早期 Excel 端常態分佈分析巨集的參考實作，功能已由本 Web 應用程式的「常態分佈分析」圖表取代。保留作為 SPC 分析邏輯與演算法（直方圖、常態曲線、Sigma 標記、規格界限）的實作參考。
+
+---
+
 Sub CreateProfessionalQCAnalysis_WithSheetNameInTitle()
     Dim targetSheet As Worksheet
     Dim sheetIndex As Variant, colLetter As String
