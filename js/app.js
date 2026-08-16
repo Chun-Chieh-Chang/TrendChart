@@ -205,17 +205,13 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFiltersConfig(); // Load previous filters
     updateLayout(); // Initialize layout state
 
-    // Theme Toggle
+    // Theme Toggle (Unified Single Precision Style)
     const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const icon = themeToggle.querySelector('[data-lucide]');
-        if (icon) {
-            icon.setAttribute('data-lucide', document.body.classList.contains('dark-mode') ? 'sun' : 'moon');
-            if (window.lucide) window.lucide.createIcons();
-        }
-        if (filteredData.length > 0) renderChart();
-    });
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            if (filteredData.length > 0) renderChart();
+        });
+    }
 
     // --- File Handling ---
 

@@ -1,5 +1,43 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-08-16
+**任務目標 (精密儀表與工業級數據工作台風格重構與專案全量優化 - Precision Workbench v1.2.0)**：
+1. 本地與遠端狀態確認：檢查 Git 工作樹並確認與 `origin/main` 完全同步。
+2. 介面風格重構（唯一風格套用）：
+   - 移除所有外部字體強制覆蓋（如 Newsreader/Inter 等外部 Google Fonts 加載），使用原生 `var(--vscode-font-family)` 與彈性自適應行高，徹底防止排版位移（Reflow/CLS）。
+   - 導入 Precision Instrument Design Tokens：冰川工作台底色 (`#f1f5f9`)、面板卡片純白底色 (`#ffffff`)、`1px solid #cbd5e1` 精密線框配合 `0 1px 3px rgba(15, 23, 42, 0.08)` 微陰影。
+   - 品牌鈷藍飾條與即時狀態：側邊欄頂部左側配置 `5px solid #0284c7` 鈷藍飾條，並加入硬體綠色脈衝呼吸燈（`pulseGreen`）即時指示系統在線狀態。
+   - 語意訊息與色彩階層：使用者/主要分析卡片（鈷藍）、助理/輔助分析卡片（精密青色 `#06b6d4`）、系統/警示（警示淺紅 `#fef2f2` + 紅色邊框 `#dc2626`）。
+   - 按鈕與微動效：俐落平整主/次要按鈕，搭配 `0.12s cubic-bezier(0.16, 1, 0.3, 1)` 快速過渡。
+3. 清理混雜色彩：移除暗色模式切換邏輯與分散色彩，統一代碼與圖表渲染至此唯一工業級工作台標準。
+4. X 軸視覺對比度優化：解決雙 X 軸交替字體顏色在淺色背景下對比度過低不易區分之問題。
+5. 全量文件與代碼 100% 同步 (MECE)：同步 `README.md`、`TASKS.md`、`wiki/`、`DEV_LOG.md`。
+
+**問題原因分析 (RCA - Root Cause Analysis)**：
+1. **外部字體加載風險**：外部 Google Fonts（Newsreader 等）在不同網路環境或 VSCode Webview 內部加載時，容易引發 FOIT/FOUT 及佈局重排（Layout Shift）。
+2. **多主題分散邏輯**：過往版本並存暗色與亮色主題切換代碼，導致圖表色盤需維護兩套顏色邏輯，增加渲染複雜度與維護成本。
+3. **X 軸文字對比度過低**：先前副 X 軸交替色階採用鈷藍 (`#0284c7`) 與青色 (`#06b6d4`)，兩者在純白底色上明度與色相過於接近，肉眼辨識不易。
+
+**矯正與預防措施 (CAPA - Corrective & Preventive Action)**：
+1. **字體全面原生化**：強制使用 `var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif)`，確保 100% 零位移與極致加載速度。
+2. **單一工業級色彩標準**：廢除 `dark-mode` 切換按鈕與相應 CSS/JS 分支，統一使用高對比純淨冰川工作台。
+3. **X 軸交替文字高對比化**：
+   - 主 X 軸：深石墨藍 (`#0f172a`, font-weight: 600) vs 高飽和深鈷藍 (`#0284c7`, font-weight: 700)。
+   - 副 X 軸：深翡翠綠 (`#047857`, font-weight: 600) vs 濃郁靛青藍 (`#4338ca`, font-weight: 700)。
+4. **全量文件同步**：落實 MECE 原則，確保所有開發文件與現行程式碼邏輯 100% 同步。
+
+**執行內容與運行確效 (Do & Check)**：
+1. **`css/style.css`**：全面導入 Precision Workbench Tokens，移除未使用的暗色規則與光暈。
+2. **`index.html`**：移除 Google Fonts 外鏈，新增綠色脈衝呼吸燈，移除主題切換按鈕，更新版本至 v1.2.0。
+3. **`js/chartRenderer.js`**：統一套用工業級圖表背景與色盤，實作高對比雙 X 軸文字交替與加粗。
+4. **`js/app.js`**：清理主題切換事件綁定。
+5. **文件全量同步**：`README.md`、`TASKS.md`、`wiki/`、`DEV_LOG.md` 全數更新至 v1.2.0。
+6. **確效測試**：
+   - `node --check` 驗證 `app.js`、`chartRenderer.js`、`excelParser.js` 語法全數通過。
+   - 瀏覽器沙盒環境實測無任何 Console 錯誤，脈衝呼吸燈、微動效、圖表渲染與表格預覽全部正常。
+
+---
+
 ## 2026-08-14
 **任務目標 (高級感設計系統 + 全量清理 + 文件同步 + 版本基準)**：
 1. 依 huashu-design 設計 skill 打造「奶油紙 × 青藍漸層」高級感介面，去除 AI 味。

@@ -1,14 +1,12 @@
-﻿/**
+/**
  * Chart Renderer Module
- * Handles Plotly.js chart generation and updates
+ * Handles Plotly.js chart generation and updates for Precision Instrument Workbench
  */
 const ChartRenderer = (() => {
     const TREND_CHART_HEIGHT_RATIO = 0.8;
-
-    /**
-     * Helper to get current theme status
-     */
-    const isDark = () => document.body.classList.contains('dark-mode');
+    const FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    const COLOR_PALETTE = ['#0284c7', '#06b6d4', '#10b981', '#d97706', '#64748b'];
+    const OOS_COLOR = '#dc2626';
 
     /**
      * Render Trend Chart
@@ -46,8 +44,6 @@ const ChartRenderer = (() => {
         }
 
         // --- Date Handling & Sorting ---
-        // Note: isXDate and isX2Date are now passed from the UI
-
         if (isXDate) {
             chartData.sort((a, b) => {
                 const da = ExcelParser.parseDate(a[xColumn]) || new Date(0);
@@ -56,16 +52,7 @@ const ChartRenderer = (() => {
             });
         }
 
-        const currentIsDark = isDark();
-        // Only single-view applies the height reduction (to avoid exceeding the
-        // browser viewport when a single chart spans the full width).
-        // In dual-view the chart shares the row with the normal-distribution
-        // chart, so it must keep its full 450px height to align with it.
         const isSingleView = !!container.closest('.single-view');
-        const baseTrendHeight = isSingleView ? 800 : 450;
-        const colorPalette = ['#2f7fe0', '#10b981', '#d98e2b', '#3ec7d8', '#e87966'];
-        const oosColor = currentIsDark ? '#fde047' : '#ef4444';
-
         const formatX = (val, isDate) => {
             if (isDate) {
                 const d = ExcelParser.parseDate(val);
@@ -80,7 +67,6 @@ const ChartRenderer = (() => {
         };
 
         const traces = yColumns.map((yCol, idx) => {
-            // Filter data specifically for this trace to ensure continuity
             const validPoints = chartData.map((row, i) => {
                 return {
                     i: i,
@@ -89,18 +75,18 @@ const ChartRenderer = (() => {
                 };
             }).filter(pt => !isNaN(pt.y));
 
-            const baseColor = colorPalette[idx % colorPalette.length];
+            const baseColor = COLOR_PALETTE[idx % COLOR_PALETTE.length];
 
             const markerColors = validPoints.map(pt => {
                 const isOOS = (!isNaN(specs.usl) && pt.y > specs.usl) ||
                     (!isNaN(specs.lsl) && pt.y < specs.lsl);
-                return isOOS ? oosColor : baseColor;
+                return isOOS ? OOS_COLOR : baseColor;
             });
 
             const markerSizes = validPoints.map(pt => {
                 const isOOS = (!isNaN(specs.usl) && pt.y > specs.usl) ||
                     (!isNaN(specs.lsl) && pt.y < specs.lsl);
-                return isOOS ? 10 : 6;
+                return isOOS ? 9 : 5;
             });
 
             return {
@@ -121,13 +107,13 @@ const ChartRenderer = (() => {
                 }),
                 hovertemplate: `<b>${xColumn}: %{customdata.x1}</b>${xColumn2 ? `<br><b>${xColumn2}: %{customdata.x2}</b>` : ''}<br>${yCol}: %{y:.4f}<extra></extra>`,
                 type: validPoints.length > 500 ? 'scattergl' : 'scatter',
-                line: { width: 1, color: baseColor, dash: 'dash' },
+                line: { width: 1.5, color: baseColor, dash: 'dash' },
                 marker: {
                     size: markerSizes,
                     color: markerColors,
                     line: {
-                        color: currentIsDark ? '#1e293b' : '#ffffff',
-                        width: validPoints.map((pt, i) => markerColors[i] === oosColor ? 1.5 : 0)
+                        color: '#ffffff',
+                        width: validPoints.map((pt, i) => markerColors[i] === OOS_COLOR ? 1.5 : 0)
                     }
                 }
             };
@@ -157,11 +143,10 @@ const ChartRenderer = (() => {
             });
         }
 
-
         const shapes = [];
         const annotations = [];
 
-        const addLimitLine = (val, label, color, dash, width = 2) => {
+        const addLimitLine = (val, label, color, dash, width = 1.5) => {
             if (isNaN(val)) return;
             shapes.push({
                 type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: val, y1: val,
@@ -171,134 +156,134 @@ const ChartRenderer = (() => {
                 xref: 'paper', x: 1, y: val, yref: 'y',
                 text: `<b>${label}: ${val.toFixed(4)}</b>`,
                 showarrow: false,
-                xanchor: 'right', // Changed to right anchor to stay inside plotting area
+                xanchor: 'right',
                 yanchor: 'bottom',
-                font: { color: color, size: 10 },
-                bgcolor: currentIsDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                font: { family: FONT_FAMILY, color: color, size: 10 },
+                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bordercolor: '#cbd5e1',
+                borderwidth: 1,
                 borderpad: 2
             });
         };
 
         if (specs.showTarget !== false) {
-            addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+            addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2);
         }
 
         if (specs.showSpec !== false) {
-            addLimitLine(specs.usl, 'USL', '#ef4444', 'dash');
-            addLimitLine(specs.lsl, 'LSL', '#ef4444', 'dash');
+            addLimitLine(specs.usl, 'USL', '#dc2626', 'dash', 1.5);
+            addLimitLine(specs.lsl, 'LSL', '#dc2626', 'dash', 1.5);
         }
 
         if (stats && specs.showLimits !== false) {
-            addLimitLine(stats.ucl, 'UCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
-            addLimitLine(stats.lcl, 'LCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
-            addLimitLine(stats.mean, 'CL', 'rgba(245, 158, 11, 0.7)', 'dash', 1);
+            addLimitLine(stats.ucl, 'UCL', '#d97706', 'dot', 1.5);
+            addLimitLine(stats.lcl, 'LCL', '#d97706', 'dot', 1.5);
+            addLimitLine(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1);
         }
 
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { family: 'Newsreader', color: currentIsDark ? '#edeae2' : '#21262e', size: 16 },
+                font: { family: FONT_FAMILY, color: '#0f172a', size: 14 },
                 y: 0.98,
                 yanchor: 'top'
             },
-            paper_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
-            plot_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
+            paper_bgcolor: '#ffffff',
+            plot_bgcolor: '#ffffff',
             shapes: shapes,
             annotations: annotations,
             xaxis: {
                 title: {
                     text: xColumn,
-                    font: { color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
+                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                type: 'category',          // Safe mode to prevent Plotly from misinterpreting text/dates
-                tickmode: 'array',        // Explicitly use array mode for ticks
+                type: 'category',
+                tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#6b655a', '#2f7fe0'];
+                    // 主 X 軸高對比色階：深石墨藍 (#0f172a) 與 高飽和深鈷藍 (#0284c7)
+                    const colors = ['#0f172a', '#0284c7'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn], isXDate);
-
                         if (i > 0) {
                             const prevVal = formatX(chartData[i - 1][xColumn], isXDate);
                             if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
                         }
-                        return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
+                        const isAlt = colorIdx === 1;
+                        return `<span style="color: ${colors[colorIdx]}; font-weight: ${isAlt ? '700' : '600'};">${val}</span>`;
                     });
                 })(),
-                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
-                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { size: 10 },
-                range: [-0.5, chartData.length - 0.5], // Ensure all points are visible
+                gridcolor: '#f1f5f9',
+                zerolinecolor: '#cbd5e1',
+                tickfont: { family: FONT_FAMILY, size: 10 },
+                range: [-0.5, chartData.length - 0.5],
                 automargin: true,
                 anchor: 'y'
             },
             yaxis: {
                 title: {
                     text: '數值',
-                    font: { color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
+                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
-                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { color: currentIsDark ? '#cbd5e1' : '#6b655a' },
+                gridcolor: '#e2e8f0',
+                zerolinecolor: '#cbd5e1',
+                tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 },
                 anchor: 'x'
             },
             legend: {
-                font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e' },
+                font: { family: FONT_FAMILY, color: '#0f172a', size: 11 },
                 orientation: 'h', y: -0.25
             },
-            margin: { t: xColumn2 ? 120 : 80, r: 80, l: 60, b: 120 },
-            autosize: true,
-            height: isSingleView ? Math.round(baseTrendHeight * TREND_CHART_HEIGHT_RATIO) : baseTrendHeight,
-            hovermode: 'closest'
+            margin: { t: xColumn2 ? 110 : 70, r: 80, l: 60, b: 110 }
         };
-
-        if (!isNaN(specs.target) && specs.target !== 0) {
-            layout.yaxis2 = {
-                title: '偏離目標 (%)',
-                overlaying: 'y',
-                side: 'right',
-                showgrid: false,
-                tickfont: { color: '#10b981', size: 10 },
-                titlefont: { color: '#10b981', size: 11 },
-                tickformat: '.2f',
-                ticksuffix: '%',
-                anchor: 'x'
-            };
-        }
 
         if (xColumn2) {
             layout.xaxis2 = {
                 title: {
                     text: xColumn2,
-                    font: { color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
+                    font: { family: FONT_FAMILY, color: '#047857', size: 11 }
                 },
-                overlaying: 'x',
-                side: 'top',
+                type: 'category',
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    const colors = currentIsDark ? ['#cbd5e1', '#38bdf8'] : ['#6b655a', '#2f7fe0'];
+                    // 頂部副 X 軸高對比色階：深翡翠綠 (#047857) 與 濃郁靛青藍 (#4338ca)
+                    const colors = ['#047857', '#4338ca'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn2], isX2Date);
-
                         if (i > 0) {
                             const prevVal = formatX(chartData[i - 1][xColumn2], isX2Date);
                             if (val !== prevVal) colorIdx = (colorIdx + 1) % colors.length;
                         }
-                        return `<span style="color: ${colors[colorIdx]}">${val}</span>`;
+                        const isAlt = colorIdx === 1;
+                        return `<span style="color: ${colors[colorIdx]}; font-weight: ${isAlt ? '700' : '600'};">${val}</span>`;
                     });
                 })(),
-                gridcolor: 'rgba(0,0,0,0)', // Hide grid for top axis
-                tickfont: { size: 10 },
-                range: [-0.5, chartData.length - 0.5],
-                automargin: true,
-                anchor: 'y'
+                overlaying: 'x',
+                side: 'top',
+                gridcolor: 'transparent',
+                tickfont: { family: FONT_FAMILY, size: 9 },
+                automargin: true
             };
         }
 
-        // Use Plotly.newPlot and handle the promise
+        if (!isNaN(specs.target) && specs.target !== 0) {
+            layout.yaxis2 = {
+                title: {
+                    text: '偏離目標 (%)',
+                    font: { family: FONT_FAMILY, color: '#10b981', size: 11 }
+                },
+                overlaying: 'y',
+                side: 'right',
+                showgrid: false,
+                tickfont: { family: FONT_FAMILY, color: '#10b981', size: 10 },
+                ticksuffix: '%'
+            };
+        }
+
+        // Plotly instance
         Plotly.newPlot(container, traces, layout, { responsive: true, displaylogo: false }).then(gd => {
             if (!isNaN(specs.target) && specs.target !== 0) {
                 const syncFromRange = (r0, r1) => {
@@ -310,7 +295,6 @@ const ChartRenderer = (() => {
 
                 const sync = () => {
                     if (!gd) return;
-                    // Try layout.range first; fall back to _fullLayout for initial auto-range
                     const r = (gd.layout.yaxis && gd.layout.yaxis.range)
                         || (gd._fullLayout && gd._fullLayout.yaxis && gd._fullLayout.yaxis.range);
                     if (!r || r.length < 2) return;
@@ -323,12 +307,10 @@ const ChartRenderer = (() => {
                     } else if (edata['yaxis.range'] && edata['yaxis.range'].length === 2) {
                         syncFromRange(edata['yaxis.range'][0], edata['yaxis.range'][1]);
                     } else if (edata['yaxis.autorange']) {
-                        // Auto-range reset → re-sync after Plotly re-renders
                         setTimeout(sync, 100);
                     }
                 });
 
-                // Trigger initial sync
                 sync();
             }
         }).catch(err => console.error('Plotly Error:', err));
@@ -384,13 +366,10 @@ const ChartRenderer = (() => {
             return;
         }
 
-        const currentIsDark = isDark();
-        const colorPalette = ['#2f7fe0', '#10b981', '#d98e2b', '#3ec7d8', '#e87966'];
         const allTraces = [];
         const shapes = [];
         const annotations = [];
 
-        // Global min/max for curve X-axis range
         let globalMin = Infinity;
         let globalMax = -Infinity;
 
@@ -399,9 +378,8 @@ const ChartRenderer = (() => {
             if (values.length === 0) return null;
 
             const stats = ExcelParser.getStats(values, specs);
-            const baseColor = colorPalette[idx % colorPalette.length];
+            const baseColor = COLOR_PALETTE[idx % COLOR_PALETTE.length];
 
-            // Update global range
             const colMin = Math.min(...values, stats.mean - 4 * stats.stdevOverall);
             const colMax = Math.max(...values, stats.mean + 4 * stats.stdevOverall);
             globalMin = Math.min(globalMin, colMin);
@@ -424,7 +402,6 @@ const ChartRenderer = (() => {
             globalMin = Math.min(globalMin, specs.target);
             globalMax = Math.max(globalMax, specs.target);
         }
-        // Add padding so limit lines aren't flush with edge
         const padding = (globalMax - globalMin) * 0.05 || 1;
         globalMin -= padding;
         globalMax += padding;
@@ -433,17 +410,17 @@ const ChartRenderer = (() => {
             const { mean, stdevOverall } = stats;
             const sigma = stdevOverall;
 
-            // 1. Histogram (only if single column to avoid clutter, or very transparent)
+            // 1. Histogram
             allTraces.push({
                 x: values,
                 type: 'histogram',
                 name: `${col} 分佈`,
                 nbinsx: 30,
                 histnorm: 'probability density',
-                visible: columnStats.length === 1 ? true : 'legendonly', // Hide by default if multiple
+                visible: columnStats.length === 1 ? true : 'legendonly',
                 marker: {
                     color: baseColor,
-                    opacity: 0.2,
+                    opacity: 0.25,
                     line: { color: baseColor, width: 1 }
                 }
             });
@@ -466,7 +443,7 @@ const ChartRenderer = (() => {
                 line: { color: baseColor, width: 1.5 }
             });
 
-            // 3. Sigma Markers (Only for the first selected column to avoid mess, or none)
+            // 3. Sigma Markers
             if (columnStats.length === 1) {
                 const sigmaMarkersX = [], sigmaMarkersY = [], sigmaLabels = ['-3σ', '-2σ', '-1σ', 'Avg', '+1σ', '+2σ', '+3σ'];
                 for (let i = -3; i <= 3; i++) {
@@ -482,26 +459,29 @@ const ChartRenderer = (() => {
                     name: `${col} σ 標記`,
                     text: sigmaLabels,
                     textposition: 'top center',
-                    marker: { color: baseColor, size: 8 },
+                    textfont: { family: FONT_FAMILY, size: 9 },
+                    marker: { color: baseColor, size: 7 },
                     showlegend: false
                 });
             }
         });
 
-        // 4. Common Specs
-        const addLimit = (val, label, color, dash, width = 2) => {
+        // 4. Specs & Limits
+        const addLimit = (val, label, color, dash, width = 1.5) => {
             if (isNaN(val)) return;
             shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: width, dash: dash } });
             annotations.push({
                 x: val, y: 0.95, xref: 'x', yref: 'paper',
                 text: `<b>${label}: ${val.toFixed(4)}</b>`,
                 showarrow: false,
-                font: { color: color, size: 10 },
-                bgcolor: currentIsDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)'
+                font: { family: FONT_FAMILY, color: color, size: 10 },
+                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bordercolor: '#cbd5e1',
+                borderwidth: 1,
+                borderpad: 2
             });
         };
 
-        // Helper to add shaded range between two bounds (safe rect)
         const addRange = (lo, hi, color) => {
             if (isNaN(lo) || isNaN(hi) || lo === hi) return;
             const [x0, x1] = lo < hi ? [lo, hi] : [hi, lo];
@@ -515,55 +495,55 @@ const ChartRenderer = (() => {
         };
 
         if (specs.showTarget !== false) {
-            addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px');
+            addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2);
         }
 
         if (specs.showSpec !== false) {
-            addRange(specs.lsl, specs.usl, currentIsDark ? 'rgba(239, 68, 68, 0.06)' : 'rgba(239, 68, 68, 0.06)');
-            addLimit(specs.usl, 'USL', '#ef4444', 'dash');
-            addLimit(specs.lsl, 'LSL', '#ef4444', 'dash');
+            addRange(specs.lsl, specs.usl, 'rgba(220, 38, 38, 0.05)');
+            addLimit(specs.usl, 'USL', '#dc2626', 'dash');
+            addLimit(specs.lsl, 'LSL', '#dc2626', 'dash');
         }
 
         if (stats && specs.showLimits !== false) {
-            addRange(stats.lcl, stats.ucl, currentIsDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.05)');
-            addLimit(stats.ucl, 'UCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
-            addLimit(stats.lcl, 'LCL', 'rgba(245, 158, 11, 1)', 'dot', 1.5);
-            addLimit(stats.mean, 'CL', 'rgba(245, 158, 11, 0.7)', 'dash', 1);
+            addRange(stats.lcl, stats.ucl, 'rgba(217, 119, 6, 0.05)');
+            addLimit(stats.ucl, 'UCL', '#d97706', 'dot', 1.5);
+            addLimit(stats.lcl, 'LCL', '#d97706', 'dot', 1.5);
+            addLimit(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1);
         }
 
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
-                font: { family: 'Newsreader', color: currentIsDark ? '#edeae2' : '#21262e', size: 16 }
+                font: { family: FONT_FAMILY, color: '#0f172a', size: 14 }
             },
-            paper_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
-            plot_bgcolor: currentIsDark ? '#10131a' : '#ffffff',
+            paper_bgcolor: '#ffffff',
+            plot_bgcolor: '#ffffff',
             shapes: shapes,
             annotations: annotations,
             xaxis: {
                 title: {
                     text: '數值',
-                    font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
+                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
-                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#6b655a' },
+                gridcolor: '#f1f5f9',
+                zerolinecolor: '#cbd5e1',
+                tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 },
                 range: [globalMin, globalMax]
             },
             yaxis: {
                 title: {
                     text: '密度',
-                    font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e', size: 12 }
+                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                gridcolor: currentIsDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
-                zerolinecolor: currentIsDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)',
-                tickfont: { family: 'Inter', color: currentIsDark ? '#cbd5e1' : '#6b655a' }
+                gridcolor: '#e2e8f0',
+                zerolinecolor: '#cbd5e1',
+                tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 }
             },
             legend: {
-                font: { family: 'Inter', color: currentIsDark ? '#edeae2' : '#21262e', size: 11 },
+                font: { family: FONT_FAMILY, color: '#0f172a', size: 11 },
                 orientation: 'h', y: -0.25
             },
-            margin: { t: 60, r: 40, l: 70, b: 120 },
+            margin: { t: 60, r: 40, l: 70, b: 110 },
             height: container.closest('.single-view') ? 800 : 450,
             hovermode: 'closest',
             bargap: 0.1

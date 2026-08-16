@@ -1,24 +1,17 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel 趨勢圖表分析工具</title>
-    <meta name="description" content="專業的 Excel 數據篩選、排序與趨勢圖表視覺化工具">
+    <title>Excel 趨勢圖表分析工具 - Precision Instrument Workbench</title>
+    <meta name="description" content="專業的 Excel 數據篩選、排序與趨勢圖表視覺化工業級數據工作台">
 
-    <!-- Modern Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap"
-        rel="stylesheet">
-
-    <!-- Favicon -->
+    <!-- Favicon (Precision Instrument Cobalt & Cyan) -->
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232F7FE0'/><stop offset='1' stop-color='%233EC7D8'/></linearGradient></defs><rect width='100' height='100' rx='24' fill='url(%23g)'/><polyline points='18,68 38,52 56,58 82,28' fill='none' stroke='white' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%230284C7'/><stop offset='1' stop-color='%2306B6D4'/></linearGradient></defs><rect width='100' height='100' rx='16' fill='url(%23g)'/><polyline points='18,68 38,52 56,58 82,28' fill='none' stroke='white' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 
-    <!-- Custom CSS -->
+    <!-- Custom CSS (Precision Instrument & Modern Industrial Workbench) -->
     <link rel="stylesheet" href="css/style.css">
 
     <!-- SheetJS (Excel Parsing) -->
@@ -38,8 +31,8 @@
         <main class="main-content">
             <!-- Summary Cards -->
             <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="card-icon blue">
+                <div class="summary-card user-card">
+                    <div class="card-icon cobalt">
                         <i data-lucide="list"></i>
                     </div>
                     <div class="card-info">
@@ -47,8 +40,8 @@
                         <span id="total-rows" class="metric-value hero">0</span>
                     </div>
                 </div>
-                <div class="summary-card">
-                    <div class="card-icon green">
+                <div class="summary-card user-card">
+                    <div class="card-icon cyan">
                         <i data-lucide="filter"></i>
                     </div>
                     <div class="card-info">
@@ -56,7 +49,7 @@
                         <span id="filtered-rows" class="metric-value hero">0</span>
                     </div>
                 </div>
-                <div class="summary-card stats-group-card">
+                <div class="summary-card stats-group-card assistant-card">
                     <div class="mini-stats-grid">
                         <div class="mini-stat" data-formula="C_a = \frac{\bar{X} - \text{Target}}{T/2}">
                             <label>Ca</label>
@@ -78,7 +71,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="summary-card">
+                <div class="summary-card assistant-card">
                     <div class="card-icon amber">
                         <i data-lucide="sigma"></i>
                     </div>
@@ -88,7 +81,7 @@
                         <div class="sub-text" id="cl-text">UCL: - | LCL: -</div>
                     </div>
                 </div>
-                <div class="summary-card dev-card">
+                <div class="summary-card dev-card assistant-card">
                     <div class="card-info">
                         <label>標準差 (StdDev)</label>
                         <div class="dev-stats">
@@ -207,6 +200,7 @@
                     </h3>
                     <div class="card-actions">
                         <button id="export-csv" class="secondary-button size-sm">
+                            <i data-lucide="file-spreadsheet"></i>
                             匯出篩選數據
                         </button>
                     </div>
@@ -227,7 +221,13 @@
             <header class="sidebar-header">
                 <div class="logo">
                     <i data-lucide="chart-spline"></i>
-                    <h1>TrendChart Pro</h1>
+                    <div class="logo-text">
+                        <h1>TrendChart Pro</h1>
+                        <span class="system-status">
+                            <span class="status-dot"></span>
+                            <span>ONLINE</span>
+                        </span>
+                    </div>
                 </div>
             </header>
 
@@ -246,7 +246,7 @@
                     <div id="file-info" class="file-info hidden">
                         <i data-lucide="file-text"></i>
                         <span id="filename">filename.xlsx</span>
-                        <button id="remove-file" class="icon-button">
+                        <button id="remove-file" class="icon-button" title="移除檔案">
                             <i data-lucide="x"></i>
                         </button>
                     </div>
@@ -380,6 +380,7 @@
                         <!-- Filters will be generated dynamically -->
                     </div>
                     <button id="reset-filters" class="secondary-button size-sm">
+                        <i data-lucide="rotate-ccw"></i>
                         清除所有篩選
                     </button>
                 </section>
@@ -401,10 +402,7 @@
                 <button id="show-help" class="icon-button" title="參數說明">
                     <i data-lucide="circle-help"></i>
                 </button>
-                <button id="theme-toggle" class="icon-button" title="切換深色模式">
-                    <i data-lucide="moon"></i>
-                </button>
-                <span class="version">v1.1.0</span>
+                <span class="version">v1.2.0 • Precision Workbench</span>
             </footer>
         </aside>
     </div>
