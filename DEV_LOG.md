@@ -35,6 +35,7 @@
 6. **確效測試**：
    - `node --check` 驗證 `app.js`、`chartRenderer.js`、`excelParser.js` 語法全數通過。
    - 瀏覽器沙盒環境實測無任何 Console 錯誤，脈衝呼吸燈、微動效、圖表渲染與表格預覽全部正常。
+7. **Git 基準點**：`e351da7` (`feat(ui): refactor to precision instrument workbench & optimize code/docs (v1.2.0)`) 已成功推送至遠端 `origin/main`。
 
 ---
 
