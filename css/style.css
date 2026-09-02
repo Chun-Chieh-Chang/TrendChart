@@ -61,6 +61,7 @@
     --ease-crisp: cubic-bezier(0.16, 1, 0.3, 1);
     --transition-fast: all 0.12s var(--ease-crisp);
     --transition-normal: all 0.2s var(--ease-crisp);
+    --transition-smooth: width 0.35s var(--ease-crisp), min-width 0.35s var(--ease-crisp), padding 0.35s var(--ease-crisp);
 
     /* 原生與 VSCode 字體堆疊 (防止外部加載排版位移) */
     --font-sans: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
@@ -127,8 +128,72 @@ td {
     flex-direction: column;
     padding: 1.25rem;
     overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: var(--shadow-sm);
     z-index: 10;
+    transition: var(--transition-smooth);
+}
+
+/* Peek state — thin preview strip on right edge */
+.sidebar.peek {
+    width: 48px;
+    min-width: 48px;
+    padding: 1.25rem 0;
+    border-left: none;
+    box-shadow: none;
+}
+
+/* Collapsed state — hidden, only trigger handle visible */
+.sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    padding: 1.25rem 0;
+    border-left: none;
+    box-shadow: none;
+}
+
+/* Slim trigger handle visible when collapsed or peeking */
+.sidebar-trigger {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 64px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.08);
+    transition: background 0.15s var(--ease-crisp);
+}
+
+.sidebar-trigger:hover {
+    background: var(--user-cobalt-light);
+}
+
+.sidebar-trigger .lucide {
+    width: 14px;
+    height: 14px;
+    color: var(--user-cobalt);
+    stroke-width: 2.5;
+    transition: transform 0.3s var(--ease-crisp);
+}
+
+/* Show trigger when sidebar is collapsed or peeking */
+.sidebar.collapsed ~ .sidebar-trigger,
+.sidebar.peek ~ .sidebar-trigger {
+    display: flex;
+}
+
+/* Rotate chevron when sidebar is expanded or peeking */
+.sidebar:not(.collapsed) ~ .sidebar-trigger .lucide {
+    transform: rotate(180deg);
 }
 
 .sidebar-header {
@@ -165,6 +230,13 @@ td {
 }
 
 /* Live Green Hardware Pulse Indicator */
+@keyframes pulseHint {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.pulse-hint {
+    animation: pulseHint 1.2s ease-in-out infinite;
+}
 .system-status {
     display: inline-flex;
     align-items: center;
@@ -595,12 +667,6 @@ td {
     border-left: 4px solid var(--assistant-cyan);
 }
 
-/* 3. System / Alert Card */
-.summary-card.system-card {
-    background: var(--system-red-light);
-    border-left: 4px solid var(--system-red);
-}
-
 .card-icon {
     width: 40px;
     height: 40px;
@@ -782,6 +848,17 @@ td {
 @media (max-width: 1200px) {
     .charts-grid.dual-view {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Touch devices: always show trigger handle for tap access */
+@media (hover: none) and (pointer: coarse) {
+    .sidebar-trigger {
+        display: flex !important;
+    }
+    .sidebar.collapsed ~ .sidebar-trigger,
+    .sidebar.peek ~ .sidebar-trigger {
+        display: flex !important;
     }
 }
 

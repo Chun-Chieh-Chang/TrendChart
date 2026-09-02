@@ -65,6 +65,16 @@
 - [x] **雙 X 軸文字對比度優化**：底部主 X 軸與頂部副 X 軸文字交替採用高對比深色階（深石墨藍 `#0f172a` / 高飽和鈷藍 `#0284c7` vs 深翡翠綠 `#047857` / 濃郁靛青 `#4338ca`），大幅提升可讀性。
 - [x] **色彩邏輯收斂與清理**：清理所有分散主題切換與暗色混雜樣式，全站與圖表渲染統一套用此工業級標準。
 
+### 1.9 Codebase Cleanup & Sidebar Interaction (v1.3.0)
+- [x] **死碼清理**：移除 v1.1.0 殘留的 `themeToggle` 事件監聽器（無對應 DOM 元素）。
+- [x] **未定義 CSS 變數修復**：修正 `var(--amber/green/blue/red)` 四處引用，對齊 `--status-amber/--status-green/--user-cobalt/--system-red`，恢復 Ca/Cp/Cpk/Ppk 品質色碼功能。
+- [x] **缺失動畫補完**：新增 `.pulse-hint` CSS 規則與 `@keyframes pulseHint`，恢復日期偵測提示閃爍效果。
+- [x] **Orphaned CSS 移除**：刪除無 HTML 對應的 `.summary-card.system-card` 規則。
+- [x] **效能優化**：`updateStats()` 改為可選參數模式，`renderChart()` 直接傳入 `currentStats`，消除重複統計計算。
+- [x] **Sidebar 互動式收合展開**：三階段狀態機（collapsed 0px → peek 48px → expanded 320px），滑鼠 proximity 偵測、編輯狀態保護、觸控支援、localStorage 持久化。
+- [x] **Git 狀態清理**：刪除 `.git/REBASE_HEAD` 與 `.git/.COMMIT_EDITMSG.swp` 殘留檔案。
+- [x] **過時註解移除**：清理 `app.js` 中描述舊行為的無效註解。
+
 ---
 
 ## 2. 進行中與待優化 (Pending & Future Improvements)
@@ -78,5 +88,5 @@
 - [ ] **報告模板生成**：一鍵生成包含統計數據與圖表的 PDF/HTML 報告頁面。
 
 ---
-*Last Updated: 2026-08-16*
-*Status: Active / Precision Workbench (v1.2.0)*
+*Last Updated: 2026-09-02*
+*Status: Active / Precision Workbench (v1.3.0)*

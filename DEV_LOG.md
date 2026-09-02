@@ -1,5 +1,50 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-09-02
+**任務目標 (Codebase Cleanup & Sidebar Interaction Enhancement - v1.3.0)**：
+1. 全面盤點死碼、未定義 CSS 變數與 orphaned 資源，執行手術刀式修復。
+2. 實現右側邊欄互動式收合展開功能（Peek 預覽條 + 平滑過渡 + 編輯狀態保護）。
+3. 消除 `updateStats()` 與 `renderChart()` 間的統計數據重複計算。
+4. 同步更新 DEV_LOG.md、TASKS.md 至 v1.3.0。
+5. 清理 Git 暫存狀態檔案（REBASE_HEAD、.swp）。
+
+**盤點發現與修復 (RCA & Fixes)**：
+1. **死碼移除**：
+   - 刪除 `app.js` 中無效的 `themeToggle` 事件監聽器（`#theme-toggle` 按鈕已在 v1.2.0 移除，此 JS 殘留未清）。
+   - 刪除 `style.css` 中無用的 `.summary-card.system-card` 規則（無 HTML 元素使用此類別）。
+2. **未定義 CSS 變數修復（功能性 Bug）**：
+   - `var(--amber)` → `var(--status-amber)`、`var(--green)` → `var(--status-green)`、`var(--blue)` → `var(--user-cobalt)`、`var(--red)` → `var(--system-red)`
+   - 影響範圍：Ca/Cp/Cpk/Ppk 品質指標色碼標示、日期格式偵測提示字色。此前所有色碼均靜默失效。
+3. **缺失 CSS 補完**：
+   - 新增 `.pulse-hint` 類別與其 `@keyframes pulseHint` 動畫，使日期偵測提示有正確的閃爍視覺反饋。
+4. **效能優化**：
+   - `updateStats()` 改為接受可選 `stats` 參數；`renderChart()` 中將已算好的 `currentStats` 直接傳入，避免二次計算。
+5. **Sidebar 互動功能**：
+   - 新增三階段狀態機：`collapsed`（0px）→ `peek`（48px 預覽條）→ `expanded`（320px 完整面板）。
+   - 滑鼠 proximity 偵測（80px 範圍）觸發 Peek；游標進入 sidebar 範圍自動展開。
+   - 編輯狀態保護：聚焦 sidebar 內表單控件時保持展開，失焦後 600ms 寬限期再收合。
+   - 觸控支援：右邊緣點擊觸發展開；`localStorage` 持久化收合狀態。
+   - 所有動畫使用 `--transition-smooth`（350ms cubic-bezier）確保流暢。
+6. **文件清理**：
+   - 移除 `app.js` 中過時的註解（"Always set checkboxes to false..."、"Keep the previous state..."）。
+   - 刪除 `.git/REBASE_HEAD`（殘留 rebase 標記）與 `.git/.COMMIT_EDITMSG.swp`（Vim swap 檔）。
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**：新增 `--transition-smooth` 變數、`.sidebar.peek` 狀態、`.sidebar-trigger` 把手樣式、`.pulse-hint` 動畫；刪除 `.summary-card.system-card`。
+2. **`index.html`**：新增 `<div id="sidebar-trigger">` 觸發把手。
+3. **`js/app.js`**：
+   - 移除 `themeToggle` 死碼區塊。
+   - 修復 7 處未定義 CSS 變數引用。
+   - 修復 3 處過時註解。
+   - `updateStats(stats?)` 接受可選參數；`renderChart()` 傳入 `currentStats` 避免重複計算。
+   - 新增完整的 sidebar 互動邏輯（proximity/peek/expand/edit-state/resize）。
+4. **Git 清理**：刪除 `.git/REBASE_HEAD` 與 `.git/.COMMIT_EDITMSG.swp`。
+5. **確效測試**：
+   - `node --check` 驗證 `app.js`、`chartRenderer.js`、`excelParser.js` 語法全數通過。
+   - 瀏覽器實測：色碼標示正常（Ca/Cp/Cpk/Ppk 依閾值顯示綠/藍/黃/紅）、pulse-hint 動畫正常、sidebar Peek/Expand/Collapse 流暢、編輯狀態保護有效、localStorage 持久化正常。
+
+---
+
 ## 2026-08-16
 **任務目標 (精密儀表與工業級數據工作台風格重構與專案全量優化 - Precision Workbench v1.2.0)**：
 1. 本地與遠端狀態確認：檢查 Git 工作樹並確認與 `origin/main` 完全同步。

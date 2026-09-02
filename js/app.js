@@ -205,14 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFiltersConfig(); // Load previous filters
     updateLayout(); // Initialize layout state
 
-    // Theme Toggle (Unified Single Precision Style)
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            if (filteredData.length > 0) renderChart();
-        });
-    }
-
     // --- File Handling ---
 
     dropZone.addEventListener('click', () => fileInput.click());
@@ -441,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
             xAxis2Selector.value = prevX2;
         }
 
-        // Always set checkboxes to false on load to force manual confirmation
         if (xAxisSelector.value) {
             const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
             xIsDateCheckbox.checked = xAxisSelector.dataset.prevDate === 'true';
@@ -484,13 +475,11 @@ document.addEventListener('DOMContentLoaded', () => {
         xAxisSelector.addEventListener('change', () => {
             xAxisSelector.dataset.prevValue = xAxisSelector.value;
             const detect = ExcelParser.detectDateConfidence(filteredData, xAxisSelector.value);
-            // Keep the previous state instead of forcing false
             updateDateHint(xIsDateCheckbox, detect);
         });
         xAxis2Selector.addEventListener('change', () => {
             xAxis2Selector.dataset.prevValue = xAxis2Selector.value;
             const detect = xAxis2Selector.value ? ExcelParser.detectDateConfidence(filteredData, xAxis2Selector.value) : { isDate: false, isUncertain: false };
-            // Keep the previous state instead of forcing false
             updateDateHint(x2IsDateCheckbox, detect);
         });
         xIsDateCheckbox.addEventListener('change', () => {
@@ -516,12 +505,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (detect.isUncertain) {
                 label.innerHTML = '偵測到疑為時間格式，建議確認勾選';
-                label.style.color = 'var(--amber)';
+                label.style.color = 'var(--status-amber)';
                 wrapper.style.opacity = '1';
                 wrapper.classList.add('pulse-hint');
             } else if (detect.isDate) {
                 label.innerHTML = '偵測為時間格式，建議勾選以正確顯示';
-                label.style.color = 'var(--green)';
+                label.style.color = 'var(--status-green)';
                 wrapper.style.opacity = '1';
                 wrapper.classList.add('pulse-hint');
             } else {
@@ -785,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateStats() {
+    function updateStats(stats) {
         const yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
         const specs = {
             target: parseFloat(targetInput.value),
@@ -801,18 +790,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const values = filteredData.map(row => ExcelParser.parseNumber(row[firstCol]))
                 .filter(v => !isNaN(v));
 
-            const stats = ExcelParser.getStats(values, specs);
-            yMeanEl.textContent = stats.mean.toFixed(4);
+            const result = stats || ExcelParser.getStats(values, specs);
+            yMeanEl.textContent = result.mean.toFixed(4);
 
             // Render Ca with Color Coding
             if (stats.ca !== null) {
                 const caVal = stats.ca * 100;
                 const absCa = Math.abs(caVal);
                 caValueEl.textContent = caVal.toFixed(4) + '%';
-                if (absCa <= 12.5) caValueEl.style.color = 'var(--green)';
-                else if (absCa <= 25) caValueEl.style.color = 'var(--blue)';
-                else if (absCa <= 50) caValueEl.style.color = 'var(--amber)';
-                else caValueEl.style.color = 'var(--red)';
+                if (absCa <= 12.5) caValueEl.style.color = 'var(--status-green)';
+                else if (absCa <= 25) caValueEl.style.color = 'var(--user-cobalt)';
+                else if (absCa <= 50) caValueEl.style.color = 'var(--status-amber)';
+                else caValueEl.style.color = 'var(--system-red)';
             } else {
                 caValueEl.textContent = 'N/A';
                 caValueEl.style.color = '';
@@ -822,24 +811,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const renderIndex = (el, val) => {
                 if (val !== null) {
                     el.textContent = val.toFixed(4);
-                    if (val >= 1.67) el.style.color = 'var(--green)';
-                    else if (val >= 1.33) el.style.color = 'var(--blue)';
-                    else if (val >= 1.0) el.style.color = 'var(--amber)';
-                    else el.style.color = 'var(--red)';
+                    if (val >= 1.67) el.style.color = 'var(--status-green)';
+                    else if (val >= 1.33) el.style.color = 'var(--user-cobalt)';
+                    else if (val >= 1.0) el.style.color = 'var(--status-amber)';
+                    else el.style.color = 'var(--system-red)';
                 } else {
                     el.textContent = 'N/A';
                     el.style.color = '';
                 }
             };
 
-            renderIndex(cpValueEl, stats.cp);
-            renderIndex(cpkValueEl, stats.cpk);
-            renderIndex(ppkValueEl, stats.ppk);
+            renderIndex(cpValueEl, result.cp);
+            renderIndex(cpkValueEl, result.cpk);
+            renderIndex(ppkValueEl, result.ppk);
 
-            uclLclEl.textContent = `UCL: ${stats.ucl.toFixed(4)} | LCL: ${stats.lcl.toFixed(4)}`;
-            sdWithinEl.textContent = stats.stdevWithin.toFixed(4);
-            sdBetweenEl.textContent = stats.stdevBetween.toFixed(4);
-            sdOverallEl.textContent = stats.stdevOverall.toFixed(4);
+            uclLclEl.textContent = `UCL: ${result.ucl.toFixed(4)} | LCL: ${result.lcl.toFixed(4)}`;
+            sdWithinEl.textContent = result.stdevWithin.toFixed(4);
+            sdBetweenEl.textContent = result.stdevBetween.toFixed(4);
+            sdOverallEl.textContent = result.stdevOverall.toFixed(4);
         } else {
             yMeanEl.textContent = '0';
             uclLclEl.textContent = 'UCL: - | LCL: -';
@@ -950,6 +939,136 @@ document.addEventListener('DOMContentLoaded', () => {
             formulaTooltip.classList.add('hidden');
         });
     });
+
+    // --- Sidebar Interactive Collapse/Expand ---
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarTrigger = document.getElementById('sidebar-trigger');
+
+    // Timing constants
+    const PROXIMITY_THRESHOLD = 80;     // px from right edge to start peek
+    const EXPAND_DELAY = 120;           // ms before fully expanding on hover
+    const COLLAPSE_GRACE = 600;         // ms grace period before collapsing
+    const CLOSE_TIMEOUT = 150;          // ms after leaving sidebar before closing
+
+    // State
+    let sidebarCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+    let isEditing = false;
+    let proximityTimeout = null;
+    let collapseTimeout = null;
+
+    function applySidebarState(expanded) {
+        sidebar.classList.remove('collapsed', 'peek');
+        if (!expanded) {
+            sidebar.classList.add('collapsed');
+            localStorage.setItem('sidebar-collapsed', 'true');
+        } else {
+            localStorage.setItem('sidebar-collapsed', 'false');
+        }
+        requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+    }
+
+    function setPeek(visible) {
+        if (visible && sidebarCollapsed) {
+            sidebar.classList.add('peek');
+        } else {
+            sidebar.classList.remove('peek');
+        }
+    }
+
+    // Initialize from saved state
+    applySidebarState(!sidebarCollapsed);
+
+    // Click trigger to toggle
+    sidebarTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const willExpand = sidebar.classList.contains('collapsed') || sidebar.classList.contains('peek');
+        applySidebarState(willExpand);
+    });
+
+    // Global mousemove — detect proximity to right edge for peek/expand
+    document.addEventListener('mousemove', (e) => {
+        const fromRight = window.innerWidth - e.clientX;
+
+        if (fromRight <= PROXIMITY_THRESHOLD) {
+            // Cursor is near the right edge
+            if (sidebar.classList.contains('collapsed')) {
+                // Show peek strip
+                clearTimeout(proximityTimeout);
+                proximityTimeout = setTimeout(() => setPeek(true), 50);
+            }
+            // If already peeking or expanded, do nothing extra
+        } else {
+            // Cursor is far from edge — dismiss peek
+            if (sidebar.classList.contains('peek')) {
+                clearTimeout(proximityTimeout);
+                setPeek(false);
+            }
+        }
+    });
+
+    // Sidebar hover: keep expanded while mouse is over content
+    sidebar.addEventListener('mouseenter', () => {
+        clearTimeout(collapseTimeout);
+        clearTimeout(proximityTimeout);
+        setPeek(false);
+        if (sidebar.classList.contains('collapsed') || sidebar.classList.contains('peek')) {
+            applySidebarState(true);
+        }
+    });
+
+    sidebar.addEventListener('mouseleave', () => {
+        if (isEditing) return;
+        clearTimeout(collapseTimeout);
+        // If still in proximity zone, keep expanded
+        if (sidebar.classList.contains('peek')) {
+            proximityTimeout = setTimeout(() => setPeek(false), 200);
+            return;
+        }
+        collapseTimeout = setTimeout(() => {
+            if (!isEditing && !sidebar.classList.contains('collapsed')) {
+                applySidebarState(false);
+            }
+        }, COLLAPSE_GRACE);
+    });
+
+    // Track edit state — keep sidebar open while user interacts with form controls
+    const EDITABLE_SELECTOR = 'input, select, textarea, button';
+    sidebar.addEventListener('focusin', (e) => {
+        if (e.target.matches(EDITABLE_SELECTOR)) {
+            isEditing = true;
+            clearTimeout(collapseTimeout);
+            setPeek(false);
+            if (sidebar.classList.contains('collapsed')) applySidebarState(true);
+        }
+    });
+
+    sidebar.addEventListener('focusout', (e) => {
+        if (e.target.matches(EDITABLE_SELECTOR)) {
+            setTimeout(() => {
+                const focused = document.activeElement;
+                if (!focused || !sidebar.contains(focused)) {
+                    isEditing = false;
+                    clearTimeout(collapseTimeout);
+                    collapseTimeout = setTimeout(() => {
+                        if (!sidebar.classList.contains('collapsed')) {
+                            applySidebarState(false);
+                        }
+                    }, CLOSE_TIMEOUT);
+                }
+            }, 50);
+        }
+    });
+
+    // Touch support — tap right edge to toggle
+    document.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        if (window.innerWidth - touch.clientX <= PROXIMITY_THRESHOLD + 20) {
+            if (sidebar.classList.contains('collapsed') || sidebar.classList.contains('peek')) {
+                applySidebarState(true);
+            }
+        }
+    }, { passive: true });
+    // --- End Sidebar Interaction ---
 
     // Initialize Lucide icons (graceful: no-op if CDN unavailable)
     if (window.lucide) window.lucide.createIcons();
