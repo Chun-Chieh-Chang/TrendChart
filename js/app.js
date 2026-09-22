@@ -42,11 +42,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartsMainContainer = document.getElementById('charts-main-container');
     const trendCard = document.getElementById('trend-card');
     const distCard = document.getElementById('dist-card');
-    const togglePreview = document.getElementById('toggle-preview');
-
     const showTargetToggle = document.getElementById('show-target');
     const showSpecToggle = document.getElementById('show-spec');
     const showLimitsToggle = document.getElementById('show-limits');
+
+    // Label side toggle (left / right)
+    let labelSide = 'right';
+    const labelSideToggle = document.getElementById('label-side-toggle');
+    if (labelSideToggle) {
+        labelSideToggle.addEventListener('click', e => {
+            const btn = e.target.closest('.label-side-btn');
+            if (!btn) return;
+            labelSide = btn.dataset.side;
+            labelSideToggle.querySelectorAll('.label-side-btn').forEach(b => b.classList.toggle('active', b === btn));
+            if (filteredData.length > 0) renderChart();
+        });
+    }
 
     const totalRowsEl = document.getElementById('total-rows');
     const filteredRowsEl = document.getElementById('filtered-rows');
@@ -64,9 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpModal = document.getElementById('help-modal');
     const closeHelpBtn = document.getElementById('close-help');
 
-    const tableHead = document.getElementById('table-head');
-    const tableBody = document.getElementById('table-body');
-
     // App State
     let rawData = [];
     let filteredData = [];
@@ -74,11 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSheet = '';
     let allColumns = [];
     let hiddenSeries = new Set();
-
-    // Pagination state for table
-    let tablePageSize = 50;
-    let tableCurrentIndex = 0;
-    let tableObserver = null;
 
     // --- Utility Functions for Spec Extraction ---
 
@@ -118,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const config = {
             trend: toggleTrend.checked,
             dist: toggleDist.checked,
-            preview: togglePreview.checked,
             target: showTargetToggle.checked,
             spec: showSpecToggle.checked,
             limits: showLimitsToggle.checked
@@ -133,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const config = JSON.parse(saved);
                 if (config.trend !== undefined) toggleTrend.checked = config.trend;
                 if (config.dist !== undefined) toggleDist.checked = config.dist;
-                if (config.preview !== undefined) togglePreview.checked = config.preview;
                 if (config.target !== undefined) showTargetToggle.checked = config.target;
                 if (config.spec !== undefined) showSpecToggle.checked = config.spec;
                 if (config.limits !== undefined) showLimitsToggle.checked = config.limits;
@@ -155,6 +156,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) {
             console.warn('Failed to load filters config:', e);
+        }
+    };
+
+    // --- Annotation Offset Persistence ---
+    const STORAGE_KEY_ANNOTATIONS = 'trendchart_annotation_offsets';
+
+    const _loadAnnotationOffsets = () => {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY_ANNOTATIONS);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            console.warn('Failed to load annotation offsets:', e);
+            return {};
+        }
+    };
+
+    const _saveAnnotationOffsets = (offsets) => {
+        try {
+            localStorage.setItem(STORAGE_KEY_ANNOTATIONS, JSON.stringify(offsets));
+        } catch (e) {
+            console.warn('Failed to save annotation offsets:', e);
+        }
+    };
+
+    window.SPCApp = {
+        annotationOffsets: _loadAnnotationOffsets(),
+        getAnnotationOffset(chartId, lineType) {
+            const key = `${chartId}-${lineType}`;
+            return this.annotationOffsets[key] || 0;
+        },
+        setAnnotationOffset(chartId, lineType, offset) {
+            const key = `${chartId}-${lineType}`;
+            this.annotationOffsets[key] = offset;
+            _saveAnnotationOffsets(this.annotationOffsets);
         }
     };
 
@@ -185,13 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleDist.addEventListener('change', () => {
         saveLayoutConfig();
         updateLayout();
-    });
-
-    togglePreview.addEventListener('change', () => {
-        saveLayoutConfig();
-        if (filteredData.length > 0) {
-            updateTable();
-        }
     });
 
     [showTargetToggle, showSpecToggle, showLimitsToggle].forEach(t => {
@@ -303,12 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalRowsEl.textContent = '0';
         filteredRowsEl.textContent = '0';
-        const countDisplay = document.getElementById('table-count');
-        if (countDisplay) countDisplay.textContent = '';
         yMeanEl.textContent = '0';
 
-        tableHead.innerHTML = '';
-        tableBody.innerHTML = '';
         ChartRenderer.clearChart('plotly-trend');
         ChartRenderer.clearChart('plotly-dist');
     }
@@ -350,9 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Setup Filters
         try { setupFilters(allColumns); } catch (e) { console.error('Filter setup failed', e); }
-
-        // Update Table
-        try { updateTable(allColumns); } catch (e) { console.error('Table update failed', e); }
 
         configSection.classList.remove('hidden');
         filterSection.classList.remove('hidden');
@@ -658,7 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         filteredRowsEl.textContent = filteredData.length;
-        updateTable();
 
         // Sync Spec Inputs based on filtered results
         syncSpecInputs();
@@ -678,103 +698,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI Updates ---
 
-    function updateTable(columns) {
-        if (!columns) columns = allColumns;
-        if (columns.length === 0 && rawData.length > 0) columns = Object.keys(rawData[0] || {});
-
-        // Header
-        tableHead.innerHTML = '';
-        columns.forEach(col => {
-            const th = document.createElement('th');
-            th.textContent = col;
-            tableHead.appendChild(th);
-        });
-
-        // Clear existing body
-        tableBody.innerHTML = '';
-        tableCurrentIndex = 0;
-
-        // Disconnect previous observer if any
-        if (tableObserver) {
-            tableObserver.disconnect();
-            tableObserver = null;
-        }
-
-        // Update table count indicator
-        const countDisplay = document.getElementById('table-count');
-        if (countDisplay) {
-            countDisplay.textContent = `(共 ${filteredData.length} 筆篩選數據)`;
-        }
-
-        if (filteredData.length === 0) {
-            const tr = document.createElement('tr');
-            const td = document.createElement('td');
-            td.colSpan = columns.length || 1;
-            td.style.textAlign = 'center';
-            td.style.padding = '2rem';
-            td.textContent = '無匹配篩選條件的數據';
-            tr.appendChild(td);
-            tableBody.appendChild(tr);
-            return;
-        }
-
-        // Check if preview is enabled
-        if (!togglePreview.checked) {
-            const tr = document.createElement('tr');
-            const td = document.createElement('td');
-            td.colSpan = columns.length || 1;
-            td.style.textAlign = 'center';
-            td.style.padding = '2rem';
-            td.innerHTML = '<i>數據預覽已關閉以提升效能</i>';
-            tr.appendChild(td);
-            tableBody.appendChild(tr);
-            return;
-        }
-
-        // Implement Incremental Rendering (Lazy Load)
-        renderTableBatch(columns);
-
-        // Update stats
-        updateStats();
-    }
-
-    function renderTableBatch(columns) {
-        const start = tableCurrentIndex;
-        const end = Math.min(start + tablePageSize, filteredData.length);
-        const fragment = document.createDocumentFragment();
-
-        for (let i = start; i < end; i++) {
-            const row = filteredData[i];
-            const tr = document.createElement('tr');
-            columns.forEach(col => {
-                const td = document.createElement('td');
-                td.textContent = ExcelParser.formatValue(row[col] ?? '');
-                tr.appendChild(td);
-            });
-            fragment.appendChild(tr);
-        }
-
-        tableBody.appendChild(fragment);
-        tableCurrentIndex = end;
-
-        // If there are more rows, setup IntersectionObserver for the last row
-        if (tableCurrentIndex < filteredData.length) {
-            const lastRow = tableBody.lastElementChild;
-            if (lastRow) {
-                if (!tableObserver) {
-                    tableObserver = new IntersectionObserver((entries) => {
-                        if (entries[0].isIntersecting) {
-                            tableObserver.unobserve(lastRow);
-                            renderTableBatch(columns);
-                        }
-                    }, { root: null, rootMargin: '100px', threshold: 0.1 });
-                }
-                tableObserver.observe(lastRow);
-            }
-        }
-    }
-
     function updateStats(stats) {
+        if (!stats) { stats = { ca: null, cp: null, cpk: null, pp: null, ppk: null }; }
         const yCols = Array.from(yAxisSelector.selectedOptions).map(opt => opt.value);
         const specs = {
             target: parseFloat(targetInput.value),
@@ -782,7 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
             lsl: parseFloat(lslInput.value),
             showTarget: showTargetToggle.checked,
             showSpec: showSpecToggle.checked,
-            showLimits: showLimitsToggle.checked
+            showLimits: showLimitsToggle.checked,
+            labelSide: labelSide
         };
 
         if (yCols.length > 0 && filteredData.length > 0) {
@@ -862,7 +788,8 @@ document.addEventListener('DOMContentLoaded', () => {
             lsl: parseFloat(lslInput.value),
             showTarget: showTargetToggle.checked,
             showSpec: showSpecToggle.checked,
-            showLimits: showLimitsToggle.checked
+            showLimits: showLimitsToggle.checked,
+            labelSide: labelSide
         };
 
         if (!xCol || yCols.length === 0) {
@@ -880,21 +807,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (toggleDist.checked) {
             ChartRenderer.renderNormalDistChart(filteredData, yCols, specs, currentStats, 'plotly-dist', currentSheet);
         }
-        updateStats();
+        updateStats(currentStats);
     }
 
     exportTrendBtn.addEventListener('click', () => ChartRenderer.exportChart('plotly-trend'));
     exportDistBtn.addEventListener('click', () => ChartRenderer.exportChart('plotly-dist'));
-
-    // CSV Export
-    document.getElementById('export-csv').addEventListener('click', () => {
-        if (filteredData.length === 0) return;
-
-        const worksheet = XLSX.utils.json_to_sheet(filteredData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredData");
-        XLSX.writeFile(workbook, `filtered_data_${currentSheet}.xlsx`);
-    });
 
     // --- Formula Tooltips (KaTeX) ---
     const formulaTooltip = document.getElementById('formula-tooltip');

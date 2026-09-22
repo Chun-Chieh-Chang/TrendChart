@@ -128,16 +128,6 @@ const ExcelParser = (() => {
     };
 
     /**
-     * Utility to format display values
-     */
-    const formatValue = (val) => {
-        if (typeof val === 'number') {
-            return Number.isInteger(val) ? val : parseFloat(val.toFixed(4));
-        }
-        return val;
-    };
-
-    /**
      * Advanced Statistical Calculations including Within/Between StdDev and QC Metrics
      */
     const getStats = (values, specs = {}) => {
@@ -219,7 +209,6 @@ const ExcelParser = (() => {
         parseFile,
         getSheetData,
         getUniqueValues,
-        formatValue,
         getStats,
         normDist,
         parseNumber,

@@ -8,6 +8,97 @@ const ChartRenderer = (() => {
     const COLOR_PALETTE = ['#0284c7', '#06b6d4', '#10b981', '#d97706', '#64748b'];
     const OOS_COLOR = '#dc2626';
 
+    // --- Draggable Annotation State ---
+    const _dragState = new Map(); // gd -> { active, startY, startDataY, lineType, chartId }
+
+    /**
+     * Set up mouse drag handlers on Plotly annotation labels.
+     * Uses Plotly.restyle to move both the line shape and annotation simultaneously.
+     */
+    const setupAnnotationDrag = (gd, chartId) => {
+        if (_dragState.has(gd)) return;
+
+        // Find the plot container element (try multiple possible locations)
+        const plotEl = (gd._fullLayout && gd._fullLayout.container) ||
+                       document.getElementById(chartId);
+        if (!plotEl) {
+            console.warn('[SPC] setupAnnotationDrag: no container found for', chartId);
+            return;
+        }
+
+        const labels = plotEl.querySelectorAll('.plotlytext.draggable-annotation');
+        console.log('[SPC] setupAnnotationDrag: found', labels.length, 'draggable labels for', chartId);
+        if (!labels.length) return;
+
+        const setDragCursor = (el, dragging) => {
+            el.classList.toggle('dragging', dragging);
+            el.style.cursor = dragging ? 'grabbing' : 'grab';
+        };
+
+        labels.forEach(labelEl => {
+            const lineType = labelEl.dataset.lineType;
+            if (!lineType) return;
+
+            // Get the annotation index stored on the element
+            const annIdxAttr = labelEl.dataset.annIdx;
+            if (annIdxAttr === undefined) return;
+            const annIndex = parseInt(annIdxAttr, 10);
+
+            // Find the corresponding annotation in full layout
+            const fullAnns = gd._fullLayout && gd._fullLayout.annotations;
+            if (!fullAnns || !fullAnns[annIndex]) return;
+            const ann = fullAnns[annIndex];
+
+            const onMouseDown = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const startY = e.clientY;
+                const startDataY = ann.y;
+                const yRange = gd.layout.yaxis && gd.layout.yaxis.range;
+                if (!yRange || yRange.length < 2) return;
+
+                const [yMin, yMax] = yRange;
+                const svgHeight = plotEl.querySelector('.main-svg')
+                    ? plotEl.querySelector('.main-svg').getBoundingClientRect().height
+                    : plotEl.getBoundingClientRect().height;
+                const dataUnitsPerPixel = (yMax - yMin) / svgHeight;
+
+                const state = { active: true, startY, startDataY, lineType, chartId, dataUnitsPerPixel, annIndex, deltaY: 0 };
+                _dragState.set(gd, state);
+
+                setDragCursor(labelEl, true);
+
+                const onMouseMove = (ev) => {
+                    if (!_dragState.get(gd)?.active) return;
+                    ev.preventDefault();
+                    const deltaY = (ev.clientY - startY) * state.dataUnitsPerPixel;
+                    state.deltaY = deltaY;
+                    const newY = state.startDataY - deltaY;
+                    Plotly.restyle(gd, { 'annotations.y': [newY] }, [state.annIndex]).catch(() => {});
+                    Plotly.restyle(gd, { 'shapes.y0': [newY], 'shapes.y1': [newY] }, [state.annIndex]).catch(() => {});
+                };
+
+                const onMouseUp = () => {
+                    if (!_dragState.get(gd)?.active) return;
+                    const state = _dragState.get(gd);
+                    _dragState.delete(gd);
+                    setDragCursor(labelEl, false);
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                    // Convert pixel delta to data units and save
+                    const dataOffset = state.deltaY / state.dataUnitsPerPixel;
+                    if (window.SPCApp) window.SPCApp.setAnnotationOffset(state.chartId, state.lineType, dataOffset);
+                };
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+
+            labelEl.addEventListener('mousedown', onMouseDown);
+        });
+    };
+
     /**
      * Render Trend Chart
      * @param {Array} data - Filtered JSON data
@@ -146,17 +237,22 @@ const ChartRenderer = (() => {
         const shapes = [];
         const annotations = [];
 
-        const addLimitLine = (val, label, color, dash, width = 1.5) => {
+        const isLabelLeft = specs.labelSide === 'left';
+        const addLimitLine = (val, label, color, dash, width = 1.5, lineType = '') => {
             if (isNaN(val)) return;
+            let yOffset = 0;
+            if (lineType && window.SPCApp) yOffset = SPCApp.getAnnotationOffset(targetId, lineType);
+            const yAdj = val + yOffset;
             shapes.push({
-                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: val, y1: val,
+                type: 'line', yref: 'y', xref: 'paper', x0: 0, x1: 1, y0: yAdj, y1: yAdj,
                 line: { color: color, width: width, dash: dash }
             });
+            const annIdx = annotations.length;
             annotations.push({
-                xref: 'paper', x: 1, y: val, yref: 'y',
-                text: `<b>${label}: ${val.toFixed(4)}</b>`,
+                xref: 'paper', x: isLabelLeft ? 0 : 1, y: yAdj, yref: 'y',
+                text: `<b>${label}: ${yAdj.toFixed(4)}</b>`,
                 showarrow: false,
-                xanchor: 'right',
+                xanchor: isLabelLeft ? 'left' : 'right',
                 yanchor: 'bottom',
                 font: { family: FONT_FAMILY, color: color, size: 10 },
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
@@ -164,21 +260,25 @@ const ChartRenderer = (() => {
                 borderwidth: 1,
                 borderpad: 2
             });
+            // Store draggable info in module-level map (gd doesn't exist yet)
+            if (!window._spcChartDraggables) window._spcChartDraggables = {};
+            if (!window._spcChartDraggables[targetId]) window._spcChartDraggables[targetId] = {};
+            if (lineType) window._spcChartDraggables[targetId][lineType] = annIdx;
         };
 
         if (specs.showTarget !== false) {
-            addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2);
+            addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2, 'target');
         }
 
         if (specs.showSpec !== false) {
-            addLimitLine(specs.usl, 'USL', '#dc2626', 'dash', 1.5);
-            addLimitLine(specs.lsl, 'LSL', '#dc2626', 'dash', 1.5);
+            addLimitLine(specs.usl, 'USL', '#dc2626', 'dash', 1.5, 'usl');
+            addLimitLine(specs.lsl, 'LSL', '#dc2626', 'dash', 1.5, 'lsl');
         }
 
         if (stats && specs.showLimits !== false) {
-            addLimitLine(stats.ucl, 'UCL', '#d97706', 'dot', 1.5);
-            addLimitLine(stats.lcl, 'LCL', '#d97706', 'dot', 1.5);
-            addLimitLine(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1);
+            addLimitLine(stats.ucl, 'UCL', '#d97706', 'dot', 1.5, 'ucl');
+            addLimitLine(stats.lcl, 'LCL', '#d97706', 'dot', 1.5, 'lcl');
+            addLimitLine(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1, 'cl');
         }
 
         const layout = {
@@ -235,7 +335,7 @@ const ChartRenderer = (() => {
                 font: { family: FONT_FAMILY, color: '#0f172a', size: 11 },
                 orientation: 'h', y: -0.25
             },
-            margin: { t: xColumn2 ? 110 : 70, r: 80, l: 60, b: 110 }
+            margin: { t: xColumn2 ? 110 : 70, r: isLabelLeft ? 40 : 80, l: isLabelLeft ? 100 : 60, b: 110 }
         };
 
         if (xColumn2) {
@@ -313,6 +413,69 @@ const ChartRenderer = (() => {
 
                 sync();
             }
+
+            // Mark draggable annotations with CSS class using RAF polling
+            // (Plotly's Promise resolves before SVG text elements are in DOM)
+            const cls = 'draggable-annotation';
+            const spcDraggables = window._spcChartDraggables && window._spcChartDraggables[targetId] || {};
+            const lineTypes = Object.keys(spcDraggables);
+            console.log('[SPC] renderTrendChart: _spcChartDraggables keys =', lineTypes, 'count =', lineTypes.length);
+
+            if (lineTypes.length > 0) {
+                let marking = false;
+                const doMark = () => {
+                    if (marking) return;
+                    marking = true;
+                    // DIAGNOSTIC: check what's actually in the container
+                    const svgEl = container.querySelector('svg');
+                    const allPlotlyText = Array.from(container.querySelectorAll('.plotlytext'));
+                    const allTextElements = Array.from(container.querySelectorAll('text'));
+                    console.log('[SPC] doMark: plotlytext=', allPlotlyText.length, 'all text=', allTextElements.length, 'svg exists=', !!svgEl);
+                    if (!allPlotlyText.length) {
+                        // Show what SVG elements exist
+                        if (svgEl) {
+                            const ns = svgEl.querySelector('g[class*="annotation"] text');
+                            console.log('[SPC] doMark: annotation text found via selector =', !!ns);
+                            const tspanEls = svgEl.querySelectorAll('tspan');
+                            console.log('[SPC] doMark: tspans count =', tspanEls.length);
+                        }
+                        marking = false;
+                        requestAnimationFrame(doMark);
+                        return;
+                    }
+                    let marked = 0;
+                    lineTypes.forEach(lineType => {
+                        const annIdx = spcDraggables[lineType];
+                        const ann = (gd._fullLayout && gd._fullLayout.annotations && gd._fullLayout.annotations[annIdx]) || null;
+                        if (!ann) { console.warn('[SPC] doMark: no ann at', annIdx, 'for', lineType); return; }
+                        const cleanText = (ann.text || '').replace(/<[^>]*>/g, '').trim();
+                        const foundEl = allPlotlyText.find(el => {
+                            const tc = (el.textContent || '').replace(/\s+/g, '');
+                            return tc.includes(cleanText.replace(/\s+/g, ''));
+                        });
+                        if (foundEl) {
+                            foundEl.classList.add(cls);
+                            foundEl.setAttribute('data-line-type', lineType);
+                            foundEl.setAttribute('data-ann-idx', String(annIdx));
+                            console.log('[SPC] doMark: MATCHED', lineType, '->', foundEl.tagName);
+                            marked++;
+                        } else {
+                            console.warn('[SPC] doMark: NOT FOUND', lineType);
+                        }
+                    });
+                    marking = false;
+                    if (marked >= lineTypes.length) {
+                        setupAnnotationDrag(gd, targetId);
+                    } else {
+                        // Retry once more after a short delay
+                        setTimeout(() => requestAnimationFrame(doMark), 150);
+                    }
+                };
+                requestAnimationFrame(doMark);
+            } else {
+                console.log('[SPC] renderTrendChart: no draggable annotations');
+                setupAnnotationDrag(gd, targetId);
+            }
         }).catch(err => console.error('Plotly Error:', err));
     };
 
@@ -323,6 +486,12 @@ const ChartRenderer = (() => {
         const container = document.getElementById(targetId);
         if (!container) return;
         try { Plotly.purge(container); } catch (e) { }
+        // Clean up drag state
+        for (const [gd] of _dragState) {
+            if (gd._fullLayout && gd._fullLayout.container === container) _dragState.delete(gd);
+        }
+        // Clear stored mappings for this chart
+        if (window._spcChartDraggables) delete window._spcChartDraggables[targetId];
         container.innerHTML = `
             <div class="empty-state">
                 <i data-lucide="chart-line"></i>
@@ -467,12 +636,17 @@ const ChartRenderer = (() => {
         });
 
         // 4. Specs & Limits
-        const addLimit = (val, label, color, dash, width = 1.5) => {
+        const addLimit = (val, label, color, dash, width = 1.5, lineType = '') => {
             if (isNaN(val)) return;
+            let yOffset = 0;
+            if (lineType && window.SPCApp) yOffset = SPCApp.getAnnotationOffset(targetId, lineType);
+            const yAdj = val + yOffset;
             shapes.push({ type: 'line', xref: 'x', yref: 'paper', x0: val, x1: val, y0: 0, y1: 0.9, line: { color: color, width: width, dash: dash } });
+            const annIdx = annotations.length;
             annotations.push({
-                x: val, y: 0.95, xref: 'x', yref: 'paper',
-                text: `<b>${label}: ${val.toFixed(4)}</b>`,
+                x: val, y: yAdj > 0 ? 0.95 : 0.05,
+                xref: 'x', yref: 'paper',
+                text: `<b>${label}: ${yAdj.toFixed(4)}</b>`,
                 showarrow: false,
                 font: { family: FONT_FAMILY, color: color, size: 10 },
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
@@ -480,6 +654,10 @@ const ChartRenderer = (() => {
                 borderwidth: 1,
                 borderpad: 2
             });
+            // Store draggable info in module-level map (gd doesn't exist yet)
+            if (!window._spcChartDraggables) window._spcChartDraggables = {};
+            if (!window._spcChartDraggables[targetId]) window._spcChartDraggables[targetId] = {};
+            if (lineType) window._spcChartDraggables[targetId][lineType] = annIdx;
         };
 
         const addRange = (lo, hi, color) => {
@@ -495,20 +673,20 @@ const ChartRenderer = (() => {
         };
 
         if (specs.showTarget !== false) {
-            addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2);
+            addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2, 'target');
         }
 
         if (specs.showSpec !== false) {
             addRange(specs.lsl, specs.usl, 'rgba(220, 38, 38, 0.05)');
-            addLimit(specs.usl, 'USL', '#dc2626', 'dash');
-            addLimit(specs.lsl, 'LSL', '#dc2626', 'dash');
+            addLimit(specs.usl, 'USL', '#dc2626', 'dash', 1.5, 'usl');
+            addLimit(specs.lsl, 'LSL', '#dc2626', 'dash', 1.5, 'lsl');
         }
 
         if (stats && specs.showLimits !== false) {
             addRange(stats.lcl, stats.ucl, 'rgba(217, 119, 6, 0.05)');
-            addLimit(stats.ucl, 'UCL', '#d97706', 'dot', 1.5);
-            addLimit(stats.lcl, 'LCL', '#d97706', 'dot', 1.5);
-            addLimit(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1);
+            addLimit(stats.ucl, 'UCL', '#d97706', 'dot', 1.5, 'ucl');
+            addLimit(stats.lcl, 'LCL', '#d97706', 'dot', 1.5, 'lcl');
+            addLimit(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1, 'cl');
         }
 
         const layout = {
@@ -550,6 +728,27 @@ const ChartRenderer = (() => {
         };
 
         Plotly.newPlot(container, allTraces, layout, { responsive: true, displaylogo: false })
+            .then(gd => {
+                const cls = 'draggable-annotation';
+                const spcDraggables = window._spcChartDraggables && window._spcChartDraggables[targetId] || {};
+                const lineTypes = Object.keys(spcDraggables);
+                if (lineTypes.length > 0) {
+                    const allPlotlyText = Array.from(container.querySelectorAll('.plotlytext'));
+                    lineTypes.forEach(lineType => {
+                        const annIdx = spcDraggables[lineType];
+                        const ann = (gd._fullLayout && gd._fullLayout.annotations && gd._fullLayout.annotations[annIdx]) || null;
+                        if (!ann) return;
+                        const cleanText = (ann.text || '').replace(/<[^>]*>/g, '').trim();
+                        const foundEl = allPlotlyText.find(el => (el.textContent || '').replace(/\s+/g, '').includes(cleanText.replace(/\s+/g, '')));
+                        if (foundEl) {
+                            foundEl.classList.add(cls);
+                            foundEl.setAttribute('data-line-type', lineType);
+                            foundEl.setAttribute('data-ann-idx', String(annIdx));
+                        }
+                    });
+                }
+                setupAnnotationDrag(gd, targetId);
+            })
             .catch(err => console.error('Plotly DistChart Error:', err));
     };
 

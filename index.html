@@ -192,28 +192,6 @@
                 </div>
             </div>
 
-            <!-- Table Section -->
-            <div class="content-card table-container">
-                <div class="card-header">
-                    <h3 class="card-title">數據預覽 <span id="table-count"
-                            style="font-size: 0.75rem; font-weight: normal; margin-left: 8px; opacity: 0.7;"></span>
-                    </h3>
-                    <div class="card-actions">
-                        <button id="export-csv" class="secondary-button size-sm">
-                            <i data-lucide="file-spreadsheet"></i>
-                            匯出篩選數據
-                        </button>
-                    </div>
-                </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr id="table-head"></tr>
-                        </thead>
-                        <tbody id="table-body"></tbody>
-                    </table>
-                </div>
-            </div>
         </main>
 
         <!-- Sidebar / Control Panel -->
@@ -350,10 +328,6 @@
                             <input type="checkbox" id="toggle-dist" checked>
                             <span>顯示常態分析</span>
                         </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="toggle-preview" checked>
-                            <span>顯示數據預覽 (龐大數據建議取消)</span>
-                        </label>
                         <hr class="section-divider">
                         <label class="checkbox-label">
                             <input type="checkbox" id="show-target" checked>
@@ -367,6 +341,14 @@
                             <input type="checkbox" id="show-limits" checked>
                             <span>顯示管制界限 (UCL/LCL)</span>
                         </label>
+                        <hr class="section-divider">
+                        <div class="label-side-control">
+                            <span class="label-side-label">標籤位置</span>
+                            <div class="label-side-toggle" id="label-side-toggle">
+                                <button class="label-side-btn" data-side="left">← 左側</button>
+                                <button class="label-side-btn active" data-side="right">右側 →</button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
