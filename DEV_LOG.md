@@ -1,5 +1,57 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-09-22
+**任務目標 (標籤位置切換 & 數據預覽移除 & 全量清理 - v1.3.1)**：
+1. 新增圖表限制線標籤左/右側位置切換功能，解決標籤遮擋數據點問題。
+2. 移除數據預覽 Table UI（含 DOM、CSS、JS、CSV 匯出），精簡主介面。
+3. 全量代碼盤點：零 orphan HTML ID、零 unused CSS class、移除死函數 `formatValue`。
+4. 同步更新 DEV_LOG.md、TASKS.md、README.md 至 v1.3.1。
+5. 建立 Git 還原基準點並推送至 `origin/main`。
+
+**問題原因分析 (RCA)**：
+1. **標籤遮擋問題**：Plotly annotation 預設固定置於圖表右側 (`x: 1, xanchor: 'right'`)，當數據點群聚於右端時，標籤覆蓋最後幾個點。
+2. **UI 雜訊**：數據預覽 Table 佔用主畫面下方大量空間，對重度圖表分析用戶而言屬冗餘元素；移除後介面更聚焦於圖表與統計指標。
+3. **死碼遺留**：`formatValue` 函式唯一呼叫者 `renderTableBatch` 在移除預覽 Table 時已刪除，但函式本身未同步清理。
+
+**矯正與預防措施 (CAPA)**：
+1. **標籤位置切換**：在 `specs.labelSide` 新增 `'left'|'right'` 選項，`addLimitLine()` 根據此值動態設定 `x: 0/1` 與 `xanchor: 'left'/'right'`；左側模式同步擴展 `margin.l: 100` 防止標籤被裁切；切換即時重繪無需重載數據。
+2. **完整移除數據預覽**：採「先確認所有呼叫點，再一次性刪除」策略，共清理 11 處引用（DOM 查詢、事件監聽、狀態變數、函式定義、config 持久化欄位、resetApp 清空邏輯）。
+3. **死碼杜絕**：引入 PowerShell 交叉比對腳本，驗證所有 ExcelParser/ChartRenderer 匯出方法均有實際呼叫者。
+
+**執行內容 (Do & Check)**：
+1. **`index.html`**：
+   - 新增「標籤位置 ← 左側 / 右側 →」分段切換按鈕（`#label-side-toggle`）於佈局設定區，緊接管制界限開關之後。
+   - 完整移除 `<!-- Table Section -->` div（含標題、匯出 CSV 按鈕、table DOM）。
+   - 移除 `toggle-preview` checkbox。
+2. **`css/style.css`**：
+   - 新增 `.label-side-control`、`.label-side-toggle`、`.label-side-btn`、`.label-side-btn.active` 樣式（segmented button 設計，激活狀態 cobalt blue `#0284c7`）。
+   - 整體移除 Table & Data Preview CSS 區塊（`table-container`/`table-wrapper`/`table`/`th`/`td`/`tr:hover`，共 ~45 行）。
+3. **`js/app.js`**：
+   - 新增 `labelSide` 狀態變數（預設 `'right'`）與 `label-side-toggle` 點擊事件（切換 active 狀態並重繪圖表）。
+   - `specs` 物件新增 `labelSide` 欄位，傳入兩處 `renderChart()`、`updateStats()` 中的 `specs` 物件。
+   - 移除 `togglePreview`、`tableHead`、`tableBody` DOM 變數。
+   - 移除 `tablePageSize`、`tableCurrentIndex`、`tableObserver` 狀態變數。
+   - 移除 `saveLayoutConfig`/`loadLayoutConfig` 中的 `preview` 欄位。
+   - 移除 `togglePreview.addEventListener` 事件綁定。
+   - 移除 `resetApp` 中的 `tableHead.innerHTML`/`tableBody.innerHTML`/`table-count` 清空邏輯。
+   - 移除 `updateTable()` 與 `renderTableBatch()` 函式。
+   - 移除 CSV 匯出事件監聽（`export-csv`）。
+4. **`js/chartRenderer.js`**：
+   - `addLimitLine()` 新增 `isLabelLeft` 常數（讀取 `specs.labelSide`），動態設定 annotation 的 `x` 座標與 `xanchor`。
+   - layout `margin` 根據 `isLabelLeft` 自動調整：左側時 `l: 100, r: 40`；右側時 `l: 60, r: 80`。
+5. **`js/excelParser.js`**：
+   - 移除 `formatValue` 函式定義（12 行）與 return 物件中的對應匯出項。
+
+**確效測試 (Check)**：
+- `node --check` 三支 JS 全數 PASS（app.js、chartRenderer.js、excelParser.js）。
+- HTML ID vs app.js 交叉比對：51 個 ID 全數有效，零 orphan。
+- CSS class 交叉比對：69 個 class 全數在 HTML/JS 中有對應引用，零 dead class。
+- ExcelParser 8 個匯出方法全數有呼叫（移除 `formatValue` 後）。
+- ChartRenderer 4 個匯出方法全數有呼叫。
+- 瀏覽器回歸測試：零 Console 錯誤，頁面正常載入，佈局設定區「標籤位置」切換按鈕渲染正確。
+
+---
+
 ## 2026-09-02
 **任務目標 (Codebase Cleanup & Sidebar Interaction Enhancement - v1.3.0)**：
 1. 全面盤點死碼、未定義 CSS 變數與 orphaned 資源，執行手術刀式修復。

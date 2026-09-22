@@ -6,11 +6,9 @@
 
 ## 1. 已完成任務 (Completed Tasks) - [已交付]
 
-### 1.1 數據預覽與效能優化
-- [x] **無限捲動分頁實作**：解決大數據量載入時的瀏覽器卡頓問題，採用 `IntersectionObserver` 進行延遲渲染。
-- [x] **數據同步篩選**：確保底部預覽表格與側邊欄篩選條件即時連動。
-- [x] **數據量指示器**：在預覽標頭新增「顯示筆數/總過濾筆數」的動態反饋。
-- [x] **空數據視覺反饋**：新增「無匹配篩選條件」的提示視圖。
+### 1.1 數據輸入與效能優化
+- [x] **數據同步篩選**：確保上方統計指標與側邊欄篩選條件即時連動。
+- [x] **GPU 加速渲染**：超過 500 個數據點自動啟用 WebGL (scattergl) 防止卡頓。
 
 ### 1.2 狀態持久化 (Persistence)
 - [x] **篩選條件記憶**：切換工作表時保留已選定的篩選參數，並自動移除無效選項。
@@ -25,7 +23,7 @@
 - [x] **圖表標籤增強**：為趨勢圖內的數據點、目標值、規格線及管制界限（UCL/LCL）新增數值標籤與標註。
 - [x] **Favicon 錯誤修復**：新增 SVG 資料格式徽標，解決瀏覽器 404 資源載入錯誤。
 - [x] **標準差多維分析**：計算並顯示組內 (Within)、組間 (Between) 與總體 (Overall) 變異指標。
-- [x] **導出功能強化**：支持篩選後數據的 Excel 二進制轉存 (xlsx)。
+- [x] **圖表導出**：支持趨勢圖與常態分佈圖的 PNG 高解析度匯出。
 - [x] **數據精確度提升**：圖表標籤與統計指標（Mean, Ca, Cp, Cpk, Ppk, UCL, LCL, StdDev）全面提升至**小數點後 4 位**。
 - [x] **Plotly 運行穩定性修復**：解決 `_template` 未定義導致的腳本崩潰問題，增加雙軸同步的安全性檢查。
 
@@ -65,6 +63,15 @@
 - [x] **雙 X 軸文字對比度優化**：底部主 X 軸與頂部副 X 軸文字交替採用高對比深色階（深石墨藍 `#0f172a` / 高飽和鈷藍 `#0284c7` vs 深翡翠綠 `#047857` / 濃郁靛青 `#4338ca`），大幅提升可讀性。
 - [x] **色彩邏輯收斂與清理**：清理所有分散主題切換與暗色混雜樣式，全站與圖表渲染統一套用此工業級標準。
 
+### 1.10 標籤位置切換 & 數據預覽移除 (v1.3.1)
+- [x] **標籤位置切換**：在佈局設定新增「← 左側 / 右側 →」分段按鈕，讓 UCL/Target/LCL/USL/LSL 標籤可一鍵切換至圖表左側或右側，解決標籤遮擋數據點問題；切換即時重繪，左側模式自動調寬左邊距 (l: 100px) 防止裁切。
+- [x] **數據預覽 UI 移除**：完整移除底部數據預覽 Table 區塊（HTML DOM、CSS 樣式、JS 邏輯、CSV 匯出按鈕），精簡介面，降低主畫面視覺雜訊。
+- [x] **死碼清理**：移除 `ExcelParser.formatValue` 方法（唯一呼叫者 `renderTableBatch` 已刪除）；清除 `tableHead`/`tableBody`/`tablePageSize`/`tableCurrentIndex`/`tableObserver`/`togglePreview` 等相關變數與事件監聽。
+- [x] **Table CSS 整區移除**：刪除 `table-container`/`table-wrapper`/`table`/`th`/`td`/`tr:hover` CSS 選擇器塊（共 45 行）。
+- [x] **零死 ID 確認**：全站 HTML ID 與 app.js 交叉比對，零 orphan 元素。
+- [x] **JS 語法驗證**：`node --check` 三支 JS 全數 PASS。
+- [x] **零 Console 錯誤回歸**：瀏覽器載入無任何 JS 錯誤。
+
 ### 1.9 Codebase Cleanup & Sidebar Interaction (v1.3.0)
 - [x] **死碼清理**：移除 v1.1.0 殘留的 `themeToggle` 事件監聽器（無對應 DOM 元素）。
 - [x] **未定義 CSS 變數修復**：修正 `var(--amber/green/blue/red)` 四處引用，對齊 `--status-amber/--status-green/--user-cobalt/--system-red`，恢復 Ca/Cp/Cpk/Ppk 品質色碼功能。
@@ -88,5 +95,5 @@
 - [ ] **報告模板生成**：一鍵生成包含統計數據與圖表的 PDF/HTML 報告頁面。
 
 ---
-*Last Updated: 2026-09-02*
-*Status: Active / Precision Workbench (v1.3.0)*
+*Last Updated: 2026-09-22*
+*Status: Active / Precision Workbench (v1.3.1)*
