@@ -5,10 +5,10 @@
 const ChartRenderer = (() => {
     const TREND_CHART_HEIGHT_RATIO = 0.8;
     const FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-    const COLOR_PALETTE = ['#6d5df5', '#14b8a6', '#ec4899', '#d97706', '#64748b'];
-    const OOS_COLOR = '#ef4444';
-    // Liquid Glass: transparent on screen, solid white on PNG export
-    const GLASS_BG = 'rgba(0, 0, 0, 0)';
+    const COLOR_PALETTE = ['#111111', '#8a8a8a', '#4a4a4a', '#b5b5b5', '#6b6b6b'];
+    const OOS_COLOR = '#b4443c';
+    // Minimalism: transparent on screen (page paper shows through), solid white on PNG export
+    const SCREEN_BG = 'rgba(0, 0, 0, 0)';
     const EXPORT_BG = '#ffffff';
 
     // --- Draggable Annotation State ---
@@ -258,8 +258,8 @@ const ChartRenderer = (() => {
                 xanchor: isLabelLeft ? 'left' : 'right',
                 yanchor: 'bottom',
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(255, 255, 255, 0.85)',
-                bordercolor: '#cbd5e1',
+                bgcolor: 'rgba(247, 247, 247, 0.92)',
+                bordercolor: '#cfcfcf',
                 borderwidth: 1,
                 borderpad: 2
             });
@@ -270,42 +270,42 @@ const ChartRenderer = (() => {
         };
 
         if (specs.showTarget !== false) {
-            addLimitLine(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2, 'target');
+            addLimitLine(specs.target, 'Target', '#4f7a5f', '40px 10px 10px 10px', 2, 'target');
         }
 
         if (specs.showSpec !== false) {
-            addLimitLine(specs.usl, 'USL', '#dc2626', 'dash', 1.5, 'usl');
-            addLimitLine(specs.lsl, 'LSL', '#dc2626', 'dash', 1.5, 'lsl');
+            addLimitLine(specs.usl, 'USL', '#b4443c', 'dash', 1.5, 'usl');
+            addLimitLine(specs.lsl, 'LSL', '#b4443c', 'dash', 1.5, 'lsl');
         }
 
         if (stats && specs.showLimits !== false) {
-            addLimitLine(stats.ucl, 'UCL', '#d97706', 'dot', 1.5, 'ucl');
-            addLimitLine(stats.lcl, 'LCL', '#d97706', 'dot', 1.5, 'lcl');
-            addLimitLine(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1, 'cl');
+            addLimitLine(stats.ucl, 'UCL', '#a8741a', 'dot', 1.5, 'ucl');
+            addLimitLine(stats.lcl, 'LCL', '#a8741a', 'dot', 1.5, 'lcl');
+            addLimitLine(stats.mean, 'CL', 'rgba(168, 116, 26, 0.8)', 'dash', 1, 'cl');
         }
 
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { family: FONT_FAMILY, color: '#0f172a', size: 14 },
+                font: { family: FONT_FAMILY, color: '#111111', size: 14 },
                 y: 0.98,
                 yanchor: 'top'
             },
-            paper_bgcolor: GLASS_BG,
-            plot_bgcolor: GLASS_BG,
+            paper_bgcolor: SCREEN_BG,
+            plot_bgcolor: SCREEN_BG,
             shapes: shapes,
             annotations: annotations,
             xaxis: {
                 title: {
                     text: xColumn,
-                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#111111', size: 11 }
                 },
                 type: 'category',
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 主 X 軸高對比色階：深石墨藍 (#0f172a) 與 糖果紫 (#6d5df5)
-                    const colors = ['#0f172a', '#6d5df5'];
+                    // 主 X 軸交替色階：墨黑 (#111111) 與 中灰 (#8a8a8a)
+                    const colors = ['#111111', '#8a8a8a'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn], isXDate);
@@ -317,8 +317,8 @@ const ChartRenderer = (() => {
                         return `<span style="color: ${colors[colorIdx]}; font-weight: ${isAlt ? '700' : '600'};">${val}</span>`;
                     });
                 })(),
-                gridcolor: 'rgba(15, 23, 42, 0.06)',
-                zerolinecolor: '#cbd5e1',
+                gridcolor: 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: '#cfcfcf',
                 tickfont: { family: FONT_FAMILY, size: 10 },
                 range: [-0.5, chartData.length - 0.5],
                 automargin: true,
@@ -327,15 +327,15 @@ const ChartRenderer = (() => {
             yaxis: {
                 title: {
                     text: '數值',
-                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#111111', size: 11 }
                 },
-                gridcolor: 'rgba(15, 23, 42, 0.08)',
-                zerolinecolor: '#cbd5e1',
-                tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 },
+                gridcolor: 'rgba(0, 0, 0, 0.06)',
+                zerolinecolor: '#cfcfcf',
+                tickfont: { family: FONT_FAMILY, color: '#6b6b6b', size: 10 },
                 anchor: 'x'
             },
             legend: {
-                font: { family: FONT_FAMILY, color: '#0f172a', size: 11 },
+                font: { family: FONT_FAMILY, color: '#111111', size: 11 },
                 orientation: 'h', y: -0.25
             },
             margin: { t: xColumn2 ? 110 : 70, r: isLabelLeft ? 40 : 80, l: isLabelLeft ? 100 : 60, b: 110 }
@@ -345,14 +345,14 @@ const ChartRenderer = (() => {
             layout.xaxis2 = {
                 title: {
                     text: xColumn2,
-                    font: { family: FONT_FAMILY, color: '#047857', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#3a3a3a', size: 11 }
                 },
                 type: 'category',
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 頂部副 X 軸高對比色階：深翡翠綠 (#047857) 與 濃郁靛青藍 (#4338ca)
-                    const colors = ['#047857', '#4338ca'];
+                    // 頂部副 X 軸交替色階：深灰 (#3a3a3a) 與 淺灰 (#a3a3a3)
+                    const colors = ['#3a3a3a', '#a3a3a3'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn2], isX2Date);
@@ -376,12 +376,12 @@ const ChartRenderer = (() => {
             layout.yaxis2 = {
                 title: {
                     text: '偏離目標 (%)',
-                    font: { family: FONT_FAMILY, color: '#10b981', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#6b6b6b', size: 11 }
                 },
                 overlaying: 'y',
                 side: 'right',
                 showgrid: false,
-                tickfont: { family: FONT_FAMILY, color: '#10b981', size: 10 },
+                tickfont: { family: FONT_FAMILY, color: '#6b6b6b', size: 10 },
                 ticksuffix: '%'
             };
         }
@@ -656,8 +656,8 @@ const ChartRenderer = (() => {
                 text: `<b>${label}: ${yAdj.toFixed(4)}</b>`,
                 showarrow: false,
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(255, 255, 255, 0.85)',
-                bordercolor: '#cbd5e1',
+                bgcolor: 'rgba(247, 247, 247, 0.92)',
+                bordercolor: '#cfcfcf',
                 borderwidth: 1,
                 borderpad: 2
             });
@@ -680,52 +680,52 @@ const ChartRenderer = (() => {
         };
 
         if (specs.showTarget !== false) {
-            addLimit(specs.target, 'Target', '#10b981', '40px 10px 10px 10px', 2, 'target');
+            addLimit(specs.target, 'Target', '#4f7a5f', '40px 10px 10px 10px', 2, 'target');
         }
 
         if (specs.showSpec !== false) {
-            addRange(specs.lsl, specs.usl, 'rgba(220, 38, 38, 0.05)');
-            addLimit(specs.usl, 'USL', '#dc2626', 'dash', 1.5, 'usl');
-            addLimit(specs.lsl, 'LSL', '#dc2626', 'dash', 1.5, 'lsl');
+            addRange(specs.lsl, specs.usl, 'rgba(180, 68, 60, 0.04)');
+            addLimit(specs.usl, 'USL', '#b4443c', 'dash', 1.5, 'usl');
+            addLimit(specs.lsl, 'LSL', '#b4443c', 'dash', 1.5, 'lsl');
         }
 
         if (stats && specs.showLimits !== false) {
-            addRange(stats.lcl, stats.ucl, 'rgba(217, 119, 6, 0.05)');
-            addLimit(stats.ucl, 'UCL', '#d97706', 'dot', 1.5, 'ucl');
-            addLimit(stats.lcl, 'LCL', '#d97706', 'dot', 1.5, 'lcl');
-            addLimit(stats.mean, 'CL', 'rgba(217, 119, 6, 0.8)', 'dash', 1, 'cl');
+            addRange(stats.lcl, stats.ucl, 'rgba(168, 116, 26, 0.04)');
+            addLimit(stats.ucl, 'UCL', '#a8741a', 'dot', 1.5, 'ucl');
+            addLimit(stats.lcl, 'LCL', '#a8741a', 'dot', 1.5, 'lcl');
+            addLimit(stats.mean, 'CL', 'rgba(168, 116, 26, 0.8)', 'dash', 1, 'cl');
         }
 
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
-                font: { family: FONT_FAMILY, color: '#0f172a', size: 14 }
+                font: { family: FONT_FAMILY, color: '#111111', size: 14 }
             },
-            paper_bgcolor: GLASS_BG,
-            plot_bgcolor: GLASS_BG,
+            paper_bgcolor: SCREEN_BG,
+            plot_bgcolor: SCREEN_BG,
             shapes: shapes,
             annotations: annotations,
             xaxis: {
                 title: {
                     text: '數值',
-                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#111111', size: 11 }
                 },
-                gridcolor: 'rgba(15, 23, 42, 0.06)',
-                zerolinecolor: '#cbd5e1',
-                tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 },
+                gridcolor: 'rgba(0, 0, 0, 0.05)',
+                zerolinecolor: '#cfcfcf',
+                tickfont: { family: FONT_FAMILY, color: '#6b6b6b', size: 10 },
                 range: [globalMin, globalMax]
             },
             yaxis: {
                 title: {
                     text: '密度',
-                    font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#111111', size: 11 }
                 },
-                gridcolor: 'rgba(15, 23, 42, 0.08)',
-                zerolinecolor: '#cbd5e1',
-                tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 }
+                gridcolor: 'rgba(0, 0, 0, 0.06)',
+                zerolinecolor: '#cfcfcf',
+                tickfont: { family: FONT_FAMILY, color: '#6b6b6b', size: 10 }
             },
             legend: {
-                font: { family: FONT_FAMILY, color: '#0f172a', size: 11 },
+                font: { family: FONT_FAMILY, color: '#111111', size: 11 },
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 110 },
