@@ -1,5 +1,35 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-09-23 (v1.6.0)
+**任務目標 (Inset Focus 軟UI設計系統 - v1.6.0)**：
+1. 導入「Inset Focus」設計系統，強調按下/內凹表面的軟 UI 美學。
+2. 所有組件共用基底色，深度感完全來自光影效果（raised / inset shadow）。
+3. 統一設計令牌：柔和色階、精準的陰影層級、統一的圓角與過渡動效。
+
+**設計特色 (Design Characteristics)**：
+- **色彩系統**：`#ecf0f5` 表面 + `#e4e9f0` 深色 + `rgba(163, 177, 198)` 柔和陰影
+- **深度設計**：raised (`6px 6px 14px + -6px -6px 14px`)、inset (`inset 4px 4px 9px + inset -4px -4px 9px`)、raised-sm、inset-sm
+- **語意色**：綠 `#3fa96b`、琥珀 `#d4972f`、紅 `#e0625b`、主藍 `#5b8def`
+- **過渡動效**：`cubic-bezier(0.16, 1, 0.3, 1)` 俐落平整過渡、寬度/padding/margin 0.35s 平滑
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**（重寫，保留全部既有選擇器與圖表高度自適應規則）：
+   - Design Tokens 改為 Inset Focus（柔和表面色 `#ecf0f5`、深層 `#e4e9f0`、raised/inset shadow 成對）
+   - 元件重塑：所有卡片/按鈕/輸入框採 raised 凸起初始狀態，按下時 inset 內凹
+   - 新增缺失 CSS 規則：`.card-icon.cobalt`、`.card-icon.cyan`、`.card-actions`、`.metric-label` 等 9 個類別
+   - 保留全部既有圖表高度自適應邏輯（`.charts-grid flex 1 1 0` 等）
+2. **`js/app.js`**：無修改（完全向後相容）
+3. **`js/chartRenderer.js`**：無修改
+4. **`index.html`**：無修改
+
+**確效測試 (Check)**：
+- `node --check` 三支 JS 全數 PASS
+- 所有 HTML 使用的 CSS 類別皆已定義
+- 零 orphaned CSS 規則
+- 零 Console 錯誤
+
+---
+
 ## 2026-09-23 (v1.5.0)
 **任務目標 (Minimalism 極簡主義風格 - v1.5.0)**：
 1. 依參考截圖「Minimalism 極簡主義 · 組件展示」將全站風格與色彩由 Liquid Glass 改為極簡主義。

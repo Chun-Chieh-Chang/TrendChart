@@ -1,6 +1,6 @@
-# Excel TrendChart Pro - 專業趨勢分析與極簡數據工作台
+# Excel TrendChart Pro - 專業趨勢分析與精密數據工作台
 
-基於 **MECE 原則** (Mutually Exclusive, Collectively Exhaustive) 與「**極簡主義 (Minimalism) — 少即是多**」設計系統建構的高階數據分析工具，確保功能邊界清晰、架構健壯且具備卓越的使用者體驗。
+基於 **MECE 原則** (Mutually Exclusive, Collectively Exhaustive) 與「**Inset Focus（軟 UI 內凹設計）— 深度感源自光影**」設計系統建構的高階數據分析工具，確保功能邊界清晰、架構健壯且具備卓越的使用者體驗。
 
 ---
 

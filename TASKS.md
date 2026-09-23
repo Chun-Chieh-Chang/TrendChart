@@ -92,6 +92,14 @@
 - [x] **JS 語法驗證**：`node --check` 三支 JS 全數 PASS。
 - [x] **零 Console 錯誤回歸**：瀏覽器載入無任何 JS 錯誤。
 
+### 1.13 Inset Focus CSS 完整性修復 (v1.6.0)
+- [x] **缺失 CSS 類別補充**：識別並補充 9 個 HTML 使用但無 CSS 定義的類別（`.card-icon.cobalt`、`.card-icon.cyan`、`.card-actions`、`.metric-label`、`#filter-container` 等）
+- [x] **色彩定義完整性**：確保所有語意色變數在 `:root` 定義，cobalt 和 cyan 圖示色彩映射至設計系統色值
+- [x] **卡片變體類別補充**：新增 `.user-card`、`.assistant-card`、`.dev-card` 等卡片變體類別規則
+- [x] **動態類別驗證**：確認 `.checkbox-item`、`.filter-item` 等動態生成的 CSS 類別均已在靜態 CSS 中定義
+- [x] **設計系統一致性**：所有新增規則與 Inset Focus 軟 UI 設計完全對齐，保持 raised/inset shadow 邏輯
+- [x] **向後相容性驗證**：所有修改純粹補充定義，零修改既有 JS 代碼，100% 向後相容
+
 ### 1.9 Codebase Cleanup & Sidebar Interaction (v1.3.0)
 - [x] **死碼清理**：移除 v1.1.0 殘留的 `themeToggle` 事件監聽器（無對應 DOM 元素）。
 - [x] **未定義 CSS 變數修復**：修正 `var(--amber/green/blue/red)` 四處引用，對齊 `--status-amber/--status-green/--user-cobalt/--system-red`，恢復 Ca/Cp/Cpk/Ppk 品質色碼功能。
@@ -116,4 +124,4 @@
 
 ---
 *Last Updated: 2026-09-23*
-*Status: Active / Minimalism (v1.5.0)*
+*Status: Active / Inset Focus (v1.6.0)*

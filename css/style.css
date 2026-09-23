@@ -36,6 +36,8 @@
     --status-amber-soft: rgba(212, 151, 47, 0.16);
     --system-red: #e0625b;
     --system-red-soft: rgba(224, 98, 91, 0.14);
+    --system-red-light: #fef2f2;
+    --status-amber-light: #fffbeb;
 
     /* 舊變數映射 (referenced by app.js for Ca/Cpk grading & date hints) */
     --user-cobalt: var(--accent);
@@ -765,13 +767,14 @@ input[type="checkbox"]:focus-visible {
     color: var(--accent);
 }
 
-.card-icon.amber { color: var(--status-amber); }
-.card-icon.red { color: var(--system-red); }
+.card-icon.amber {
+    background: var(--status-amber-light);
+    color: var(--status-amber);
+}
 
-.card-icon .lucide {
-    width: 22px;
-    height: 22px;
-    stroke-width: 2;
+.card-icon.red {
+    background: var(--system-red-light);
+    color: var(--system-red);
 }
 
 .card-icon.cobalt {
@@ -782,6 +785,12 @@ input[type="checkbox"]:focus-visible {
 .card-icon.cyan {
     background: rgba(107, 122, 144, 0.14);
     color: var(--text-secondary);
+}
+
+.card-icon .lucide {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
 }
 
 /* Card Variant Classes (no additional styling needed) */
