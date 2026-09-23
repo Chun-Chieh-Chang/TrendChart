@@ -739,6 +739,39 @@ td {
     color: var(--system-red);
 }
 
+.card-icon.cobalt {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.card-icon.cyan {
+    background: rgba(107, 122, 144, 0.14);
+    color: var(--text-secondary);
+}
+
+/* Card Variant Classes (no additional styling needed) */
+.summary-card.user-card { }
+.summary-card.assistant-card { }
+.summary-card.dev-card { }
+
+.chart-container { }
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+#filter-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-label {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
 .card-info {
     flex: 1;
     min-width: 0;
