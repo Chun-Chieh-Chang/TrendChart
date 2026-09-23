@@ -1,5 +1,44 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-09-23
+**任務目標 (Liquid Glass 液態玻璃風格 & 圖表高度統一 - v1.4.0)**：
+1. 解析參考截圖「Liquid Glass Kit」的介面風格，並套用至全站介面。
+2. 修正「僅顯示常態分析」時圖表下半部被截斷的問題，統一兩張圖表的高度規則。
+
+**問題分析 (RCA)**：
+1. **玻璃透明感不足（第一版）**：背景僅有大尺寸極柔和的放射漸層光暈（42vw），幾乎等同單一色面；對單色面做 `backdrop-filter: blur()` 與不模糊無異，加上面板 42% 白色不透明度，視覺上只像白色卡片。參考圖的透明感來自「玻璃後方有輪廓清晰、飽和的物件被模糊」。
+2. **常態分佈圖被截斷**：`renderDistributionChart()` 在單圖模式寫死 `height: 800`，但 `.main-content` 為 flex column，`.chart-box` 被壓縮至符合視窗的 420px，且 `.content-card` 為 `overflow: hidden`，導致 Plotly SVG 下方 380px 被裁切。趨勢圖則未設定高度而使用 Plotly 預設值，兩圖高度規則不一致。
+
+**修正與預防措施 (CAPA)**：
+1. **玻璃透明感**：新增 4 顆飽和漸層光球 (`.ambient-orbs`) 作為被折射物件；面板不透明度降至 0.18（側邊欄 0.28），模糊由 24px 降為 16px 以保留後方形狀輪廓；加入對角光澤與漸層鏡面邊緣。卡片 `background` 簡寫改為 `background-color`，避免覆蓋共用光澤層。
+2. **高度統一**：移除 Plotly 寫死高度，改為「容器決定高度、Plotly 自適應」。`.charts-grid` 與 `.chart-box` 設 `flex: 1 1 0` + `min-height: 420px`——flex-basis 0 使容器高度由版面決定，而非被 Plotly 已渲染的 SVG 撐住，縮小視窗時可正確回縮。窄螢幕 (<1200px) 堆疊時每張圖固定 460px。
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**：
+   - 重寫 Design Tokens 為 Liquid Glass（玻璃材質、光澤、鏡面邊緣、紫/薄荷漸層、虹彩、柔和長距陰影、大圓角）；舊變數名 (`--user-cobalt` 等) 保留並映射新色，`app.js` 的 inline style 引用免改。
+   - 新增 `.ambient-orbs` / `.orb` 光球與 `@keyframes orbDrift`；新增 `prefers-reduced-motion` 降級與 `@supports not (backdrop-filter)` 降級。
+   - 元件重塑：膠囊主按鈕、圓形圖示按鈕、膠囊輸入框、分段控制（白膠囊 + 紫色底線）、虹彩卡片、煙燻玻璃 tooltip。
+   - 所有 CSS 字級 ≥ 13px。
+   - 圖表容器改為 flex 填滿剩餘高度。
+2. **`js/chartRenderer.js`**：
+   - 色盤改為 `#6d5df5 / #14b8a6 / #ec4899 / #d97706 / #64748b`，OOS 紅改 `#ef4444`，主 X 軸交替色改為糖果紫。
+   - 新增 `GLASS_BG`（透明）與 `EXPORT_BG`（白），圖表背景透明、格線半透明化。
+   - `exportChart()`：匯出前 `relayout` 為白底 → `downloadImage` → `finally` 還原透明。
+   - 移除常態分佈圖 `height: container.closest('.single-view') ? 800 : 450`。
+3. **`index.html`**：新增 `.ambient-orbs` 裝飾區塊（`aria-hidden`）；Favicon 改紫色漸層；版本字串更新為 v1.4.0。
+
+**確效測試 (Check)**：
+- 瀏覽器實測（以 SheetJS 產生 60 / 450 筆測試 Excel 上傳）：零 Console 錯誤。
+- 可見文字元素字級 < 13px：0 個（Plotly 圖內除外）。
+- PNG 匯出攔截驗證：匯出當下 `paper_bgcolor = #ffffff`，匯出後還原為 `rgba(0, 0, 0, 0)`。
+- 圖表高度（SVG / 容器）：1920×911 雙圖 656/656、單常態 656/656、單趨勢 656/656；1100×911 堆疊 460/460；1920×560 矮螢幕 420/420（含由大縮小回縮驗證），全數零裁切。
+- Sidebar 收合：`collapsed` 目標寬度 0px 正確（背景分頁時 CSS transition 暫停屬瀏覽器行為）。
+
+**已知事項**：
+- `chartRenderer.js` 既有 `[SPC] doMark` 等 debug `console.log` 在單次渲染即輸出數千行（非本次引入），已另列待清理任務。
+
+---
+
 ## 2026-09-22
 **任務目標 (標籤位置切換 & 數據預覽移除 & 全量清理 - v1.3.1)**：
 1. 新增圖表限制線標籤左/右側位置切換功能，解決標籤遮擋數據點問題。

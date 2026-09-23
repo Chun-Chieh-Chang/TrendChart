@@ -1,6 +1,6 @@
-# Excel TrendChart Pro - 專業趨勢分析與工業級數據工作台
+# Excel TrendChart Pro - 專業趨勢分析與液態玻璃數據工作台
 
-基於 **MECE 原則** (Mutually Exclusive, Collectively Exhaustive) 與「**精密儀表與工業級數據工作台 (Precision Instrument & Modern Industrial Workbench)**」規範建構的高階數據分析工具，確保功能邊界清晰、架構健壯且具備卓越的使用者體驗。
+基於 **MECE 原則** (Mutually Exclusive, Collectively Exhaustive) 與「**液態玻璃 (Liquid Glass)**」設計系統建構的高階數據分析工具，確保功能邊界清晰、架構健壯且具備卓越的使用者體驗。
 
 ---
 
@@ -36,10 +36,10 @@
 - **管制線控制**：支援 Target, USL/LSL, UCL/LCL 以及**管制中心線 (CL)** 的獨立顯示/隱藏開關，兩張圖表同步受控。
 - **多欄位對比**：常態分佈圖支援多 Y 欄位同時繪製曲線（直方圖預設隱藏避免雜亂），管制界限不受欄位數量限制。
 - **X 軸智慧範圍**：常態分佈圖自動擴展 X 軸範圍包含所有參考線（Target/USL/LSL/UCL/LCL）並加入 5% 邊距，防止標線被裁切。
-- **精密儀表視覺系統**：採用**冰川工作台底色 (`#f1f5f9`) × 純白卡片 (`#ffffff`) × 鈷藍飾條 (`#0284c7`) × 硬體綠色脈衝呼吸燈 (`pulseGreen`)**，提供專注純粹的工業級數據體驗。
+- **液態玻璃視覺系統**：採用**低透明度毛玻璃面板 × 環境漸層光球 × 糖果紫 (`#6d5df5`) / 薄荷 (`#14b8a6`) 膠囊元件 × 虹彩卡片**，圖表背景透明融入玻璃卡片（PNG 匯出自動白底）。
 - **高效能模式**：支援 WebGL (scattergl) 加速渲染，大數據集流暢無卡頓。
 - **標籤位置切換**：UCL/Target/LCL/USL/LSL 標籤可一鍵切換顯示於圖表左側或右側，避免遮擋數據點。
-- **數據輸出**：PNG 圖表匯出（趨勢圖與常態分佈圖各自獨立匯出）。
+- **自適應圖表高度**：趨勢圖與常態分佈圖統一填滿摘要列下方剩餘視窗高度（最小 420px，窄螢幕堆疊時各 460px），任何版面組合皆不裁切。
 
 ---
 
@@ -61,9 +61,9 @@
 | **圖表視覺** | **開關控制** | **Target / Spec / Control Limits (包含 CL) 可獨立開啟或關閉**。 |
 | | **標籤位置** | UCL/Target/LCL/USL/LSL 標籤可切換至圖表左側或右側，避免遮擋數據點。 |
 | | 雙 Y 軸分析 | 顯示對比目標值的偏差百分比 (%)。 |
-| | 異常點高亮 | 超出規格自動高亮為警示紅點 (`#dc2626`)。 |
-| | **雙 X 軸色階** | 主軸與副軸文字交替採用高對比深色階（深石墨藍/深鈷藍 vs 深翡翠綠/靛青藍）。 |
-| | **精密儀表風格** | 冰川工作台、精密線框 (`#cbd5e1`)、5px 鈷藍飾條、綠色即時呼吸燈 (`pulseGreen`)。 |
+| | 異常點高亮 | 超出規格自動高亮為警示紅點 (`#ef4444`)。 |
+| | **雙 X 軸色階** | 主軸與副軸文字交替採用高對比深色階（深石墨藍/糖果紫 vs 深翡翠綠/靛青藍）。 |
+| | **液態玻璃風格** | 毛玻璃面板、漸層鏡面邊緣、環境光球、膠囊按鈕與分段控制、綠色即時呼吸燈 (`pulseGreen`)。 |
 
 ---
 
@@ -94,7 +94,7 @@
 本專案採模組化目錄結構，確保功能邊界清晰：
 
 - **`.github/workflows/`**：自動化 CI/CD 配置，支援 GitHub Actions 一鍵部署（靜態資源部署：`index.html` + `css/` + `js/` + `wiki/`）。
-- **`css/`**：視覺風格定義（精密儀表與工業級數據工作台設計系統，單一高對比風格）。
+- **`css/`**：視覺風格定義（Liquid Glass 液態玻璃設計系統）。
 - **`js/`**：核心邏輯層（零依賴、純原生 ES6+ 模組）。
   - `app.js`：UI 控制器、狀態管理與持久化（LocalStorage）。
   - `chartRenderer.js`：Plotly 渲染引擎（雙軸趨勢圖 + 常態分佈圖 + PNG 匯出）。
@@ -128,8 +128,8 @@
 
 ### 7.2 UI/UX 與視覺設計規格
 - **訊息密度**：維持高訊息密度設計，透過 **字體比例尺 (Typography Scale)** (Hero, Primary, Secondary, Micro) 明確區分資訊層級。
-- **視覺風格**：全站套用 **精密儀表與工業級數據工作台 (Precision Instrument Workbench)**：`#f1f5f9` 冰川工作台底色、`#ffffff` 純白面板卡片、`1px solid #cbd5e1` 精密線框、側邊欄頂部 `5px solid #0284c7` 鈷藍飾條與 `@keyframes pulseGreen` 綠色脈衝呼吸燈。
-- **微動效規範**：主色與次要按鈕使用 `0.12s cubic-bezier(0.16, 1, 0.3, 1)` 俐落過渡。
+- **視覺風格**：全站套用 **液態玻璃 (Liquid Glass)**：`rgba(255,255,255,0.18~0.28)` 玻璃面板 + `blur(16px) saturate(170%)`、對角光澤與漸層鏡面邊緣、22–28px 大圓角、柔和長距陰影、玻璃後方 4 顆漸層環境光球；主色糖果紫 `#6d5df5`、輔色薄荷 `#14b8a6`。不支援 `backdrop-filter` 時自動降級為高不透明度面板，並尊重 `prefers-reduced-motion`。
+- **微動效規範**：按鈕與卡片使用 `0.18s / 0.28s cubic-bezier(0.16, 1, 0.3, 1)` 柔順過渡。
 - **字體體系**：
   - **原生堆疊**：`var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif)`，避免外部字體加載造成的排版位移 (Reflow/CLS)。
   - **數值指標**：統一啟用 `font-variant-numeric: tabular-nums`，保證數據對齊。

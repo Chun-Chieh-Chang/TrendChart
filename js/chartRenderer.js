@@ -5,8 +5,11 @@
 const ChartRenderer = (() => {
     const TREND_CHART_HEIGHT_RATIO = 0.8;
     const FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-    const COLOR_PALETTE = ['#0284c7', '#06b6d4', '#10b981', '#d97706', '#64748b'];
-    const OOS_COLOR = '#dc2626';
+    const COLOR_PALETTE = ['#6d5df5', '#14b8a6', '#ec4899', '#d97706', '#64748b'];
+    const OOS_COLOR = '#ef4444';
+    // Liquid Glass: transparent on screen, solid white on PNG export
+    const GLASS_BG = 'rgba(0, 0, 0, 0)';
+    const EXPORT_BG = '#ffffff';
 
     // --- Draggable Annotation State ---
     const _dragState = new Map(); // gd -> { active, startY, startDataY, lineType, chartId }
@@ -255,7 +258,7 @@ const ChartRenderer = (() => {
                 xanchor: isLabelLeft ? 'left' : 'right',
                 yanchor: 'bottom',
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bgcolor: 'rgba(255, 255, 255, 0.85)',
                 bordercolor: '#cbd5e1',
                 borderwidth: 1,
                 borderpad: 2
@@ -288,8 +291,8 @@ const ChartRenderer = (() => {
                 y: 0.98,
                 yanchor: 'top'
             },
-            paper_bgcolor: '#ffffff',
-            plot_bgcolor: '#ffffff',
+            paper_bgcolor: GLASS_BG,
+            plot_bgcolor: GLASS_BG,
             shapes: shapes,
             annotations: annotations,
             xaxis: {
@@ -301,8 +304,8 @@ const ChartRenderer = (() => {
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 主 X 軸高對比色階：深石墨藍 (#0f172a) 與 高飽和深鈷藍 (#0284c7)
-                    const colors = ['#0f172a', '#0284c7'];
+                    // 主 X 軸高對比色階：深石墨藍 (#0f172a) 與 糖果紫 (#6d5df5)
+                    const colors = ['#0f172a', '#6d5df5'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn], isXDate);
@@ -314,7 +317,7 @@ const ChartRenderer = (() => {
                         return `<span style="color: ${colors[colorIdx]}; font-weight: ${isAlt ? '700' : '600'};">${val}</span>`;
                     });
                 })(),
-                gridcolor: '#f1f5f9',
+                gridcolor: 'rgba(15, 23, 42, 0.06)',
                 zerolinecolor: '#cbd5e1',
                 tickfont: { family: FONT_FAMILY, size: 10 },
                 range: [-0.5, chartData.length - 0.5],
@@ -326,7 +329,7 @@ const ChartRenderer = (() => {
                     text: '數值',
                     font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                gridcolor: '#e2e8f0',
+                gridcolor: 'rgba(15, 23, 42, 0.08)',
                 zerolinecolor: '#cbd5e1',
                 tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 },
                 anchor: 'x'
@@ -507,12 +510,16 @@ const ChartRenderer = (() => {
     const exportChart = (targetId) => {
         const gd = document.getElementById(targetId);
         if (gd && gd.data) {
-            Plotly.downloadImage(gd, {
-                format: 'png',
-                width: 1600,
-                height: 800,
-                filename: 'chart_export'
-            });
+            const restore = { paper_bgcolor: gd.layout.paper_bgcolor, plot_bgcolor: gd.layout.plot_bgcolor };
+            Plotly.relayout(gd, { paper_bgcolor: EXPORT_BG, plot_bgcolor: EXPORT_BG })
+                .then(() => Plotly.downloadImage(gd, {
+                    format: 'png',
+                    width: 1600,
+                    height: 800,
+                    filename: 'chart_export'
+                }))
+                .catch(err => console.error('Chart export failed:', err))
+                .finally(() => Plotly.relayout(gd, restore));
         }
     };
 
@@ -649,7 +656,7 @@ const ChartRenderer = (() => {
                 text: `<b>${label}: ${yAdj.toFixed(4)}</b>`,
                 showarrow: false,
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bgcolor: 'rgba(255, 255, 255, 0.85)',
                 bordercolor: '#cbd5e1',
                 borderwidth: 1,
                 borderpad: 2
@@ -694,8 +701,8 @@ const ChartRenderer = (() => {
                 text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
                 font: { family: FONT_FAMILY, color: '#0f172a', size: 14 }
             },
-            paper_bgcolor: '#ffffff',
-            plot_bgcolor: '#ffffff',
+            paper_bgcolor: GLASS_BG,
+            plot_bgcolor: GLASS_BG,
             shapes: shapes,
             annotations: annotations,
             xaxis: {
@@ -703,7 +710,7 @@ const ChartRenderer = (() => {
                     text: '數值',
                     font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                gridcolor: '#f1f5f9',
+                gridcolor: 'rgba(15, 23, 42, 0.06)',
                 zerolinecolor: '#cbd5e1',
                 tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 },
                 range: [globalMin, globalMax]
@@ -713,7 +720,7 @@ const ChartRenderer = (() => {
                     text: '密度',
                     font: { family: FONT_FAMILY, color: '#0f172a', size: 11 }
                 },
-                gridcolor: '#e2e8f0',
+                gridcolor: 'rgba(15, 23, 42, 0.08)',
                 zerolinecolor: '#cbd5e1',
                 tickfont: { family: FONT_FAMILY, color: '#475569', size: 10 }
             },
@@ -722,7 +729,7 @@ const ChartRenderer = (() => {
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 110 },
-            height: container.closest('.single-view') ? 800 : 450,
+            // Height follows the .chart-box container (CSS fills remaining viewport)
             hovermode: 'closest',
             bargap: 0.1
         };
