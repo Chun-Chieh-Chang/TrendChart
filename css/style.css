@@ -1,71 +1,69 @@
 :root {
     /* ==========================================================================
-       Precision Instrument & Modern Industrial Workbench Design Tokens
+       Inset Focus Design Tokens — soft UI emphasizing pressed/inset surfaces
+       Components share the base colour; depth comes from light & shadow only.
        ========================================================================== */
 
-    /* 工作台與卡片底色 (Glacier Workbench Base & Clean Panels) */
-    --workbench-bg: #f1f5f9;
-    --card-bg: #ffffff;
-    --sidebar-bg: #ffffff;
-    --modal-bg: #ffffff;
-    --table-header-bg: #f8fafc;
-    --table-row-hover: #f1f5f9;
+    /* 基底色 (Base Surface) */
+    --surface: #ecf0f5;
+    --surface-deep: #e4e9f0;
+    --shade: rgba(163, 177, 198, 0.6);
+    --shade-soft: rgba(163, 177, 198, 0.4);
+    --light: rgba(255, 255, 255, 0.95);
 
-    /* 邊框與精密線條 (Precision Wireframes) */
-    --border-color: #cbd5e1;
-    --border-subtle: #e2e8f0;
-    --border-focus: #0284c7;
+    /* 凸起 / 內凹 (Raised & Inset) */
+    --raised: 6px 6px 14px var(--shade), -6px -6px 14px var(--light);
+    --raised-sm: 3px 3px 7px var(--shade), -3px -3px 7px var(--light);
+    --inset: inset 4px 4px 9px var(--shade), inset -4px -4px 9px var(--light);
+    --inset-sm: inset 2px 2px 5px var(--shade), inset -2px -2px 5px var(--light);
 
-    /* 印刷級精準文字 (Deep Slate Typography) */
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
+    /* 文字 (Slate Typography) */
+    --text-primary: #3d4a5c;
+    --text-secondary: #6b7a90;
+    --text-muted: #8a97aa;
+    --divider: rgba(61, 74, 92, 0.08);
 
-    /* 品牌鈷藍與語意階層 (Brand Cobalt & Semantic Hierarchy) */
-    /* 1. 使用者 (User / Primary Analysis) */
-    --user-cobalt: #0284c7;
-    --user-cobalt-hover: #0369a1;
-    --user-cobalt-light: #e0f2fe;
-    --user-cobalt-border: #0284c7;
+    /* 強調藍 (Accent Blue) */
+    --accent: #5b8def;
+    --accent-deep: #4a78d6;
+    --accent-soft: rgba(91, 141, 239, 0.14);
+    --accent-grad: linear-gradient(90deg, #7a9cc6 0%, #5b8def 100%);
 
-    /* 2. 助理與分析 (Assistant / Analytical Precision) */
-    --assistant-cyan: #06b6d4;
-    --assistant-cyan-hover: #0891b2;
-    --assistant-cyan-light: #ecfeff;
-    --assistant-cyan-border: #06b6d4;
-
-    /* 3. 系統與警示 (System / Alert & OOS) */
-    --system-red: #dc2626;
-    --system-red-hover: #b91c1c;
+    /* 語意色 — 柔和 (Soft Semantic) */
+    --status-green: #3fa96b;
+    --status-green-soft: rgba(63, 169, 107, 0.14);
+    --status-amber: #d4972f;
+    --status-amber-soft: rgba(212, 151, 47, 0.16);
+    --system-red: #e0625b;
+    --system-red-soft: rgba(224, 98, 91, 0.14);
     --system-red-light: #fef2f2;
-    --system-red-border: #dc2626;
-
-    /* 4. 狀態與管制 (Status Indicators & Spec Limits) */
-    --status-green: #10b981;
-    --status-green-light: #ecfdf5;
-    --status-amber: #d97706;
     --status-amber-light: #fffbeb;
 
-    /* 精密陰影 (Subtle Shadows) */
-    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
-    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
-    --focus-ring: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    /* 舊變數映射 (referenced by app.js for Ca/Cpk grading & date hints) */
+    --user-cobalt: var(--accent);
+    --assistant-cyan: var(--text-secondary);
+    --workbench-bg: var(--surface);
+    --card-bg: var(--surface);
+    --border-color: var(--divider);
+    --border-subtle: var(--divider);
 
-    /* 圓角規則 (Industrial Radius) */
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
+    /* 圓角 (Radius) */
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --radius-pill: 999px;
 
-    /* 俐落微動效 (Crisp Micro-transitions) */
-    --ease-crisp: cubic-bezier(0.16, 1, 0.3, 1);
-    --transition-fast: all 0.12s var(--ease-crisp);
-    --transition-normal: all 0.2s var(--ease-crisp);
-    --transition-smooth: width 0.35s var(--ease-crisp), min-width 0.35s var(--ease-crisp), padding 0.35s var(--ease-crisp);
+    /* 動效 (Motion) */
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-fast: all 0.2s var(--ease);
+    --transition-smooth: width 0.35s var(--ease), min-width 0.35s var(--ease), padding 0.35s var(--ease), margin 0.35s var(--ease);
 
-    /* 原生與 VSCode 字體堆疊 (防止外部加載排版位移) */
-    --font-sans: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+    /* 字體 (Fonts — native stacks, no external load) */
+    --font-sans: var(--vscode-font-family, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
     --font-mono: var(--vscode-editor-font-family, "JetBrains Mono", "SF Mono", Consolas, Menlo, Monaco, monospace);
+
+    --label-tracking: 0.12em;
 }
 
 /* ==========================================================================
@@ -84,7 +82,7 @@ html, body {
 
 body {
     font-family: var(--font-sans);
-    background-color: var(--workbench-bg);
+    background: var(--surface);
     color: var(--text-primary);
     line-height: 1.5;
     font-size: 14px;
@@ -92,10 +90,9 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
     letter-spacing: -0.01em;
 }
@@ -112,43 +109,45 @@ td {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    background-color: var(--workbench-bg);
+    background: var(--surface);
+}
+
+.hidden {
+    display: none !important;
 }
 
 /* ==========================================================================
-   Sidebar & Workbench Header (5px Cobalt Accent & Live Pulse)
+   Sidebar — raised floating panel
    ========================================================================== */
 .sidebar {
     width: 320px;
     min-width: 320px;
-    background: var(--sidebar-bg);
-    border-left: 1px solid var(--border-color);
-    border-top: 5px solid var(--user-cobalt); /* 品牌鈷藍飾條 */
+    margin: 16px 16px 16px 0;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--raised);
     display: flex;
     flex-direction: column;
-    padding: 1.25rem;
+    padding: 1.5rem 1.375rem 1.25rem;
     overflow-y: auto;
     overflow-x: hidden;
-    box-shadow: var(--shadow-sm);
     z-index: 10;
-    transition: var(--transition-smooth);
+    transition: var(--transition-smooth), box-shadow 0.25s var(--ease);
 }
 
 /* Peek state — thin preview strip on right edge */
 .sidebar.peek {
     width: 48px;
     min-width: 48px;
-    padding: 1.25rem 0;
-    border-left: none;
-    box-shadow: none;
+    padding: 1.5rem 0;
 }
 
 /* Collapsed state — hidden, only trigger handle visible */
 .sidebar.collapsed {
     width: 0;
     min-width: 0;
-    padding: 1.25rem 0;
-    border-left: none;
+    margin-right: 0;
+    padding: 1.5rem 0;
     box-shadow: none;
 }
 
@@ -158,48 +157,44 @@ td {
     top: 50%;
     right: 0;
     transform: translateY(-50%);
-    width: 24px;
-    height: 64px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-right: none;
-    border-radius: 8px 0 0 8px;
+    width: 26px;
+    height: 68px;
+    background: var(--surface);
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    box-shadow: -4px 0 10px var(--shade-soft), -2px -2px 6px var(--light);
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 20;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.08);
-    transition: background 0.15s var(--ease-crisp);
 }
 
-.sidebar-trigger:hover {
-    background: var(--user-cobalt-light);
+.sidebar-trigger:active {
+    box-shadow: var(--inset-sm);
 }
 
 .sidebar-trigger .lucide {
-    width: 14px;
-    height: 14px;
-    color: var(--user-cobalt);
-    stroke-width: 2.5;
-    transition: transform 0.3s var(--ease-crisp);
+    width: 15px;
+    height: 15px;
+    color: var(--accent);
+    stroke-width: 2.25;
+    transition: transform 0.3s var(--ease);
 }
 
-/* Show trigger when sidebar is collapsed or peeking */
 .sidebar.collapsed ~ .sidebar-trigger,
 .sidebar.peek ~ .sidebar-trigger {
     display: flex;
 }
 
-/* Rotate chevron when sidebar is expanded or peeking */
 .sidebar:not(.collapsed) ~ .sidebar-trigger .lucide {
     transform: rotate(180deg);
 }
 
+/* Title block with the soft blue rule underneath */
 .sidebar-header {
     margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 1.125rem;
+    border-bottom: 2px solid rgba(91, 141, 239, 0.35);
 }
 
 .logo {
@@ -209,10 +204,15 @@ td {
 }
 
 .logo .lucide {
-    width: 28px;
-    height: 28px;
-    color: var(--user-cobalt);
-    stroke-width: 2;
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+    flex-shrink: 0;
+    color: var(--accent);
+    stroke-width: 2.25;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--raised-sm);
 }
 
 .logo-text {
@@ -222,27 +222,26 @@ td {
 }
 
 .logo h1 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-size: 1.3125rem;
+    font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
 
-/* Live Green Hardware Pulse Indicator */
 @keyframes pulseHint {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
 .pulse-hint {
-    animation: pulseHint 1.2s ease-in-out infinite;
+    animation: pulseHint 1.3s ease-in-out infinite;
 }
+
 .system-status {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.6875rem;
-    font-weight: 700;
+    font-size: 0.8125rem;
+    font-weight: 600;
     color: var(--status-green);
     letter-spacing: 0.06em;
 }
@@ -253,28 +252,13 @@ td {
     background-color: var(--status-green);
     border-radius: 50%;
     display: inline-block;
-    animation: pulseGreen 2s infinite var(--ease-crisp);
-}
-
-@keyframes pulseGreen {
-    0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    }
-    70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-    }
-    100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-    }
+    box-shadow: 0 0 0 3px var(--status-green-soft);
 }
 
 .control-sections {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.625rem;
     flex: 1;
 }
 
@@ -284,10 +268,10 @@ td {
 }
 
 .section-title {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: var(--label-tracking);
     color: var(--text-secondary);
     display: flex;
     align-items: center;
@@ -296,41 +280,35 @@ td {
 }
 
 .section-title .lucide {
-    width: 15px;
-    height: 15px;
-    color: var(--user-cobalt);
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
     stroke-width: 2;
 }
 
-.hidden {
-    display: none !important;
-}
-
 /* ==========================================================================
-   File Drop Zone & Controls
+   File Drop Zone — inset well
    ========================================================================== */
 .drop-zone {
-    border: 1px dashed var(--border-color);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     padding: 1.75rem 1rem;
     text-align: center;
     cursor: pointer;
-    background: #f8fafc;
+    background: var(--surface);
+    box-shadow: var(--inset);
     transition: var(--transition-fast);
 }
 
 .drop-zone:hover,
 .drop-zone.active {
-    border-color: var(--user-cobalt);
-    background: var(--user-cobalt-light);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--inset), 0 0 0 2px rgba(91, 141, 239, 0.35);
 }
 
 .drop-zone .lucide {
-    width: 36px;
-    height: 36px;
-    stroke-width: 1.5;
-    color: var(--user-cobalt);
+    width: 32px;
+    height: 32px;
+    stroke-width: 1.75;
+    color: var(--accent);
     margin-bottom: 0.5rem;
 }
 
@@ -344,13 +322,19 @@ td {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--status-green-light);
-    padding: 0.625rem 0.75rem;
-    border-radius: var(--radius-md);
-    margin-top: 0.75rem;
+    padding: 0.4375rem 0.4375rem 0.4375rem 1rem;
+    margin-top: 0.875rem;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    box-shadow: var(--raised-sm);
     font-size: 0.8125rem;
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    color: #065f46;
+    color: var(--text-primary);
+}
+
+.file-info > .lucide {
+    width: 16px;
+    height: 16px;
+    color: var(--status-green);
 }
 
 #filename {
@@ -362,59 +346,99 @@ td {
 }
 
 /* ==========================================================================
-   Form Elements (Crisp Industrial Controls)
+   Form Elements — inset pills
    ========================================================================== */
-.custom-select {
+.custom-select,
+.custom-input,
+.filter-search {
     width: 100%;
-    padding: 0.5rem 0.625rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    background-color: #ffffff;
+    padding: 0.5625rem 1rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    background-color: var(--surface);
+    box-shadow: var(--inset-sm);
     color: var(--text-primary);
     font-size: 0.8125rem;
     font-family: var(--font-sans);
-    cursor: pointer;
-    transition: var(--transition-fast);
+    transition: box-shadow 0.2s var(--ease);
 }
 
-.custom-select:focus {
+.custom-select:not([multiple]) {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 2.25rem;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236b7a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+}
+
+.custom-select[multiple] {
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--inset);
+}
+
+.custom-select:focus,
+.custom-input:focus,
+.filter-search:focus {
     outline: none;
-    border-color: var(--user-cobalt);
-    box-shadow: var(--focus-ring);
+    box-shadow: var(--inset-sm), 0 0 0 2px rgba(91, 141, 239, 0.4);
 }
 
 .custom-select option {
-    background-color: #ffffff;
+    background-color: var(--surface);
     color: var(--text-primary);
-    padding: 4px;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.custom-select[multiple] option:checked {
+    background: var(--accent-soft) linear-gradient(0deg, var(--accent-soft), var(--accent-soft));
+    color: var(--accent-deep);
+    font-weight: 600;
+}
+
+.custom-input::placeholder,
+.filter-search::placeholder {
+    color: var(--text-muted);
+}
+
+.custom-input {
+    flex: 1;
+    font-variant-numeric: tabular-nums;
 }
 
 .config-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.125rem;
 }
 
 .config-group label {
     display: block;
     font-size: 0.8125rem;
     font-weight: 600;
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.4375rem;
     color: var(--text-secondary);
 }
 
 .hint {
     display: block;
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
+    margin-top: 0.4375rem;
+    font-size: 0.8125rem;
     color: var(--text-muted);
 }
 
-/* Spec Limits Container */
+/* Spec block — raised panel holding inset inputs */
 .spec-limits-container {
-    padding: 0.875rem;
-    background: #f8fafc;
-    border-radius: var(--radius-md);
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-color);
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--raised-sm);
+}
+
+.spec-limits-container .config-group:last-child {
+    margin-bottom: 0;
 }
 
 .input-with-select {
@@ -422,120 +446,122 @@ td {
     gap: 0.5rem;
 }
 
-.custom-input {
-    flex: 1;
-    padding: 0.45rem 0.625rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    background-color: #ffffff;
-    color: var(--text-primary);
-    font-size: 0.8125rem;
-    font-family: var(--font-sans);
-    font-variant-numeric: tabular-nums;
-    width: 100%;
-    transition: var(--transition-fast);
-}
-
-.custom-input:focus {
-    outline: none;
-    border-color: var(--user-cobalt);
-    box-shadow: var(--focus-ring);
-}
-
 .col-pick {
-    width: 110px !important;
-    font-size: 0.75rem !important;
+    width: 112px !important;
+    flex-shrink: 0;
+    font-size: 0.8125rem !important;
 }
 
 /* ==========================================================================
-   Buttons (Crisp Flat Transitions with 0.12s Cubic Bezier)
+   Buttons — raised, press to inset
    ========================================================================== */
 .primary-button {
     width: 100%;
-    padding: 0.625rem 1rem;
-    background-color: var(--user-cobalt);
-    color: #ffffff;
-    border: 1px solid var(--user-cobalt);
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    color: var(--accent);
+    border: none;
     border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.8125rem;
+    box-shadow: var(--raised);
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.875rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    box-shadow: var(--shadow-sm);
     transition: var(--transition-fast);
 }
 
 .primary-button:hover {
-    background-color: var(--user-cobalt-hover);
-    border-color: var(--user-cobalt-hover);
-    box-shadow: var(--shadow-md);
+    color: var(--accent-deep);
 }
 
 .primary-button:active {
-    transform: translateY(1px);
+    box-shadow: var(--inset);
 }
 
 .primary-button .lucide {
     width: 16px;
     height: 16px;
+    stroke-width: 2.25;
 }
 
 .secondary-button {
-    padding: 0.45rem 0.875rem;
-    background-color: #ffffff;
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    background: var(--surface);
+    border: none;
     border-radius: var(--radius-md);
+    box-shadow: var(--raised-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
     font-weight: 600;
     font-size: 0.8125rem;
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
+    gap: 0.4375rem;
+    transition: var(--transition-fast);
 }
 
 .secondary-button:hover {
-    background-color: #f8fafc;
-    border-color: var(--user-cobalt);
-    color: var(--user-cobalt);
+    color: var(--text-primary);
 }
 
 .secondary-button:active {
-    transform: translateY(1px);
+    box-shadow: var(--inset-sm);
 }
 
 .secondary-button.size-sm {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+}
+
+.secondary-button .lucide {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2;
 }
 
 .icon-button {
-    background: transparent;
-    border: 1px solid transparent;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    flex-shrink: 0;
+    background: var(--surface);
+    border: none;
+    border-radius: 50%;
+    box-shadow: var(--raised-sm);
     color: var(--text-secondary);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-sm);
-    padding: 0.375rem;
     transition: var(--transition-fast);
 }
 
 .icon-button:hover {
-    background: #f1f5f9;
-    border-color: var(--border-subtle);
-    color: var(--user-cobalt);
+    color: var(--accent);
 }
 
 .icon-button:active {
-    transform: translateY(1px);
+    box-shadow: var(--inset-sm);
+}
+
+.icon-button .lucide {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.icon-button:focus-visible,
+.label-side-btn:focus-visible,
+input[type="checkbox"]:focus-visible {
+    outline: 2px solid rgba(91, 141, 239, 0.55);
+    outline-offset: 3px;
 }
 
 .button-group {
@@ -544,15 +570,62 @@ td {
     gap: 0.5rem;
 }
 
-/* Checkbox & Switches */
+/* ==========================================================================
+   Toggles — inset track + raised knob (Live Preview)
+   ========================================================================== */
+.checkbox-item input[type="checkbox"],
+.checkbox-wrapper input[type="checkbox"],
+.checkbox-label input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    flex-shrink: 0;
+    width: 38px;
+    height: 22px;
+    margin: 0;
+    cursor: pointer;
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    box-shadow: var(--inset-sm);
+    transition: background 0.25s var(--ease);
+}
+
+.checkbox-item input[type="checkbox"]::after,
+.checkbox-wrapper input[type="checkbox"]::after,
+.checkbox-label input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #c9d1dc;
+    box-shadow: 1px 1px 3px var(--shade), -1px -1px 2px var(--light);
+    transition: left 0.25s var(--ease), background 0.25s var(--ease);
+}
+
+.checkbox-item input[type="checkbox"]:checked,
+.checkbox-wrapper input[type="checkbox"]:checked,
+.checkbox-label input[type="checkbox"]:checked {
+    background: var(--accent-soft);
+}
+
+.checkbox-item input[type="checkbox"]:checked::after,
+.checkbox-wrapper input[type="checkbox"]:checked::after,
+.checkbox-label input[type="checkbox"]:checked::after {
+    left: 19px;
+    background: var(--accent-grad);
+}
+
 .checkbox-list-container {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.625rem;
-    background: #f8fafc;
+    gap: 0.625rem;
+    padding: 0.75rem;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    background: var(--surface);
+    box-shadow: var(--inset);
     max-height: 180px;
     overflow-y: auto;
 }
@@ -560,26 +633,16 @@ td {
 .checkbox-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
     font-size: 0.8125rem;
     cursor: pointer;
     user-select: none;
-    transition: var(--transition-fast);
-}
-
-.checkbox-item input,
-.checkbox-wrapper input[type="checkbox"],
-.checkbox-label input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--user-cobalt);
-    cursor: pointer;
 }
 
 .checkbox-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
     font-size: 0.8125rem;
     color: var(--text-secondary);
 }
@@ -589,30 +652,29 @@ td {
     cursor: pointer;
     user-select: none;
     font-size: 0.8125rem;
+    font-weight: 500;
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
 }
 
 .layout-toggles {
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
-    padding: 0.25rem 0;
+    gap: 0.75rem;
 }
 
 .section-divider {
     border: none;
-    border-top: 1px solid var(--border-subtle);
-    margin: 0.375rem 0;
+    border-top: 1px solid var(--divider);
+    margin: 0.25rem 0;
 }
 
 .label-side-control {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.125rem 0;
+    gap: 0.75rem;
 }
 
 .label-side-label {
@@ -621,31 +683,39 @@ td {
     white-space: nowrap;
 }
 
+/* Tabs — raised container, active tab pressed in with blue text */
 .label-side-toggle {
     display: flex;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    overflow: hidden;
+    flex: 1;
+    gap: 4px;
+    padding: 4px;
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--raised-sm);
 }
 
 .label-side-btn {
-    padding: 2px 10px;
-    font-size: 0.75rem;
+    flex: 1;
+    padding: 0.3125rem 0.625rem;
+    font-size: 0.8125rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
     border: none;
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    line-height: 1.6;
+    line-height: 1.5;
+    transition: var(--transition-fast);
 }
 
 .label-side-btn:hover {
-    background: var(--bg-hover, #f1f5f9);
+    color: var(--text-primary);
 }
 
 .label-side-btn.active {
-    background: var(--user-cobalt, #0284c7);
-    color: #fff;
+    color: var(--accent);
+    box-shadow: var(--inset-sm);
 }
 
 .mt-2 {
@@ -653,80 +723,48 @@ td {
 }
 
 /* ==========================================================================
-   Main Content & Precision Instrument Cards
+   Main Content
    ========================================================================== */
 .main-content {
     flex: 1;
-    padding: 1.25rem 1.5rem;
+    padding: 1.5rem 1.75rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
 }
 
-/* Summary Grid */
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.875rem;
+    gap: 1.125rem;
 }
 
-/* Precision Instrument Summary Cards with Semantic Borders */
+/* Stat tiles — pressed in (USERS / TASKS tiles) */
 .summary-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 0.875rem 1rem;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--inset);
+    padding: 1rem 1.125rem;
     display: flex;
     align-items: center;
     gap: 0.875rem;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-fast);
 }
 
-.summary-card:hover {
-    border-color: #94a3b8;
-    box-shadow: var(--shadow-md);
-}
-
-/* Semantic Message / Metric Hierarchy */
-/* 1. User / Primary Analysis (淺鈷藍底 + 鈷藍左邊框) */
-.summary-card.user-card,
-.summary-card:nth-child(1),
-.summary-card:nth-child(2) {
-    background: #ffffff;
-    border-left: 4px solid var(--user-cobalt);
-}
-
-/* 2. Assistant / Analytical Card (純白卡底 + 精密青色邊框) */
-.summary-card.assistant-card,
-.summary-card.stats-group-card,
-.summary-card:nth-child(4),
-.summary-card.dev-card {
-    background: #ffffff;
-    border-left: 4px solid var(--assistant-cyan);
+/* Icon tiles stack vertically & centered, like the reference */
+.summary-card:has(> .card-icon) {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.375rem;
+    text-align: center;
 }
 
 .card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-}
-
-.card-icon.blue,
-.card-icon.cobalt {
-    background: var(--user-cobalt-light);
-    color: var(--user-cobalt);
-}
-
-.card-icon.green,
-.card-icon.cyan {
-    background: var(--assistant-cyan-light);
-    color: var(--assistant-cyan);
+    color: var(--accent);
 }
 
 .card-icon.amber {
@@ -747,6 +785,12 @@ td {
 .card-icon.cyan {
     background: rgba(107, 122, 144, 0.14);
     color: var(--text-secondary);
+}
+
+.card-icon .lucide {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
 }
 
 /* Card Variant Classes (no additional styling needed) */
@@ -777,126 +821,120 @@ td {
     min-width: 0;
 }
 
+/* Uppercase spaced label (USERS / TASKS) */
 .card-info label {
     display: block;
-    font-size: 0.6875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.2rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.125rem;
 }
 
-/* Metric Scale */
 .metric-value.hero {
-    font-size: 1.375rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
 }
 
 .metric-value.primary {
     font-size: 1rem;
     font-weight: 700;
-    color: var(--user-cobalt);
+    color: var(--accent);
 }
 
 .metric-value.secondary {
     font-size: 0.8125rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
 }
 
 .metric-label.micro {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.8125rem;
+    font-weight: 500;
     color: var(--text-muted);
 }
 
 .sub-text {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     color: var(--text-muted);
     font-variant-numeric: tabular-nums;
     margin-top: 0.125rem;
 }
 
-/* Stats Group Card & Mini Grid */
 .stats-group-card {
-    padding: 0.625rem 0.875rem !important;
+    padding: 0.75rem !important;
 }
 
 .mini-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 0.375rem;
+    gap: 0.5rem;
     width: 100%;
 }
 
+/* Raised chips inside the inset tile */
 .mini-stat {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: #f8fafc;
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.625rem;
     border-radius: var(--radius-sm);
-    border: 1px solid var(--border-subtle);
+    background: var(--surface);
+    box-shadow: var(--raised-sm);
 }
 
 .mini-stat label {
-    font-size: 0.6875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
     font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
 }
 
 .dev-stats {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.25rem;
     margin-top: 0.25rem;
 }
 
 .dev-item {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
-    border-bottom: 1px dashed var(--border-subtle);
-    padding-bottom: 1px;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 2px;
 }
 
 .dev-item b {
-    color: var(--assistant-cyan);
+    color: var(--accent);
 }
 
 /* ==========================================================================
-   Content Cards & Chart Containers
+   Chart Cards — raised panels
    ========================================================================== */
 .content-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--raised);
     display: flex;
     flex-direction: column;
-    transition: var(--transition-fast);
-}
-
-.content-card:hover {
-    box-shadow: var(--shadow-md);
+    overflow: hidden;
 }
 
 .card-header {
-    padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid var(--border-subtle);
+    padding: 1rem 1rem 0.875rem 1.5rem;
+    border-bottom: 1px solid var(--divider);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #ffffff;
 }
 
 .card-title {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
     display: flex;
@@ -904,10 +942,12 @@ td {
     gap: 0.5rem;
 }
 
+/* Charts fill the viewport height left below the summary row */
 .charts-grid {
     display: grid;
-    gap: 1.25rem;
+    gap: 1.5rem;
     width: 100%;
+    flex: 1 1 0;
 }
 
 .charts-grid.dual-view {
@@ -922,6 +962,10 @@ td {
     .charts-grid.dual-view {
         grid-template-columns: 1fr;
     }
+    /* Stacked: fixed height per chart, page scrolls */
+    .charts-grid.dual-view .chart-box {
+        flex: 0 0 460px;
+    }
 }
 
 /* Touch devices: always show trigger handle for tap access */
@@ -935,12 +979,14 @@ td {
     }
 }
 
+/* flex-basis 0 keeps the box sized by layout, not by Plotly's rendered SVG */
 .chart-box {
+    flex: 1 1 0;
     min-height: 420px;
     width: 100%;
     position: relative;
     overflow: hidden;
-    background: #ffffff;
+    background: transparent;
 }
 
 .chart-box .empty-state {
@@ -954,11 +1000,15 @@ td {
 }
 
 .empty-state .lucide {
-    width: 48px;
-    height: 48px;
-    stroke-width: 1.25;
-    color: var(--border-color);
-    margin-bottom: 0.75rem;
+    width: 64px;
+    height: 64px;
+    padding: 18px;
+    stroke-width: 1.75;
+    color: var(--accent);
+    background: var(--surface);
+    border-radius: 50%;
+    box-shadow: var(--inset);
+    margin-bottom: 1rem;
 }
 
 .empty-state p {
@@ -971,48 +1021,29 @@ td {
    Filter Component
    ========================================================================== */
 .filter-item {
-    margin-bottom: 0.875rem;
+    margin-bottom: 1rem;
 }
 
 .filter-item label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.4375rem;
     color: var(--text-secondary);
 }
 
-.filter-search {
-    width: 100%;
-    padding: 0.375rem 0.625rem;
-    font-size: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background: #ffffff;
-    color: var(--text-primary);
-    border-bottom: none;
-    outline: none;
-    transition: var(--transition-fast);
-}
-
-.filter-search:focus {
-    border-color: var(--user-cobalt);
-}
-
-.filter-item .custom-select {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+.filter-item .filter-search {
+    margin-bottom: 0.5rem;
 }
 
 /* ==========================================================================
    Author Card & Footer
    ========================================================================== */
 .author-card {
-    padding: 0.75rem;
-    background: #f8fafc;
+    padding: 0.875rem 1rem;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    transition: var(--transition-fast);
+    background: var(--surface);
+    box-shadow: var(--inset);
 }
 
 .author-name {
@@ -1022,8 +1053,8 @@ td {
 }
 
 .author-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
     margin-top: 0.125rem;
 }
 
@@ -1032,15 +1063,13 @@ td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-subtle);
+    padding-top: 1.25rem;
 }
 
 .version {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-muted);
-    letter-spacing: 0.02em;
 }
 
 /* ==========================================================================
@@ -1052,7 +1081,8 @@ td {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 23, 42, 0.45);
+    background: rgba(236, 240, 245, 0.72);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -1061,42 +1091,43 @@ td {
 }
 
 .modal-content {
-    background: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: 10px 10px 30px var(--shade), -10px -10px 30px var(--light);
     width: 600px;
     max-width: 92%;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: var(--shadow-lg);
 }
 
 .modal-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-subtle);
+    padding: 1.25rem 1.25rem 1.125rem 1.75rem;
+    border-bottom: 2px solid rgba(91, 141, 239, 0.35);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .modal-header h2 {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.125rem;
+    font-weight: 800;
 }
 
 .modal-body {
-    padding: 1.25rem;
+    padding: 1.5rem 1.75rem;
 }
 
 .help-section {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.375rem;
 }
 
 .help-section h3 {
-    font-size: 0.875rem;
-    color: var(--user-cobalt);
-    margin-bottom: 0.375rem;
+    font-size: 0.8125rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--label-tracking);
+    color: var(--accent);
+    margin-bottom: 0.5rem;
 }
 
 .help-section ul {
@@ -1107,22 +1138,20 @@ td {
     font-size: 0.8125rem;
     color: var(--text-secondary);
     margin-bottom: 0.375rem;
-    line-height: 1.6;
+    line-height: 1.65;
 }
 
-/* Formula Tooltip */
 .formula-tooltip {
     position: fixed;
     z-index: 9999;
     padding: 0.625rem 0.875rem;
-    background: #0f172a;
-    border: 1px solid #334155;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    color: #f8fafc;
-    font-size: 0.75rem;
+    background: var(--text-primary);
+    color: #f5f7fa;
+    border-radius: var(--radius-sm);
+    box-shadow: 6px 6px 16px var(--shade);
+    font-size: 0.8125rem;
     pointer-events: none;
-    transition: opacity 0.12s var(--ease-crisp), transform 0.12s var(--ease-crisp);
+    transition: opacity 0.12s var(--ease), transform 0.12s var(--ease);
     transform: translateY(8px);
 }
 
@@ -1140,7 +1169,7 @@ td {
     cursor: help;
 }
 
-/* Custom Scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -1151,24 +1180,19 @@ td {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    background: #c9d1dc;
+    border-radius: var(--radius-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: #aeb9c8;
 }
 
 /* Lucide Uniform Sizing */
 .lucide {
     width: 18px;
     height: 18px;
-    stroke-width: 1.75;
-}
-
-.card-icon .lucide {
-    width: 22px;
-    height: 22px;
+    stroke-width: 2;
 }
 
 /* ==========================================================================
@@ -1181,4 +1205,14 @@ td {
 
 .plotlytext.draggable-annotation.dragging {
     cursor: grabbing;
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
 }
