@@ -1,5 +1,113 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-09-23 (v1.6.0)
+**任務目標 (Inset Focus 軟UI設計系統 - v1.6.0)**：
+1. 導入「Inset Focus」設計系統，強調按下/內凹表面的軟 UI 美學。
+2. 所有組件共用基底色，深度感完全來自光影效果（raised / inset shadow）。
+3. 統一設計令牌：柔和色階、精準的陰影層級、統一的圓角與過渡動效。
+
+**設計特色 (Design Characteristics)**：
+- **色彩系統**：`#ecf0f5` 表面 + `#e4e9f0` 深色 + `rgba(163, 177, 198)` 柔和陰影
+- **深度設計**：raised (`6px 6px 14px + -6px -6px 14px`)、inset (`inset 4px 4px 9px + inset -4px -4px 9px`)、raised-sm、inset-sm
+- **語意色**：綠 `#3fa96b`、琥珀 `#d4972f`、紅 `#e0625b`、主藍 `#5b8def`
+- **過渡動效**：`cubic-bezier(0.16, 1, 0.3, 1)` 俐落平整過渡、寬度/padding/margin 0.35s 平滑
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**（重寫，保留全部既有選擇器與圖表高度自適應規則）：
+   - Design Tokens 改為 Inset Focus（柔和表面色 `#ecf0f5`、深層 `#e4e9f0`、raised/inset shadow 成對）
+   - 元件重塑：所有卡片/按鈕/輸入框採 raised 凸起初始狀態，按下時 inset 內凹
+   - 新增缺失 CSS 規則：`.card-icon.cobalt`、`.card-icon.cyan`、`.card-actions`、`.metric-label` 等 9 個類別
+   - 保留全部既有圖表高度自適應邏輯（`.charts-grid flex 1 1 0` 等）
+2. **`js/app.js`**：無修改（完全向後相容）
+3. **`js/chartRenderer.js`**：無修改
+4. **`index.html`**：無修改
+
+**確效測試 (Check)**：
+- `node --check` 三支 JS 全數 PASS
+- 所有 HTML 使用的 CSS 類別皆已定義
+- 零 orphaned CSS 規則
+- 零 Console 錯誤
+
+---
+
+## 2026-09-23 (v1.5.0)
+**任務目標 (Minimalism 極簡主義風格 - v1.5.0)**：
+1. 依參考截圖「Minimalism 極簡主義 · 組件展示」將全站風格與色彩由 Liquid Glass 改為極簡主義。
+2. 決策（經使用者確認）：**UI 純黑白灰，數據保留低彩度語意色**——SPC 工具的規格外紅點、規格/管制線與 Cpk 等級色具判讀意義，完全單色將降低異常辨識度。
+
+**設計解析 (Design Analysis)**：
+- 色彩：`#F7F7F7` 紙白底、`#111` 墨黑、`#E4E4E4` 髮絲線，無品牌色。
+- 層次：不使用卡片與陰影，僅以 1px 髮絲線分隔區塊。
+- 字體：大寫寬字距小標籤 (letter-spacing 0.16em)、細字重大數字 (300)。
+- 元件：底線式輸入框、細線 + 黑點開關、底線標示的分頁、細線圓形圖示按鈕、左側黑色豎線卡片、描邊膠囊按鈕。
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**（重寫，保留全部既有選擇器與圖表高度自適應規則）：
+   - Design Tokens 改為單色階 (`--paper` / `--ink` / `--grey-*` / `--hairline`)；語意色改低彩度：綠 `#4f7a5f`、琥珀 `#a8741a`、紅 `#b4443c`、藍灰 `#4a6785`。
+   - 舊變數 `--user-cobalt` 映射至藍灰 `#4a6785`（`app.js` 用於 Cpk「良」等級），`--status-*` / `--system-red` 沿用新語意色，`app.js` 零修改。
+   - Checkbox 以 `appearance: none` + `::after` 重繪為「細線 + 圓點」開關（未勾選：灰空心點；勾選：黑線 + 黑點右移）。
+   - 摘要列取消卡片，改為上下髮絲線 + 垂直分隔線；圖示改細線圓框。
+   - 輸入框 / 下拉選單改底線式，下拉箭頭改細線 SVG chevron；多選清單保留細框。
+   - 主按鈕改黑色描邊膠囊（hover 反白為黑底）；次要按鈕改純文字 + hover 底線；作者卡 / 檔案資訊改左側黑色豎線卡片。
+   - 移除 Liquid Glass 的光球、backdrop-filter、光澤與陰影樣式。
+2. **`js/chartRenderer.js`**（僅色彩）：
+   - 系列色盤改灰階 `#111111 / #8a8a8a / #4a4a4a / #b5b5b5 / #6b6b6b`；OOS 紅點 `#b4443c`。
+   - Target `#4f7a5f`、USL/LSL `#b4443c`、UCL/LCL/CL `#a8741a`；規格/管制色帶透明度降至 0.04。
+   - 主 / 副 X 軸交替色、偏離目標 (%) 副 Y 軸、標題與刻度字改灰階；`GLASS_BG` 更名為 `SCREEN_BG`。
+3. **`index.html`**：移除 `.ambient-orbs` 光球區塊；Favicon 改墨黑；版本字串 `v1.5.0 • Minimalism`。
+
+**確效測試 (Check)**：
+- 瀏覽器實測（120 筆測試 Excel）：零 Console 錯誤；`node --check` PASS。
+- UI 飽和色掃描（圖表、Cpk 等級數值、狀態點、日期提示除外）：飽和度 > 0.25 的元素 0 個。
+- 可見文字元素字級 < 13px：0 個。
+- 圖表高度 SVG / 容器：460 / 460（堆疊）、雙欄並排正常，零裁切。
+- PNG 匯出攔截：匯出當下 `paper_bgcolor = #ffffff`，匯出後還原透明。
+
+**已知事項**：
+- 系列色全為灰階，同時繪製 3 條以上 Y 欄位時辨識度較彩色版低。
+- 窄螢幕摘要列換行時，垂直髮絲線對齊不完全一致（寬螢幕正常）。
+
+---
+
+## 2026-09-23 (v1.4.0)
+**任務目標 (Liquid Glass 液態玻璃風格 & 圖表高度統一 - v1.4.0)**：
+1. 解析參考截圖「Liquid Glass Kit」的介面風格，並套用至全站介面。
+2. 修正「僅顯示常態分析」時圖表下半部被截斷的問題，統一兩張圖表的高度規則。
+
+**問題分析 (RCA)**：
+1. **玻璃透明感不足（第一版）**：背景僅有大尺寸極柔和的放射漸層光暈（42vw），幾乎等同單一色面；對單色面做 `backdrop-filter: blur()` 與不模糊無異，加上面板 42% 白色不透明度，視覺上只像白色卡片。參考圖的透明感來自「玻璃後方有輪廓清晰、飽和的物件被模糊」。
+2. **常態分佈圖被截斷**：`renderDistributionChart()` 在單圖模式寫死 `height: 800`，但 `.main-content` 為 flex column，`.chart-box` 被壓縮至符合視窗的 420px，且 `.content-card` 為 `overflow: hidden`，導致 Plotly SVG 下方 380px 被裁切。趨勢圖則未設定高度而使用 Plotly 預設值，兩圖高度規則不一致。
+
+**修正與預防措施 (CAPA)**：
+1. **玻璃透明感**：新增 4 顆飽和漸層光球 (`.ambient-orbs`) 作為被折射物件；面板不透明度降至 0.18（側邊欄 0.28），模糊由 24px 降為 16px 以保留後方形狀輪廓；加入對角光澤與漸層鏡面邊緣。卡片 `background` 簡寫改為 `background-color`，避免覆蓋共用光澤層。
+2. **高度統一**：移除 Plotly 寫死高度，改為「容器決定高度、Plotly 自適應」。`.charts-grid` 與 `.chart-box` 設 `flex: 1 1 0` + `min-height: 420px`——flex-basis 0 使容器高度由版面決定，而非被 Plotly 已渲染的 SVG 撐住，縮小視窗時可正確回縮。窄螢幕 (<1200px) 堆疊時每張圖固定 460px。
+
+**執行內容 (Do & Check)**：
+1. **`css/style.css`**：
+   - 重寫 Design Tokens 為 Liquid Glass（玻璃材質、光澤、鏡面邊緣、紫/薄荷漸層、虹彩、柔和長距陰影、大圓角）；舊變數名 (`--user-cobalt` 等) 保留並映射新色，`app.js` 的 inline style 引用免改。
+   - 新增 `.ambient-orbs` / `.orb` 光球與 `@keyframes orbDrift`；新增 `prefers-reduced-motion` 降級與 `@supports not (backdrop-filter)` 降級。
+   - 元件重塑：膠囊主按鈕、圓形圖示按鈕、膠囊輸入框、分段控制（白膠囊 + 紫色底線）、虹彩卡片、煙燻玻璃 tooltip。
+   - 所有 CSS 字級 ≥ 13px。
+   - 圖表容器改為 flex 填滿剩餘高度。
+2. **`js/chartRenderer.js`**：
+   - 色盤改為 `#6d5df5 / #14b8a6 / #ec4899 / #d97706 / #64748b`，OOS 紅改 `#ef4444`，主 X 軸交替色改為糖果紫。
+   - 新增 `GLASS_BG`（透明）與 `EXPORT_BG`（白），圖表背景透明、格線半透明化。
+   - `exportChart()`：匯出前 `relayout` 為白底 → `downloadImage` → `finally` 還原透明。
+   - 移除常態分佈圖 `height: container.closest('.single-view') ? 800 : 450`。
+3. **`index.html`**：新增 `.ambient-orbs` 裝飾區塊（`aria-hidden`）；Favicon 改紫色漸層；版本字串更新為 v1.4.0。
+
+**確效測試 (Check)**：
+- 瀏覽器實測（以 SheetJS 產生 60 / 450 筆測試 Excel 上傳）：零 Console 錯誤。
+- 可見文字元素字級 < 13px：0 個（Plotly 圖內除外）。
+- PNG 匯出攔截驗證：匯出當下 `paper_bgcolor = #ffffff`，匯出後還原為 `rgba(0, 0, 0, 0)`。
+- 圖表高度（SVG / 容器）：1920×911 雙圖 656/656、單常態 656/656、單趨勢 656/656；1100×911 堆疊 460/460；1920×560 矮螢幕 420/420（含由大縮小回縮驗證），全數零裁切。
+- Sidebar 收合：`collapsed` 目標寬度 0px 正確（背景分頁時 CSS transition 暫停屬瀏覽器行為）。
+
+**已知事項**：
+- `chartRenderer.js` 既有 `[SPC] doMark` 等 debug `console.log` 在單次渲染即輸出數千行（非本次引入），已另列待清理任務。
+
+---
+
 ## 2026-09-22
 **任務目標 (標籤位置切換 & 數據預覽移除 & 全量清理 - v1.3.1)**：
 1. 新增圖表限制線標籤左/右側位置切換功能，解決標籤遮擋數據點問題。
