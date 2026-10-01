@@ -5,7 +5,8 @@
 const ChartRenderer = (() => {
     const TREND_CHART_HEIGHT_RATIO = 0.8;
     const FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-    const COLOR_PALETTE = ['#8f6c14', '#d8b955', '#3fa96b', '#c96a1d', '#a49a82'];
+    // 數據色盤（藍色系）：數據一律為藍色、超出限界的點維持紅色，與暖色 UI 形成「暖底冷資料」對比
+    const COLOR_PALETTE = ['#2f6fdb', '#0f9bd7', '#234f9e', '#6d93c9', '#8a9bb5'];
     const OOS_COLOR = '#e0625b';
     // Inset Focus: transparent on screen (card surface shows through), solid white on PNG export
     const SCREEN_BG = 'rgba(0, 0, 0, 0)';
