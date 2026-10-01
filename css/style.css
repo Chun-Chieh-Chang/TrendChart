@@ -4,12 +4,12 @@
        Components share the base colour; depth comes from light & shadow only.
        ========================================================================== */
 
-    /* 基底色 (Base Surface) */
-    --surface: #ecf0f5;
-    --surface-deep: #e4e9f0;
-    --shade: rgba(163, 177, 198, 0.6);
-    --shade-soft: rgba(163, 177, 198, 0.4);
-    --light: rgba(255, 255, 255, 0.95);
+    /* 基底色 (Base Surface) — 鵝黃暖色 */
+    --surface: #f7f1dd;
+    --surface-deep: #f3ecd3;
+    --shade: rgba(197, 186, 155, 0.6);
+    --shade-soft: rgba(197, 186, 155, 0.4);
+    --light: rgba(255, 253, 245, 0.95);
 
     /* 凸起 / 內凹 (Raised & Inset) */
     --raised: 6px 6px 14px var(--shade), -6px -6px 14px var(--light);
@@ -17,27 +17,27 @@
     --inset: inset 4px 4px 9px var(--shade), inset -4px -4px 9px var(--light);
     --inset-sm: inset 2px 2px 5px var(--shade), inset -2px -2px 5px var(--light);
 
-    /* 文字 (Slate Typography) */
-    --text-primary: #3d4a5c;
-    --text-secondary: #6b7a90;
-    --text-muted: #8a97aa;
-    --divider: rgba(61, 74, 92, 0.08);
+    /* 文字 (Warm Typography) */
+    --text-primary: #4c4536;
+    --text-secondary: #83795f;
+    --text-muted: #a49a82;
+    --divider: rgba(76, 69, 54, 0.08);
 
-    /* 強調藍 (Accent Blue) */
-    --accent: #5b8def;
-    --accent-deep: #4a78d6;
-    --accent-soft: rgba(91, 141, 239, 0.14);
-    --accent-grad: linear-gradient(90deg, #7a9cc6 0%, #5b8def 100%);
+    /* 強調金 (Accent Gold) */
+    --accent: #8f6c14;
+    --accent-deep: #75570f;
+    --accent-soft: rgba(143, 108, 20, 0.16);
+    --accent-grad: linear-gradient(90deg, #c8a63f 0%, #8f6c14 100%);
 
-    /* 語意色 — 柔和 (Soft Semantic) */
+    /* 語意色 — 柔和 (Soft Semantic)：琥珀偏橙以與金色主色區隔 */
     --status-green: #3fa96b;
     --status-green-soft: rgba(63, 169, 107, 0.14);
-    --status-amber: #d4972f;
-    --status-amber-soft: rgba(212, 151, 47, 0.16);
+    --status-amber: #c96a1d;
+    --status-amber-soft: rgba(201, 106, 29, 0.16);
     --system-red: #e0625b;
     --system-red-soft: rgba(224, 98, 91, 0.14);
-    --system-red-light: #fef2f2;
-    --status-amber-light: #fffbeb;
+    --system-red-light: #fdf0ed;
+    --status-amber-light: #fbeee0;
 
     /* 舊變數映射 (referenced by app.js for Ca/Cpk grading & date hints) */
     --user-cobalt: var(--accent);
@@ -190,11 +190,11 @@ td {
     transform: rotate(180deg);
 }
 
-/* Title block with the soft blue rule underneath */
+/* Title block with the soft gold rule underneath */
 .sidebar-header {
     margin-bottom: 1.5rem;
     padding-bottom: 1.125rem;
-    border-bottom: 2px solid rgba(91, 141, 239, 0.35);
+    border-bottom: 2px solid rgba(143, 108, 20, 0.35);
 }
 
 .logo {
@@ -301,7 +301,7 @@ td {
 
 .drop-zone:hover,
 .drop-zone.active {
-    box-shadow: var(--inset), 0 0 0 2px rgba(91, 141, 239, 0.35);
+    box-shadow: var(--inset), 0 0 0 2px rgba(143, 108, 20, 0.35);
 }
 
 .drop-zone .lucide {
@@ -368,7 +368,7 @@ td {
     appearance: none;
     padding-right: 2.25rem;
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236b7a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2383795f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
 }
@@ -383,7 +383,7 @@ td {
 .custom-input:focus,
 .filter-search:focus {
     outline: none;
-    box-shadow: var(--inset-sm), 0 0 0 2px rgba(91, 141, 239, 0.4);
+    box-shadow: var(--inset-sm), 0 0 0 2px rgba(143, 108, 20, 0.4);
 }
 
 .custom-select option {
@@ -560,7 +560,7 @@ td {
 .icon-button:focus-visible,
 .label-side-btn:focus-visible,
 input[type="checkbox"]:focus-visible {
-    outline: 2px solid rgba(91, 141, 239, 0.55);
+    outline: 2px solid rgba(143, 108, 20, 0.55);
     outline-offset: 3px;
 }
 
@@ -600,7 +600,7 @@ input[type="checkbox"]:focus-visible {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #c9d1dc;
+    background: #d3cdb8;
     box-shadow: 1px 1px 3px var(--shade), -1px -1px 2px var(--light);
     transition: left 0.25s var(--ease), background 0.25s var(--ease);
 }
@@ -683,7 +683,7 @@ input[type="checkbox"]:focus-visible {
     white-space: nowrap;
 }
 
-/* Tabs — raised container, active tab pressed in with blue text */
+/* Tabs — raised container, active tab pressed in with gold text */
 .label-side-toggle {
     display: flex;
     flex: 1;
@@ -783,7 +783,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .card-icon.cyan {
-    background: rgba(107, 122, 144, 0.14);
+    background: rgba(131, 121, 95, 0.14);
     color: var(--text-secondary);
 }
 
@@ -1081,7 +1081,7 @@ input[type="checkbox"]:focus-visible {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(236, 240, 245, 0.72);
+    background: rgba(247, 241, 221, 0.72);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     display: flex;
@@ -1102,7 +1102,7 @@ input[type="checkbox"]:focus-visible {
 
 .modal-header {
     padding: 1.25rem 1.25rem 1.125rem 1.75rem;
-    border-bottom: 2px solid rgba(91, 141, 239, 0.35);
+    border-bottom: 2px solid rgba(143, 108, 20, 0.35);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1146,7 +1146,7 @@ input[type="checkbox"]:focus-visible {
     z-index: 9999;
     padding: 0.625rem 0.875rem;
     background: var(--text-primary);
-    color: #f5f7fa;
+    color: #faf7ee;
     border-radius: var(--radius-sm);
     box-shadow: 6px 6px 16px var(--shade);
     font-size: 0.8125rem;
@@ -1180,12 +1180,12 @@ input[type="checkbox"]:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #c9d1dc;
+    background: #d3cdb8;
     border-radius: var(--radius-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #aeb9c8;
+    background: #c8c1ac;
 }
 
 /* Lucide Uniform Sizing */
