@@ -4,12 +4,15 @@
        Components share the base colour; depth comes from light & shadow only.
        ========================================================================== */
 
-    /* 基底色 (Base Surface) — 鵝黃暖色 (淡) */
-    --surface: #fcfaf2;
-    --surface-deep: #f7f2e3;
-    --shade: rgba(193, 182, 153, 0.6);
-    --shade-soft: rgba(193, 182, 153, 0.4);
-    --light: rgba(255, 255, 253, 0.95);
+    /* 基底色 (Base Surface) — 淡綠 */
+    --surface: #edf7ee;
+    --surface-deep: #e5f1e7;
+    --shade: rgba(158, 186, 166, 0.6);
+    --shade-soft: rgba(158, 186, 166, 0.4);
+    --light: rgba(255, 255, 255, 0.95);
+
+    /* 頁面漸層 (Page Gradient) — 淡綠對角漸層 */
+    --bg-gradient: linear-gradient(145deg, #dcf0e1 0%, #eef8f0 42%, #e3f2e6 74%, #f3faf4 100%);
 
     /* 凸起 / 內凹 (Raised & Inset) */
     --raised: 6px 6px 14px var(--shade), -6px -6px 14px var(--light);
@@ -17,11 +20,11 @@
     --inset: inset 4px 4px 9px var(--shade), inset -4px -4px 9px var(--light);
     --inset-sm: inset 2px 2px 5px var(--shade), inset -2px -2px 5px var(--light);
 
-    /* 文字 (Warm Typography) */
-    --text-primary: #4c4536;
-    --text-secondary: #83795f;
-    --text-muted: #a49a82;
-    --divider: rgba(76, 69, 54, 0.08);
+    /* 文字 (Green-neutral Typography) */
+    --text-primary: #35473c;
+    --text-secondary: #6b7d72;
+    --text-muted: #8b9b91;
+    --divider: rgba(53, 71, 60, 0.08);
 
     /* 強調金 (Accent Gold) */
     --accent: #8f6c14;
@@ -82,7 +85,7 @@ html, body {
 
 body {
     font-family: var(--font-sans);
-    background: var(--surface);
+    background: var(--bg-gradient);
     color: var(--text-primary);
     line-height: 1.5;
     font-size: 14px;
@@ -109,7 +112,7 @@ td {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    background: var(--surface);
+    background: var(--bg-gradient);
 }
 
 .hidden {
@@ -600,7 +603,7 @@ input[type="checkbox"]:focus-visible {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: #d3cdb8;
+    background: #c9d4c9;
     box-shadow: 1px 1px 3px var(--shade), -1px -1px 2px var(--light);
     transition: left 0.25s var(--ease), background 0.25s var(--ease);
 }
@@ -783,7 +786,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .card-icon.cyan {
-    background: rgba(131, 121, 95, 0.14);
+    background: rgba(139, 155, 145, 0.14);
     color: var(--text-secondary);
 }
 
@@ -1081,7 +1084,7 @@ input[type="checkbox"]:focus-visible {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(252, 250, 242, 0.72);
+    background: rgba(237, 247, 238, 0.72);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     display: flex;
@@ -1146,7 +1149,7 @@ input[type="checkbox"]:focus-visible {
     z-index: 9999;
     padding: 0.625rem 0.875rem;
     background: var(--text-primary);
-    color: #faf7ee;
+    color: #f2faf4;
     border-radius: var(--radius-sm);
     box-shadow: 6px 6px 16px var(--shade);
     font-size: 0.8125rem;
@@ -1180,12 +1183,12 @@ input[type="checkbox"]:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #d3cdb8;
+    background: #c9d4c9;
     border-radius: var(--radius-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #c8c1ac;
+    background: #b4c2b4;
 }
 
 /* Lucide Uniform Sizing */

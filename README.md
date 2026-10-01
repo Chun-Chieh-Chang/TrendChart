@@ -1,6 +1,6 @@
 # Excel TrendChart Pro - 專業趨勢分析與精密數據工作台
 
-基於 **MECE 原則** (Mutually Exclusive, Collectively Exhaustive) 與「**Inset Focus（軟 UI 內凹設計）— 深度感源自光影**」設計系統，並採**鵝黃暖色調 (Warm Goose Yellow)** 色系建構的高階數據分析工具，確保功能邊界清晰、架構健壯且具備卓越的使用者體驗。
+基於 **MECE 原則** (Mutually Exclusive, Collectively Exhaustive) 與「**Inset Focus（軟 UI 內凹設計）— 深度感源自光影**」設計系統，並採**淡綠漸層 (Light Green Gradient)** 色系建構的高階數據分析工具，確保功能邊界清晰、架構健壯且具備卓越的使用者體驗。
 
 ---
 
@@ -36,7 +36,7 @@
 - **管制線控制**：支援 Target, USL/LSL, UCL/LCL 以及**管制中心線 (CL)** 的獨立顯示/隱藏開關，兩張圖表同步受控。
 - **多欄位對比**：常態分佈圖支援多 Y 欄位同時繪製曲線（直方圖預設隱藏避免雜亂），管制界限不受欄位數量限制。
 - **X 軸智慧範圍**：常態分佈圖自動擴展 X 軸範圍包含所有參考線（Target/USL/LSL/UCL/LCL）並加入 5% 邊距，防止標線被裁切。
-- **鵝黃暖色視覺系統**：採 **Inset Focus 軟 UI**（同色系 raised / inset 光影構成深度）搭配**鵝黃暖色調**——淡奶油黃表面 (`#fcfaf2`) × 暖褐灰文字 (`#4c4536`) × 深古金主色 (`#8f6c14`)，不使用外框線；**圖表數據一律藍色系**（5 階藍，首色 `#2f6fdb`），超出限界的數據點固定為警示紅 `#e0625b`；規格 / 管制 / 目標線與 Cpk 等級保留柔和語意色（綠 `#3fa96b`、焦橙 `#c96a1d`、紅 `#e0625b`），PNG 匯出自動白底。
+- **淡綠漸層視覺系統**：採 **Inset Focus 軟 UI**（同色系 raised / inset 光影構成深度）搭配**淡綠漸層**——145° 淡綠對角漸層背景 (`#dcf0e1 → #f3faf4`) × 淡綠元件底 (`#edf7ee`) × 綠灰文字 (`#35473c`) × 深古金主色 (`#8f6c14`)，不使用外框線；**圖表數據一律藍色系**（5 階藍，首色 `#2f6fdb`），超出限界的數據點固定為警示紅 `#e0625b`；規格 / 管制 / 目標線與 Cpk 等級保留柔和語意色（綠 `#3fa96b`、焦橙 `#c96a1d`、紅 `#e0625b`），PNG 匯出自動白底。
 - **高效能模式**：支援 WebGL (scattergl) 加速渲染，大數據集流暢無卡頓。
 - **標籤位置切換**：UCL/Target/LCL/USL/LSL 標籤可一鍵切換顯示於圖表左側或右側，避免遮擋數據點。
 - **自適應圖表高度**：趨勢圖與常態分佈圖統一填滿摘要列下方剩餘視窗高度（最小 420px，窄螢幕堆疊時各 460px），任何版面組合皆不裁切。
@@ -63,7 +63,7 @@
 | | 雙 Y 軸分析 | 顯示對比目標值的偏差百分比 (%)。 |
 | | 異常點高亮 | 數據點為藍色系；超出規格自動高亮為柔警示紅點 (`#e0625b`) 並放大尺寸。 |
 | | **雙 X 軸色階** | 主軸與副軸文字交替採用高對比暖色階（暖褐灰 / 中金 vs 暖灰 / 淺金）。 |
-| | **Inset Focus 風格** | 同色系 raised / inset 光影（凸起 / 內凹）、大圓角、淡鵝黃底、深古金主色；PNG 匯出維持白底。 |
+| | **Inset Focus 風格** | 同色系 raised / inset 光影（凸起 / 內凹）、大圓角、淡綠漸層底、深古金主色；PNG 匯出維持白底。 |
 
 ---
 
@@ -94,7 +94,7 @@
 本專案採模組化目錄結構，確保功能邊界清晰：
 
 - **`.github/workflows/`**：自動化 CI/CD 配置，支援 GitHub Actions 一鍵部署（靜態資源部署：`index.html` + `css/` + `js/` + `wiki/`）。
-- **`css/`**：視覺風格定義（Inset Focus 軟 UI · 鵝黃暖色調設計系統）。
+- **`css/`**：視覺風格定義（Inset Focus 軟 UI · 淡綠漸層設計系統）。
 - **`js/`**：核心邏輯層（零依賴、純原生 ES6+ 模組）。
   - `app.js`：UI 控制器、狀態管理與持久化（LocalStorage）。
   - `chartRenderer.js`：Plotly 渲染引擎（雙軸趨勢圖 + 常態分佈圖 + PNG 匯出）。
@@ -128,7 +128,7 @@
 
 ### 7.2 UI/UX 與視覺設計規格
 - **訊息密度**：維持高訊息密度設計，透過 **字體比例尺 (Typography Scale)** (Hero, Primary, Secondary, Micro) 明確區分資訊層級。
-- **視覺風格**：全站套用 **Inset Focus 軟 UI ＋ 鵝黃暖色調 (Warm Goose Yellow)**：淡鵝黃表面 `#fcfaf2`、暖褐灰文字 `#4c4536`、深古金主色 `#8f6c14`，深度完全來自同色系 raised / inset 光影（不使用外框線）；**圖表數據（折線 / 數據點 / 直方圖 / 常態曲線 / σ 標記）統一為藍色系**，僅超出限界之數據點維持警示紅 `#e0625b`；其餘語意色僅用於數據判讀且降低彩度：綠 `#3fa96b`、焦橙 `#c96a1d`、紅 `#e0625b`。尊重 `prefers-reduced-motion`。
+- **視覺風格**：全站套用 **Inset Focus 軟 UI ＋ 淡綠漸層 (Light Green Gradient)**：頁面 `--bg-gradient`（`#dcf0e1 → #f3faf4`）、淡綠元件底 `#edf7ee`、綠灰文字 `#35473c`、深古金主色 `#8f6c14`，深度完全來自同色系 raised / inset 光影（不使用外框線）；**圖表數據（折線 / 數據點 / 直方圖 / 常態曲線 / σ 標記）統一為藍色系**，僅超出限界之數據點維持警示紅 `#e0625b`；其餘語意色僅用於數據判讀且降低彩度：綠 `#3fa96b`、焦橙 `#c96a1d`、紅 `#e0625b`。尊重 `prefers-reduced-motion`。
 - **微動效規範**：互動元件使用 `0.2s cubic-bezier(0.16, 1, 0.3, 1)` 過渡，開關圓點 `0.25s` 滑移。
 - **字體體系**：
   - **原生堆疊**：`var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif)`，避免外部字體加載造成的排版位移 (Reflow/CLS)。

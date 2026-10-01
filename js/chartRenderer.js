@@ -207,7 +207,7 @@ const ChartRenderer = (() => {
                     size: markerSizes,
                     color: markerColors,
                     line: {
-                        color: '#fffdf7',
+                        color: '#f4fbf6',
                         width: validPoints.map((pt, i) => markerColors[i] === OOS_COLOR ? 1.5 : 0)
                     }
                 }
@@ -259,8 +259,8 @@ const ChartRenderer = (() => {
                 xanchor: isLabelLeft ? 'left' : 'right',
                 yanchor: 'bottom',
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(252, 250, 242, 0.92)',
-                bordercolor: '#dedaca',
+                bgcolor: 'rgba(237, 247, 238, 0.92)',
+                bordercolor: '#cddacd',
                 borderwidth: 1,
                 borderpad: 2
             });
@@ -288,7 +288,7 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}數據趨勢圖 (${yColumns.join(', ')})`,
-                font: { family: FONT_FAMILY, color: '#4c4536', size: 14 },
+                font: { family: FONT_FAMILY, color: '#35473c', size: 14 },
                 y: 0.98,
                 yanchor: 'top'
             },
@@ -299,14 +299,14 @@ const ChartRenderer = (() => {
             xaxis: {
                 title: {
                     text: xColumn,
-                    font: { family: FONT_FAMILY, color: '#4c4536', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#35473c', size: 11 }
                 },
                 type: 'category',
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 主 X 軸交替色階：暖褐灰 (#4c4536) 與 強調金 (#b08820)
-                    const colors = ['#4c4536', '#b08820'];
+                    // 主 X 軸交替色階：綠灰 (#35473c) 與 強調金 (#b08820)
+                    const colors = ['#35473c', '#b08820'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn], isXDate);
@@ -318,8 +318,8 @@ const ChartRenderer = (() => {
                         return `<span style="color: ${colors[colorIdx]}; font-weight: ${isAlt ? '700' : '600'};">${val}</span>`;
                     });
                 })(),
-                gridcolor: 'rgba(76, 69, 54, 0.06)',
-                zerolinecolor: '#dedaca',
+                gridcolor: 'rgba(53, 71, 60, 0.06)',
+                zerolinecolor: '#cddacd',
                 tickfont: { family: FONT_FAMILY, size: 10 },
                 range: [-0.5, chartData.length - 0.5],
                 automargin: true,
@@ -328,15 +328,15 @@ const ChartRenderer = (() => {
             yaxis: {
                 title: {
                     text: '數值',
-                    font: { family: FONT_FAMILY, color: '#4c4536', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#35473c', size: 11 }
                 },
-                gridcolor: 'rgba(76, 69, 54, 0.08)',
-                zerolinecolor: '#dedaca',
-                tickfont: { family: FONT_FAMILY, color: '#83795f', size: 10 },
+                gridcolor: 'rgba(53, 71, 60, 0.08)',
+                zerolinecolor: '#cddacd',
+                tickfont: { family: FONT_FAMILY, color: '#6b7d72', size: 10 },
                 anchor: 'x'
             },
             legend: {
-                font: { family: FONT_FAMILY, color: '#4c4536', size: 11 },
+                font: { family: FONT_FAMILY, color: '#35473c', size: 11 },
                 orientation: 'h', y: -0.25
             },
             margin: { t: xColumn2 ? 110 : 70, r: isLabelLeft ? 40 : 80, l: isLabelLeft ? 100 : 60, b: 110 }
@@ -346,14 +346,14 @@ const ChartRenderer = (() => {
             layout.xaxis2 = {
                 title: {
                     text: xColumn2,
-                    font: { family: FONT_FAMILY, color: '#83795f', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#6b7d72', size: 11 }
                 },
                 type: 'category',
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 頂部副 X 軸交替色階：次要暖灰 (#83795f) 與 淺金 (#d8b955)
-                    const colors = ['#83795f', '#d8b955'];
+                    // 頂部副 X 軸交替色階：次要綠灰 (#6b7d72) 與 淺金 (#d8b955)
+                    const colors = ['#6b7d72', '#d8b955'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn2], isX2Date);
@@ -377,12 +377,12 @@ const ChartRenderer = (() => {
             layout.yaxis2 = {
                 title: {
                     text: '偏離目標 (%)',
-                    font: { family: FONT_FAMILY, color: '#83795f', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#6b7d72', size: 11 }
                 },
                 overlaying: 'y',
                 side: 'right',
                 showgrid: false,
-                tickfont: { family: FONT_FAMILY, color: '#83795f', size: 10 },
+                tickfont: { family: FONT_FAMILY, color: '#6b7d72', size: 10 },
                 ticksuffix: '%'
             };
         }
@@ -657,8 +657,8 @@ const ChartRenderer = (() => {
                 text: `<b>${label}: ${yAdj.toFixed(4)}</b>`,
                 showarrow: false,
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(252, 250, 242, 0.92)',
-                bordercolor: '#dedaca',
+                bgcolor: 'rgba(237, 247, 238, 0.92)',
+                bordercolor: '#cddacd',
                 borderwidth: 1,
                 borderpad: 2
             });
@@ -700,7 +700,7 @@ const ChartRenderer = (() => {
         const layout = {
             title: {
                 text: `${sheetName ? sheetName + ' ' : ''}常態分佈對比分析`,
-                font: { family: FONT_FAMILY, color: '#4c4536', size: 14 }
+                font: { family: FONT_FAMILY, color: '#35473c', size: 14 }
             },
             paper_bgcolor: SCREEN_BG,
             plot_bgcolor: SCREEN_BG,
@@ -709,24 +709,24 @@ const ChartRenderer = (() => {
             xaxis: {
                 title: {
                     text: '數值',
-                    font: { family: FONT_FAMILY, color: '#4c4536', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#35473c', size: 11 }
                 },
-                gridcolor: 'rgba(76, 69, 54, 0.06)',
-                zerolinecolor: '#dedaca',
-                tickfont: { family: FONT_FAMILY, color: '#83795f', size: 10 },
+                gridcolor: 'rgba(53, 71, 60, 0.06)',
+                zerolinecolor: '#cddacd',
+                tickfont: { family: FONT_FAMILY, color: '#6b7d72', size: 10 },
                 range: [globalMin, globalMax]
             },
             yaxis: {
                 title: {
                     text: '密度',
-                    font: { family: FONT_FAMILY, color: '#4c4536', size: 11 }
+                    font: { family: FONT_FAMILY, color: '#35473c', size: 11 }
                 },
-                gridcolor: 'rgba(76, 69, 54, 0.08)',
-                zerolinecolor: '#dedaca',
-                tickfont: { family: FONT_FAMILY, color: '#83795f', size: 10 }
+                gridcolor: 'rgba(53, 71, 60, 0.08)',
+                zerolinecolor: '#cddacd',
+                tickfont: { family: FONT_FAMILY, color: '#6b7d72', size: 10 }
             },
             legend: {
-                font: { family: FONT_FAMILY, color: '#4c4536', size: 11 },
+                font: { family: FONT_FAMILY, color: '#35473c', size: 11 },
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 110 },
