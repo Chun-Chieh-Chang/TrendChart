@@ -259,7 +259,7 @@ const ChartRenderer = (() => {
                 xanchor: isLabelLeft ? 'left' : 'right',
                 yanchor: 'bottom',
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(250, 247, 236, 0.92)',
+                bgcolor: 'rgba(252, 250, 242, 0.92)',
                 bordercolor: '#dedaca',
                 borderwidth: 1,
                 borderpad: 2
@@ -657,7 +657,7 @@ const ChartRenderer = (() => {
                 text: `<b>${label}: ${yAdj.toFixed(4)}</b>`,
                 showarrow: false,
                 font: { family: FONT_FAMILY, color: color, size: 10 },
-                bgcolor: 'rgba(250, 247, 236, 0.92)',
+                bgcolor: 'rgba(252, 250, 242, 0.92)',
                 bordercolor: '#dedaca',
                 borderwidth: 1,
                 borderpad: 2
