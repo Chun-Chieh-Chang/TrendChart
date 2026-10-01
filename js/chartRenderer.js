@@ -305,8 +305,8 @@ const ChartRenderer = (() => {
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 主 X 軸交替色階：深綠灰 (#35473c) 與 主題深金 (#8f6c14)——金 = 全站 accent，對比 4.43:1
-                    const colors = ['#35473c', '#8f6c14'];
+                    // 主 X 軸交替色階：深綠灰 (#35473c) 與 明金 (#9c7f20)——比 accent 深金亮兩階，對比 3.50:1
+                    const colors = ['#35473c', '#9c7f20'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn], isXDate);
@@ -352,8 +352,8 @@ const ChartRenderer = (() => {
                 tickmode: 'array',
                 tickvals: chartData.map((_, i) => i),
                 ticktext: (() => {
-                    // 頂部副 X 軸交替色階：中綠灰 (#55695e) 與 主題深金 (#8f6c14)——深金與主軸一致、灰階與主軸區隔
-                    const colors = ['#55695e', '#8f6c14'];
+                    // 頂部副 X 軸交替色階：中綠灰 (#55695e) 與 明金 (#9c7f20)——與主軸交替金一致
+                    const colors = ['#55695e', '#9c7f20'];
                     let colorIdx = 0;
                     return chartData.map((row, i) => {
                         const val = formatX(row[xColumn2], isX2Date);
