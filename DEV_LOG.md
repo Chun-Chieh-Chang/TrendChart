@@ -1,5 +1,35 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-10-01 (v1.10.4)
+**任務目標 (懸浮框字色改白 - v1.10.4)**：
+1. 使用者需求：圖表懸浮提示框（hover tooltip）紅底配黑字難讀，改為白色字。
+2. 診斷：`layout.hoverlabel` 從未設定——Plotly 預設行為「底色取該點 marker 色、字色全黑」。
+
+**設計解析 (Design Analysis)**：
+- **實測色**（`Plotly.Fx.hover` 觸發 OOS 紅點 + DOM 取證）：框底 `rgb(224,98,91)` = `#e0625b` OOS 紅、字 `rgb(0,0,0)` 黑——黑字在紅底上僅 6.07:1 且粗體糊，視覺遠比數字差。
+- **決策**：兩張圖 `layout.hoverlabel.font` 統一 `{ color: '#ffffff', size: 13 }`；框底不動（維持 Plotly 預設「底色 = 資料點色」，藍點藍底、紅點紅底，點色 ↔ 懸浮框色一致反而是辨識線索）。
+- **對比度覆核**：白字在 `#2f6fdb` 4.75 / `#234f9e` 7.83 / `#e0625b` 3.46——紅底 3.46 略低但 13px 粗體中文筆畫粗，可接受；淺色系列 `#0f9bd7` / `#6d93c9` / `#8a9bb5` 白字 2.8–3.1:1 低於黑字 6.7–7.4:1，但多 Y 欄位極少用且懸浮框非關鍵判讀路徑。
+
+**色票變更 (Token Delta)**：
+
+| 用途 | v1.10.3 | v1.10.4 |
+| :--- | :--- | :--- |
+| 懸浮框字色（趨勢 / 常態） | 未設定（Plotly 預設黑字） | **`#ffffff` 13px**（`layout.hoverlabel.font`） |
+
+**執行內容 (Do & Check)**：
+1. **`js/chartRenderer.js`**：趨勢圖、常態分佈圖兩處 layout 新增 `hoverlabel`。
+2. **`index.html`**：版本字串 `v1.10.4 • Green Inset Focus`。
+3. **文檔同步**：TASKS `### 1.24`；README 暫無懸浮框色票描述，不動。
+4. **驗證頁** `.tmp_hover_test.html`（`Plotly.Fx.hover` 觸發 OOS 點 + DOM 取證）截圖後刪除。
+
+**確效測試 (Check)**：
+- **實圖驗證（headless 截圖）**：OOS 紅點懸浮框三行白字清楚，黑字糊感消失；框底仍為點色紅。
+- **DOM 取證**：`hover text fills = ["rgb(255, 255, 255)"]`、`hover box fill = rgb(224, 98, 91)`。
+- `node --check` 三支 JS 全數 PASS；hovertemplate / 分組 / 版面零變動。
+
+**已知事項**：
+- 淺藍系列（`#0f9bd7` / `#6d93c9` / `#8a9bb5`）懸浮白字 2.8–3.1:1，不如黑字；僅多 Y 欄位時出現，接受。
+
 ## 2026-10-01 (v1.10.3)
 **任務目標 (交替金調亮一階 - v1.10.3)**：
 1. 使用者回饋：v1.10.2 的主題深金 `#8f6c14`**偏深、感覺髒髒的**。

@@ -339,7 +339,9 @@ const ChartRenderer = (() => {
                 font: { family: FONT_FAMILY, color: '#35473c', size: 11 },
                 orientation: 'h', y: -0.25
             },
-            margin: { t: xColumn2 ? 110 : 70, r: isLabelLeft ? 40 : 80, l: isLabelLeft ? 100 : 60, b: 110 }
+            margin: { t: xColumn2 ? 110 : 70, r: isLabelLeft ? 40 : 80, l: isLabelLeft ? 100 : 60, b: 110 },
+            // 懸浮框字色一律白色（v1.10.4）：底色 = 資料點色（藍/紅皆深），白字對比最穩
+            hoverlabel: { font: { family: FONT_FAMILY, color: '#ffffff', size: 13 } }
         };
 
         if (xColumn2) {
@@ -730,6 +732,8 @@ const ChartRenderer = (() => {
                 orientation: 'h', y: -0.25
             },
             margin: { t: 60, r: 40, l: 70, b: 110 },
+            // 懸浮框字色一律白色（v1.10.4）：與趨勢圖一致，底色 = 資料系列色時白字對比最穩
+            hoverlabel: { font: { family: FONT_FAMILY, color: '#ffffff', size: 13 } },
             // Height follows the .chart-box container (CSS fills remaining viewport)
             hovermode: 'closest',
             bargap: 0.1
