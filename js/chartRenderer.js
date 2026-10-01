@@ -202,7 +202,7 @@ const ChartRenderer = (() => {
                 }),
                 hovertemplate: `<b>${xColumn}: %{customdata.x1}</b>${xColumn2 ? `<br><b>${xColumn2}: %{customdata.x2}</b>` : ''}<br>${yCol}: %{y:.4f}<extra></extra>`,
                 type: validPoints.length > 500 ? 'scattergl' : 'scatter',
-                line: { width: 1, color: baseColor, dash: 'dash' },
+                line: { width: 0.75, color: baseColor, dash: '3px,3px' },
                 marker: {
                     size: markerSizes,
                     color: markerColors,

@@ -1,5 +1,30 @@
 # Development Log (SkillsBuilder Mode)
 
+## 2026-10-01 (v1.8.2)
+**任務目標 (虛線連線再細一階 - v1.8.2)**：
+1. 使用者需求：改用 `width: 0.75`，並同時縮短虛線段（dash 樣式）。
+2. 僅調整趨勢圖資料點連線的線寬與 dash；資料色、點尺寸、限界線、UI 一律不動。
+
+**設計解析 (Design Analysis)**：
+- **線寬**：`1` → **`0.75`**（Plotly 支援小數線寬）。HiDPI 上為清晰的 3/4 px 細線；1x 螢幕因反鋸齒會略淡——此風險已於 v1.8.1「已知事項」預告，使用者確認採用。
+- **dash 樣式**：Plotly 具名 `'dash'` 約為 6px 實線 / 6px 空白；改用**自訂 px 虛線列表 `'3px,3px'`**（Plotly `line.dash` 支援「px 長度列表」語法），實線段與空白同時縮短一半，配合 0.75 細線形成輕盈細虛線。
+- 依舊只動資料連線：常態曲線（1.5）、直方圖外框（1）、USL / LSL / UCL / LCL / CL 全部維持（延續 v1.8.1 決策）。
+
+**執行內容 (Do & Check)**：
+1. **`js/chartRenderer.js`**：`line: { width: 1, color: baseColor, dash: 'dash' }` → `line: { width: 0.75, color: baseColor, dash: '3px,3px' }`。
+2. **`index.html`**：版本字串 `v1.8.2 • Warm Inset Focus`。
+3. **臨時驗證頁**：`.tmp_dash_test.html`（40 筆 + 3 個超規格點，頁面內以 `getComputedStyle` 回報實際渲染值）驗證後刪除。
+
+**確效測試 (Check)**：
+- **DOM 實測（`--dump-dom` + `getComputedStyle`）**：資料線 `stroke-dasharray = 3px, 3px`、`stroke-width = 0.75px`、`stroke = rgb(47, 111, 219)`（= `#2f6fdb`）——證明自訂 dash 與 0.75 線寬皆已實際套用，未回退為 solid 或預設 dash。
+- **截圖實測（DPR 1 與 DPR 2）**：細虛線清晰可辨、連續性足夠；藍色資料點、3 個紅色超規格點、暖色限界線全數不受影響。
+- `node --check` PASS；CSS 零變動，版面零位移。
+
+**已知事項**：
+- 0.75px 線在 1x（非 HiDPI）螢幕上偏淡但可辨；若低解析度螢幕覺得吃力，建議 `width: 1` + `dash: '3px,3px'`（線略粗、虛線仍短）。
+
+---
+
 ## 2026-10-01 (v1.8.1)
 **任務目標 (數據點虛線連線變細 - v1.8.1)**：
 1. 使用者需求：圖表中數據點之間的虛線連線能否更細。

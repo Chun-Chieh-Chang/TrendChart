@@ -92,6 +92,13 @@
 - [x] **JS 語法驗證**：`node --check` 三支 JS 全數 PASS。
 - [x] **零 Console 錯誤回歸**：瀏覽器載入無任何 JS 錯誤。
 
+### 1.18 虛線連線再細一階 (v1.8.2)
+- [x] **線寬 0.75**：`line.width` `1` → `0.75`（3/4 px）。
+- [x] **縮短虛線段**：Plotly 具名 `'dash'`（約 6px / 6px）→ 自訂 `'3px,3px'`（實線段與空白各縮短一半）。
+- [x] **實測驗證**：以 `--dump-dom` + `getComputedStyle` 取得資料線 `stroke-dasharray = 3px, 3px`、`stroke-width = 0.75px`、`stroke = #2f6fdb`；DPR 1 / 2 截圖確認細虛線清晰、藍點紅點與限界線不受影響。
+- [x] **範圍控制**：僅動資料連線；常態曲線、直方圖外框、USL/LSL/UCL/LCL/CL 全部維持。
+- [x] **驗證**：`node --check` PASS；CSS 零變動（版面零位移）。
+
 ### 1.17 數據點虛線連線變細 (v1.8.1)
 - [x] **線寬調整**：趨勢圖數據點之間的虛線連線 `line.width` `1.5` → `1`（1px 髮絲線，減幅 33%）。
 - [x] **回歸原始偏好**：2026-07-02 該連線原始值即為 `width: 1`，重構期間被提高至 1.5，本次調回。
@@ -157,4 +164,4 @@
 
 ---
 *Last Updated: 2026-10-01*
-*Status: Active / Warm Inset Focus (v1.8.1)*
+*Status: Active / Warm Inset Focus (v1.8.2)*
